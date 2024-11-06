@@ -3,6 +3,6 @@
 </div>
 <div id="badges" align="center">
   <a href="https://t.me/Ow1Max">
-    <img src="https://img.shields.io/badge/Telegram-black?logo=telegram&logoColor=white&style=for-the-badge" alt="Telegram Badge"/>
+    <img src="https://img.shields.io/badge/Telegram-blue?logo=telegram&logoColor=white&style=for-the-badge)" alt="Telegram Badge"/>
   </a>
 </div>
