@@ -4,6 +4,6 @@
 <div id="badges" align="center">
   <img src="https://img.shields.io/badge/I%20%E2%99%A5%20JavaScript-003342?logo=javascript&logoColor=yellow&style=for-the-badge" alt="JavaScript Badge"/>
   <a href="https://t.me/Ow1Max">
-    <img src="https://img.shields.io/badge/Telegram-003342?logo=telegram&logoColor=white&style=for-the-badge" alt="Telegram Badge"/>
+    <img src="https://img.shields.io/badge/Telegram-003342?logo=telegram&logoColor=blue&style=for-the-badge" alt="Telegram Badge"/>
   </a>
 </div>
