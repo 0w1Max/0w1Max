@@ -3,6 +3,7 @@
 </div>
 <div id="badges" align="center">
   <a href="https://t.me/Ow1Max">
+    <img src="https://img.shields.io/badge/I%E2%99%A5JavaScript-003342?logo=javascript&logoColor=yellow&style=for-the-badge" alt="JavaScript Badge"/>
     <img src="https://img.shields.io/badge/Telegram-003342?logo=telegram&logoColor=white&style=for-the-badge" alt="Telegram Badge"/>
   </a>
 </div>
