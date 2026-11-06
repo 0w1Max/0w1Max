@@ -1,35 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="555" viewBox="0 0 1160 555" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="270" viewBox="0 0 1160 270" role="img" aria-labelledby="title desc">
 <title id="title">Максим Крупецков — веб-разработка, JavaScript и ИИ</title>
-<desc id="desc">Графитовая визитка разработчика: коммерческие сайты, собственные веб-приложения и автоматизация; WordFlow и Voqelis.</desc>
+<desc id="desc">Лаконичная тёмная обложка GitHub с бирюзовым акцентом и именем разработчика.</desc>
 <defs>
- <linearGradient id="surface" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111B29"/><stop offset="1" stop-color="#0D1520"/></linearGradient>
- <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#5EEAD4"/><stop offset="1" stop-color="#60A5FA"/></linearGradient>
- <linearGradient id="card" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#202C3B"/><stop offset="1" stop-color="#1A2533"/></linearGradient>
- <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#223143" stroke-width="0.6" opacity="0.22"/></pattern>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#141E2D"/>
+    <stop offset="1" stop-color="#0D1520"/>
+  </linearGradient>
+  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#5EEAD4"/>
+    <stop offset="1" stop-color="#60A5FA"/>
+  </linearGradient>
+  <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+    <path d="M42 0H0V42" fill="none" stroke="#304359" stroke-width="0.7" opacity="0.22"/>
+  </pattern>
 </defs>
-<rect width="1160" height="555" rx="24" fill="url(#surface)" />
-<rect width="1160" height="555" rx="24" fill="url(#grid)" />
-<rect x="1" y="1" width="1158" height="553" rx="23" fill="none" stroke="#334155" stroke-opacity="0.85" stroke-width="2"/>
-<circle cx="78" cy="58" r="5" fill="#5EEAD4"/>
-<text x="96" y="66" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="21" letter-spacing="0.4" fill="#A9B9CB">0w1Max / разработчик</text>
-<g transform="translate(1010 36)" fill="none" stroke="#5EEAD4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
- <rect x="0" y="0" width="68" height="46" rx="9" stroke-opacity="0.75"/>
- <path d="M16 15L27 23L16 31M35 32H52"/>
+<rect width="1160" height="270" rx="20" fill="url(#bg)"/>
+<rect width="1160" height="270" rx="20" fill="url(#grid)"/>
+<rect x="1" y="1" width="1158" height="268" rx="19" fill="none" stroke="#344256" stroke-width="2"/>
+<rect x="72" y="43" width="5" height="21" rx="2.5" fill="#5EEAD4"/>
+<text x="93" y="61" fill="#9CB0C6" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="20" letter-spacing="1.2">0w1Max / разработчик</text>
+<text x="72" y="141" fill="#F8FAFC" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-weight="700" font-size="64" letter-spacing="-1.5">Максим Крупецков</text>
+<text x="75" y="194" fill="url(#accent)" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-weight="600" font-size="29">Веб-разработка · JavaScript · ИИ</text>
+<path d="M72 226H1085" stroke="#3C5064" stroke-width="1"/>
+<text x="75" y="252" fill="#8FA3B9" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="17" letter-spacing=".5">Коммерческие сайты  /  веб-приложения  /  автоматизация</text>
+<g transform="translate(1020,53)" fill="none" stroke="#5EEAD4" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity=".9">
+ <rect x="0" y="0" width="64" height="48" rx="9"/>
+ <path d="M14 14L26 24L14 34M34 34H51"/>
 </g>
-<text x="75" y="163" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-weight="700" font-size="64" letter-spacing="-1.8" fill="#F8FAFC">Максим Крупецков</text>
-<text x="78" y="211" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="29" font-weight="600" fill="url(#accent)">Веб-разработка · JavaScript · ИИ</text>
-<text x="78" y="260" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="24" fill="#CFD9E5">Коммерческие сайты, собственные веб-приложения</text>
-<text x="78" y="293" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="24" fill="#CFD9E5">и инструменты для автоматизации.</text>
-<g>
- <rect x="76" y="325" width="494" height="142" rx="16" fill="url(#card)" stroke="#3C4B5C" stroke-width="1.4"/>
- <rect x="590" y="325" width="494" height="142" rx="16" fill="url(#card)" stroke="#3C4B5C" stroke-width="1.4"/>
- <rect x="99" y="349" width="5" height="56" rx="2.5" fill="#5EEAD4"/>
- <rect x="613" y="349" width="5" height="56" rx="2.5" fill="#5EEAD4"/>
- <text x="124" y="385" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="37" font-weight="700" fill="#F8FAFC">WordFlow</text>
- <text x="124" y="427" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="23" fill="#9CB0C6">JavaScript · Node.js</text>
- <text x="639" y="385" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="37" font-weight="700" fill="#F8FAFC">Voqelis</text>
- <text x="639" y="427" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="23" fill="#9CB0C6">Python · AI · Telegram</text>
-</g>
-<path d="M76 490H1084" stroke="#344257" stroke-width="1.4" opacity="0.8"/>
-<text x="78" y="527" font-family="Segoe UI, Arial, DejaVu Sans, sans-serif" font-size="18" font-weight="600" letter-spacing="2.1" fill="#A6B6C8">ПРОЕКТЫ  ·  ТЕХНОЛОГИИ  ·  КОНТАКТЫ</text>
 </svg>
