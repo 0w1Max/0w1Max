@@ -85,7 +85,16 @@ jobs:
             echo 'Ошибка: тестовый SVG запрещено публиковать как реальный'
             exit 1
           fi
-      - name: Обновить только preview/commando-activity.svg в ветке PR
+      - name: Создать отдельную версию пустынного каньона
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: 0w1Max
+          COMMANDO_MAP_SEED: '3'
+        run: |
+          node scripts/generate.mjs --output preview/desert-canyon.svg
+          python3 -c "import xml.etree.ElementTree as ET; ET.parse('preview/desert-canyon.svg')"
+          grep -q 'id="desert-canyon-v3"' preview/desert-canyon.svg
+      - name: Обновить оба SVG-предпросмотра в ветке PR
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -104,28 +113,28 @@ jobs:
               core.warning('Ветка обновлена за время проверки — устаревший SVG не публикуем.');
               return;
             }
-            const path = 'preview/commando-activity.svg';
-            const bytes = fs.readFileSync(path);
-            const blobSha = crypto.createHash('sha1')
-              .update('blob ' + bytes.length + '\0')
-              .update(bytes).digest('hex');
-            let previous;
-            try {
-              const result = await github.rest.repos.getContent({owner, repo, path, ref: branch});
-              if (Array.isArray(result.data)) throw new Error('Ожидался SVG-файл');
-              previous = result.data;
-            } catch(error) {
-              if (error.status !== 404) throw error;
+            const paths = ['preview/commando-activity.svg', 'preview/desert-canyon.svg'];
+            for (const path of paths) {
+              const bytes = fs.readFileSync(path);
+              const blobSha = crypto.createHash('sha1')
+                .update('blob ' + bytes.length + '\\0')
+                .update(bytes).digest('hex');
+              let previous;
+              try {
+                const response = await github.rest.repos.getContent({owner, repo, path, ref: branch});
+                if (Array.isArray(response.data)) throw new Error('Ожидался SVG-файл');
+                previous = response.data;
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+              if (previous?.sha === blobSha) {
+                core.info('SVG не изменился: ' + path);
+                continue;
+              }
+              const args = {owner,repo,path,branch,
+                content: bytes.toString('base64'),
+                message: 'chore(profile): обновить SVG-предпросмотр в Draft PR'};
+              if (previous) args.sha = previous.sha;
+              const written = await github.rest.repos.createOrUpdateFileContents(args);
+              core.info('Предпросмотр опубликован: ' + path + ' ' + written.data.commit.sha);
             }
-            if (previous?.sha === blobSha) {
-              core.info('SVG не изменился: коммит не нужен.');
-              return;
-            }
-            const args = {
-              owner, repo, path, branch,
-              content: bytes.toString('base64'),
-              message: 'chore(profile): обновить SVG-предпросмотр в Draft PR'
-            };
-            if (previous) args.sha = previous.sha;
-            const result = await github.rest.repos.createOrUpdateFileContents(args);
-            core.info('Предпросмотр опубликован в рабочей ветке: ' + result.data.commit.sha);
