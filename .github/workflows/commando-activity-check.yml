@@ -117,7 +117,7 @@ jobs:
             for (const path of paths) {
               const bytes = fs.readFileSync(path);
               const blobSha = crypto.createHash('sha1')
-                .update('blob ' + bytes.length + '\\0')
+                .update('blob ' + bytes.length + '\0')
                 .update(bytes).digest('hex');
               let previous;
               try {
