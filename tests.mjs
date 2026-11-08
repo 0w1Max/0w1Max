@@ -272,3 +272,46 @@ test('Seed изменяет маршрут и порядок выстрелов,
   assert.ok(same.segments.some(s=>s.kind==='run'));
   assert.ok(same.segments.some(s=>s.kind==='hop'));
 });
+
+test('После последнего попадания боец возвращается к старту настоящим маршрутом',()=>{
+  assert.ok(mission.finishAt>=mission.lastImpact);
+  assert.ok(mission.returnStart>mission.finishAt);
+  assert.ok(mission.restoreStart>mission.returnStart);
+  assert.ok(mission.restoreEnd<mission.duration);
+  const tail=mission.segments.filter(s=>s.start>=mission.returnStart);
+  assert.ok(tail.some(s=>['walk','run','hop','jump','drop'].includes(s.kind)),
+    'После победы должно оставаться движение');
+  for(let i=1;i<tail.length;i++){
+    assert.ok(Math.abs(tail[i].x0-tail[i-1].x1)<.001,'Скачок X между сегментами');
+    assert.ok(Math.abs(tail[i].y0-tail[i-1].y1)<.001,'Скачок Y между сегментами');
+  }
+  const final=mission.segments.at(-1);
+  assert.equal(final.x1,mission.initial.x);
+  assert.equal(final.y1,mission.initial.footY);
+  assert.equal(final.facing,mission.initial.facing);
+  assert.equal(final.kind,'idle');
+});
+
+test('На разных seed и на пустой карте финал остаётся бесшовным',()=>{
+  const empty=grid.map(w=>w.map(d=>d?{...d,level:0,count:0}:null));
+  const cases=[createMission(empty,buildLevel(empty,'0w1Max',14)),
+    ...[17,39,68].map(seed=>createMission(grid,buildLevel(grid,'0w1Max',seed)))];
+  for(const plan of cases){
+    const last=plan.segments.at(-1);
+    assert.equal(last.x1,plan.initial.x);
+    assert.equal(last.y1,plan.initial.footY);
+    assert.equal(last.facing,'right');
+    assert.ok(plan.restoreEnd>plan.restoreStart);
+    assert.ok(plan.restoreEnd<plan.duration);
+  }
+});
+
+test('SVG плавно восстанавливает клетки и не телепортирует игрока',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  assert.match(svg,/id="mission-complete"/);
+  // Надпись появляется только после завершения миссии, затем плавно исчезает.
+  assert.match(svg,/attributeName="opacity" calcMode="linear"/);
+  // Отказ от принудительной замены последней позиции в рендере.
+  assert.match(svg,/id="blue-commando"/);
+  assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
+});

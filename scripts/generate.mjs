@@ -68,21 +68,41 @@ export function normalizeWeeks(weeks) {
 }
 
 function gridMarkup(grid,mission) {
-  const impacts=new Map(); for(const s of mission.shots){if(!impacts.has(s.key))impacts.set(s.key,[]);impacts.get(s.key).push(s);}
+  const impacts=new Map();
+  for(const shot of mission.shots){
+    if(!impacts.has(shot.key))impacts.set(shot.key,[]);
+    impacts.get(shot.key).push(shot);
+  }
   let output='';
   for(let col=0;col<53;col++)for(let row=0;row<7;row++){
-    const d=grid[col][row];if(!d)continue;
-    const key=`${col}:${row}`;
-    const hits=impacts.get(key)??[];
+    const cell=grid[col][row];if(!cell)continue;
+    const key=`${col}:${row}`,hits=impacts.get(key)??[];
     const x=GRID_X+col*STEP,y=GRID_Y+row*STEP;
-    const title=`${d.date}: ${d.count} contributions`;
-    // Урон уменьшает яркость, финальный выстрел скрывает квадрат.
-    const keys=[0,...hits.map(s=>s.impact),mission.duration];
-    const opacities=['1',...hits.map(s=>s.finalHit?'0':'1'),'1'];
-    const shades=[COLORS[d.level],...hits.map(s=>s.finalHit?COLORS[1]:COLORS[Math.min(d.level,s.hpAfter+1)]),COLORS[d.level]];
-    const child=hits.length ? animationAttr('opacity',keys,opacities,mission.duration)
-      +animationAttr('fill',keys,shades,mission.duration) : '';
-    output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[d.level]}"><title>${escapeXml(title)}</title>${child}</rect>`;
+    const title=`${cell.date}: ${cell.count} contributions`;
+    let child='';
+    if(hits.length){
+      // Повреждение и исчезновение — мгновенные события; восстановление
+      // происходит плавно по столбцам, пока боец возвращается к старту.
+      const fade=.3;
+      const range=mission.restoreEnd-mission.restoreStart-fade;
+      const share=(col+row*.04)/(52+.24);
+      const at=round(mission.restoreStart+share*range);
+      const end=round(at+fade);
+      const keys=[0],opacity=['1'];
+      for(const shot of hits){
+        keys.push(round(shot.impact-.001),shot.impact);
+        opacity.push(opacity.at(-1),shot.finalHit?'0':'1');
+      }
+      keys.push(at,end,mission.duration);
+      opacity.push('0','1','1');
+      // Интерполяция между совпадающими состояниями эквивалентна удержанию:
+      // 0.001 секунды на разрушение; 0.3 секунды на восстановление.
+      child+=animationAttr('opacity',keys,opacity,mission.duration,'linear');
+      const shadeKeys=[0,...hits.map(h=>h.impact),at,mission.duration];
+      const shades=[COLORS[cell.level],...hits.map(h=>h.finalHit?COLORS[1]:COLORS[Math.min(cell.level,h.hpAfter+1)]),COLORS[cell.level],COLORS[cell.level]];
+      child+=animationAttr('fill',shadeKeys,shades,mission.duration);
+    }
+    output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[cell.level]}"><title>${escapeXml(title)}</title>${child}</rect>`;
   }
   return output;
 }
@@ -180,8 +200,11 @@ function playerMarkup(mission) {
       }
     } else add(s.end,s.x1,s.y1);
   }
-  if(keys.at(-1)!==d) add(d,mission.initial.x,mission.initial.footY);
-  else {keys[keys.length-1]=d;moves[moves.length-1]=`${mission.initial.x} ${mission.initial.footY-WORLD.spriteSize}`;}
+  // Не подменять последнюю позицию стартовой: планировщик ОБЯЗАН
+  // физически завершить маршрут там, где начинается новый цикл.
+  if(keys.at(-1)!==d)throw new Error('Маршрут бойца не доходит до конца SVG');
+  const startPoint=`${fmt(mission.initial.x)} ${fmt(mission.initial.footY-WORLD.spriteSize)}`;
+  if(moves.at(-1)!==startPoint)throw new Error('Анимация не замкнута: скачок позиции на стыке');
   const motion=`<animateTransform attributeName="transform" type="translate" calcMode="linear" keyTimes="${keys.map(t=>keyPct(t,d)).join(';')}" values="${moves.join(';')}" dur="${fmt(d)}s" repeatCount="indefinite"/>`;
   // Кадры переключаются только при событиях; внутри run — 4 фазы шага.
   const marks=[{t:0,frame:'idle-a',face:'right'}];
@@ -316,8 +339,11 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   }
   const top=`<rect x="65" y="27" width="1070" height="190" fill="#030e14" fill-opacity=".77" rx="6" stroke="#294c45" stroke-width="2"/><text x="72" y="20" font-family="monospace" font-size="18" fill="#a4f0b5">${escapeXml(username)} / GITHUB CONTRIBUTIONS</text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g>`;
   const missionEnd=mission.duration;
-  const finishedAt=round(Math.max(0,mission.lastImpact+.06));
-  const missionComplete=animationAttr('opacity',[0,finishedAt,missionEnd-.09,missionEnd],['0','1','1','0'],missionEnd);
+  const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
+  const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
+  const fadeEnd=round(Math.min(fadeBegin+.55,missionEnd-.10));
+  const missionComplete=animationAttr('opacity',
+    [0,round(finishedAt-.001),finishedAt,fadeBegin,fadeEnd,missionEnd],['0','0','1','1','0','0'],missionEnd,'linear');
   const done=`<g id="mission-complete" opacity="0">${missionComplete}<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text></g>`;
   const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
   return `${header}${scene}${defs}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}</svg>\n`;

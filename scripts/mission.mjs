@@ -342,12 +342,36 @@ export function createMission(grid,level){
   }
   const lastImpact=shots.reduce((v,s)=>Math.max(v,s.impact),t);
   if(t<lastImpact)segment('aim',lastImpact-t);
-  segment('clear',1.25);
+  // Победная поза не телепортирует бойца: после неё он реально проходит
+  // остаток уровня, перепрыгивая препятствия и спускаясь с платформ.
+  const finishAt=round(t);
+  segment('victory',.78);
+  const returnStart=round(t);
+  const spawnX=90;
+  moveTo({x:spawnX,footY:WORLD.groundY,platform:null});
+  // Если финиш оказался рядом со стартом, устраиваем короткое патрулирование
+  // с прыжком на безопасном левом участке, вместо искусственного ожидания.
+  if(t-returnStart<1.5){
+    moveGround(165);
+    leapTo(215,WORLD.groundY,'hop');
+    moveGround(spawnX);
+  }
+  if(Math.abs(player.x-spawnX)>.0001 || player.footY!==WORLD.groundY)
+    throw new Error('Боец не вернулся на старт перед повтором');
+  if(player.facing!=='right')segment('turn',.22,spawnX,WORLD.groundY,'right');
+  // Стартовый и заключительный кадры совпадают (x, y, направление, idle).
+  segment('idle',.85,spawnX,WORLD.groundY,'right');
   const duration=round(t);
+  const restoreStart=round(returnStart+.12);
+  const restoreEnd=round(duration-.12);
+  if(restoreEnd-restoreStart<.6)
+    throw new Error('Недостаточно времени для плавного восстановления поля');
   if(duration>720)throw new Error(`Непрактичная длительность анимации: ${duration}с`);
   if(used.size!==targets.length || live.size!==0)
     throw new Error(`Не все квадраты обработаны: ${used.size}/${targets.length}`);
   const totalHp=targets.reduce((sum,cell)=>sum+cell.maxHp,0);
   if(shots.length!==totalHp)throw new Error(`Недостаточно попаданий: ${shots.length}/${totalHp}`);
-  return {duration,segments,shots,jumps,level,targets:targets.length,totalHp,targetOrder,initial:{x:90,footY:WORLD.groundY},lastImpact};
+  return {duration,segments,shots,jumps,level,targets:targets.length,totalHp,targetOrder,
+    initial:{x:spawnX,footY:WORLD.groundY,facing:'right'},lastImpact,finishAt,
+    returnStart,restoreStart,restoreEnd};
 }
