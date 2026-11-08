@@ -1,165 +1,237 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { gunzipSync } from 'node:zlib';
+import {readFile} from 'node:fs/promises';
+import {gunzipSync} from 'node:zlib';
 import {normalizeWeeks,renderSvg} from './scripts/generate.mjs';
-import {buildLevel,createMission,WORLD,hpForLevel,firstLiveIntersection} from './scripts/mission.mjs';
-const fixture=JSON.parse(gunzipSync(Buffer.from((await readFile('fixtures/demo-calendar.json.gz.b64','utf8')).trim(),'base64')).toString('utf8'));
-const sprites=JSON.parse(gunzipSync(Buffer.from((await readFile('assets/sprites.json.gz.b64','utf8')).trim(),'base64')).toString('utf8'));
-test('Календарь нормализуется в 53 × 7',()=>{
-  const weeks=normalizeWeeks(fixture.weeks);
-  assert.equal(weeks.length,53);
-  assert.ok(weeks.every(x=>x.length===7));
-  assert.equal(weeks[5][1].date,fixture.weeks[5].contributionDays[1].date);
+import {buildLevel,createMission,WORLD,hpForLevel,firstLiveIntersection,aimGeometry} from './scripts/mission.mjs';
+
+async function loadCompressedJson(path){
+  return JSON.parse(gunzipSync(Buffer.from((await readFile(path,'utf8')).trim(),'base64')).toString('utf8'));
+}
+const fixture=await loadCompressedJson('fixtures/demo-calendar.json.gz.b64');
+const sprites=await loadCompressedJson('assets/sprites.json.gz.b64');
+const grid=normalizeWeeks(fixture.weeks);
+const level=buildLevel(grid,'0w1Max');
+const mission=createMission(grid,level);
+const active=grid.flat().filter(d=>d && d.level>0).length;
+const totalHp=grid.flat().reduce((sum,d)=>sum+hpForLevel(d?.level??0),0);
+
+test('Календарь нормализуется в 53 × 7, исходные даты сохраняются',()=>{
+  assert.equal(grid.length,53);
+  assert.ok(grid.every(x=>x.length===7));
+  assert.equal(grid[5][1].date,fixture.weeks[5].contributionDays[1].date);
 });
-test('Анимация содержит штатного бойца и выстрелы',()=>{
-  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
-  assert.ok(svg.includes('blue-commando'));
-  assert.ok(svg.includes('soldier-shoot-stand'));
-  assert.ok(svg.includes('repeatCount="indefinite"'));
-  assert.ok(svg.includes('GITHUB CONTRIBUTIONS'));
-  assert.ok(svg.includes('DEMO / TEST DATA'));
-  assert.ok(svg.includes('Прицельный выстрел 1'));
-  assert.ok(svg.includes('xmlns="http://www.w3.org/2000/svg"'));
+
+test('Спрайты бойца представлены отдельными игровыми кадрами',()=>{
+  assert.ok(Object.keys(sprites).length>=16);
+  for(const name of ['idle-a','run-a','run-b','run-c','run-d','jump','aim','shoot-stand']){
+    assert.ok(sprites[name],`Нет спрайта: ${name}`);
+  }
 });
-test('Неверный уровень активности блокируется',()=>{
+
+test('Полная зачистка: прочность всех клеток учтена',()=>{
+  assert.equal(mission.shots.length,totalHp);
+  assert.equal(mission.totalHp,totalHp);
+  assert.equal(mission.targets,active);
+  assert.equal(new Set(mission.shots.map(s=>s.key)).size,active);
+  assert.ok(mission.duration>20 && mission.duration<720);
+  assert.ok(mission.shots.every(s=>s.start<s.impact && s.impact<mission.duration));
+  assert.ok(mission.shots.every(s=>Math.abs(Math.hypot(s.x-s.origin.x,s.y-s.origin.y)-(s.impact-s.start)*780)<.15));
+});
+
+test('Пули и вспышки стартуют из реального дула при любой позе и повороте',()=>{
+  const tilts=new Set();
+  for(const shot of mission.shots){
+    const pose=aimGeometry(shot.playerX,shot.footY,shot.facing,shot.tilt);
+    tilts.add(shot.tilt);
+    assert.ok(Math.abs(shot.origin.x-pose.origin.x)<0.0002,`Ошибка дула X ${shot.key}`);
+    assert.ok(Math.abs(shot.origin.y-pose.origin.y)<0.0002,`Ошибка дула Y ${shot.key}`);
+    const ray={x:shot.x-shot.origin.x,y:shot.y-shot.origin.y};
+    const cross=ray.x*pose.barrel.y-ray.y*pose.barrel.x;
+    const dot=ray.x*pose.barrel.x+ray.y*pose.barrel.y;
+    assert.ok(Math.abs(cross)<.02,`Линия полёта не совпадает со стволом ${shot.key}`);
+    assert.ok(dot>0 && ray.y<0,`Обратный выстрел ${shot.key}`);
+    assert.equal(pose.barrel.x>0,shot.facing==='right');
+  }
+  assert.ok(tilts.size>2,'В разных точках должны использоваться разные углы прицеливания');
+});
+
+test('Движение в обе стороны, прыжки, платформы и стрельба с возвышения',()=>{
+  assert.ok(mission.segments.some(s=>s.kind==='run'&&s.facing==='right'));
+  assert.ok(mission.segments.some(s=>s.kind==='run'&&s.facing==='left'));
+  assert.ok(mission.jumps.some(s=>s.kind==='jump'));
+  assert.ok(mission.jumps.some(s=>s.kind==='drop'));
+  assert.ok(mission.jumps.some(s=>s.kind==='hop'));
+  assert.ok(mission.shots.some(s=>s.footY===WORLD.groundY));
+  assert.ok(mission.shots.some(s=>s.footY<WORLD.groundY));
+});
+
+test('Процедурная карта воспроизводима по seed и меняется при другом seed',()=>{
+  assert.deepEqual(buildLevel(grid,'0w1Max',1234),buildLevel(grid,'0w1Max',1234));
+  assert.notDeepEqual(buildLevel(grid,'0w1Max',1234),buildLevel(grid,'0w1Max',1235));
+  assert.deepEqual(createMission(grid,level),createMission(grid,level));
+});
+
+test('Карта ограничивает число платформ и преград, преграды не накладываются друг на друга',()=>{
+  for(let seed=0;seed<70;seed++){
+    const map=buildLevel(grid,'0w1Max',seed);
+    assert.ok(map.platforms.length>=1&&map.platforms.length<=2);
+    assert.ok(map.obstacles.length>=1&&map.obstacles.length<=3);
+    for(let i=0;i<map.obstacles.length;i++)for(let j=i+1;j<map.obstacles.length;j++){
+      assert.ok(Math.abs(map.obstacles[i].x-map.obstacles[j].x)>=180);
+    }
+  }
+});
+
+test('На 100 разных картах боец не проходит сквозь преграды во время бега',()=>{
+  for(let seed=0;seed<100;seed++){
+    const map=buildLevel(grid,'0w1Max',seed);
+    const plan=createMission(grid,map);
+    assert.equal(plan.shots.length,totalHp,`Не все попадания для seed=${seed}`);
+    for(const s of plan.segments.filter(s=>s.kind==='run'&&s.y0===WORLD.groundY&&s.y1===WORLD.groundY)){
+      for(let sample=0;sample<=20;sample++){
+        const x=s.x0+(s.x1-s.x0)*sample/20;
+        const collision=map.obstacles.find(o=>x+70>o.x && x+8<o.x+o.width);
+        assert.equal(collision,undefined,`Столкновение seed=${seed} t=${s.start}`);
+      }
+    }
+  }
+});
+
+test('Пустой календарь завершается корректно и не создаёт вымышленные выстрелы',()=>{
+  const empty=grid.map(week=>week.map(d=>d?{...d,level:0,count:0}:null));
+  const map=buildLevel(empty,'0w1Max',777);
+  const plan=createMission(empty,map);
+  assert.equal(plan.targets,0);
+  assert.equal(plan.shots.length,0);
+  assert.ok(plan.duration>0);
+});
+
+test('Недопустимый уровень активности блокируется',()=>{
   const copy=structuredClone(fixture.weeks);
   copy[0].contributionDays[0].contributionLevel='MADE_UP';
   assert.throws(()=>normalizeWeeks(copy));
 });
-test('Недопустимое количество недель блокируется',()=>{
+
+test('Недопустимое число недель блокируется',()=>{
   assert.throws(()=>normalizeWeeks(Array.from({length:56},()=>({contributionDays:[]}))));
 });
 
-test('SVG не содержит сторонних внешних адресов или скриптов',()=>{
+test('SVG включает карты, преграды, прицельные пули и финальную зачистку',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
-  assert.doesNotMatch(svg,/<script\b|<foreignObject\b|\s(?:href|src)=["\']https?:\/\//i);
+  for(const token of ['blue-commando','soldier-shoot-stand','repeatCount="indefinite"','GITHUB CONTRIBUTIONS','DEMO / TEST DATA','Прицельный выстрел 1','procedural-level','platform-0','obstacle-0','mission-complete']){
+    assert.ok(svg.includes(token),`Не найден SVG-маркер ${token}`);
+  }
+  assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
+  assert.equal((svg.match(/<rect x="[0-9]+" y="[0-9]+" width="17" height="17"/g)||[]).length,grid.flat().filter(Boolean).length);
+});
+
+test('SVG не содержит внешних адресов, скриптов, foreignObject и небезопасных источников',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  assert.doesNotMatch(svg,/<script\b|<foreignObject\b|\s(?:href|src)=["']https?:\/\//i);
   assert.match(svg,/id="contribution-grid"/);
   assert.match(svg,/id="blue-commando"/);
 });
-test('Реальный режим не помечен как демонстрационный',()=>{
+
+test('Настоящий режим не маскирует тестовые данные под реальные',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:false});
   assert.doesNotMatch(svg,/DEMO \/ TEST DATA/);
   assert.match(svg,/Календарь получен через API GitHub/);
 });
 
 
-const grid=normalizeWeeks(fixture.weeks), level=buildLevel(grid,'0w1Max'), mission=createMission(grid,level), active=grid.flat().filter(x=>x&&x.level>0).length, totalHp=grid.flat().reduce((n,d)=>n+hpForLevel(d?.level??0),0);
-test('Планировщик назначает нужное число попаданий в зависимости от HP',()=>{
- assert.equal(mission.shots.length,totalHp);
- assert.equal(mission.totalHp,totalHp);
- assert.equal(new Set(mission.shots.map(s=>s.key)).size,active);
- assert.ok(mission.shots.every(s=>s.impact>s.start && s.impact<mission.duration));
+test('HP по яркости GitHub: NONE=0, Q1/Q2=1, Q3=2, Q4=3',()=>{
+  assert.deepEqual([0,1,2,3,4].map(hpForLevel),[0,1,1,2,3]);
+  assert.throws(()=>hpForLevel(-1));
+  assert.throws(()=>hpForLevel(5));
 });
-test('Пули выходят из ствола и идут по диагонали к точной цели',()=>{
- for(const s of mission.shots){
-  assert.equal(s.origin.y,s.footY-WORLD.muzzleYFromFeet);
-  assert.equal(s.origin.x,s.playerX+(s.facing==='right'?WORLD.muzzleRightX:WORLD.muzzleLeftX));
-  assert.ok(s.y<s.origin.y);
-  assert.ok((s.x-s.origin.x)*(s.facing==='right'?1:-1)>0);
-  const angle=Math.atan2(Math.abs(s.x-s.origin.x),s.origin.y-s.y)*180/Math.PI;
-  assert.ok(angle>=13 && angle<=52);
- }
+
+test('Первое пересечение блокирует верхнюю клетку нижней, в том числе по диагонали',()=>{
+  const live=new Map([
+    ['bottom',{key:'bottom',col:5,row:6,x:180,y:204.5,hp:1}],
+    ['top',{key:'top',col:5,row:5,x:180,y:184.5,hp:1}]
+  ]);
+  const origin={x:120,y:312},end={x:180,y:184.5};
+  assert.equal(firstLiveIntersection(origin,end,live)?.key,'bottom');
+  live.get('bottom').hp=0;
+  assert.equal(firstLiveIntersection(origin,end,live)?.key,'top');
 });
-test('Боец ходит туда и обратно, перепрыгивает преграды, использует платформы',()=>{
- assert.ok(mission.segments.some(s=>s.kind==='run'&&s.facing==='right'));
- assert.ok(mission.segments.some(s=>s.kind==='run'&&s.facing==='left'));
- assert.ok(mission.jumps.some(s=>s.kind==='jump'));
- assert.ok(mission.jumps.some(s=>s.kind==='drop'));
- assert.ok(mission.jumps.some(s=>s.kind==='hop'));
- assert.ok(mission.shots.some(s=>s.footY<WORLD.groundY));
-});
-test('Карта детерминирована по seed и меняется при другом seed',()=>{
- assert.deepEqual(buildLevel(grid,'0w1Max',2026),buildLevel(grid,'0w1Max',2026));
- assert.notDeepEqual(buildLevel(grid,'0w1Max',2026),buildLevel(grid,'0w1Max',2027));
- assert.deepEqual(createMission(grid,level),createMission(grid,level));
-});
-test('Количество объектов ограничено, препятствия разделены безопасными интервалами',()=>{
- for(let seed=0;seed<60;seed++){
-  const map=buildLevel(grid,'0w1Max',seed);
-  assert.ok(map.obstacles.length>=1&&map.obstacles.length<=3);
-  assert.ok(map.platforms.length>=1&&map.platforms.length<=2);
-  for(let i=0;i<map.obstacles.length;i++)for(let j=i+1;j<map.obstacles.length;j++)assert.ok(Math.abs(map.obstacles[i].x-map.obstacles[j].x)>=180);
- }
-});
-test('100 процедурных карт: все цели поражаются, боец не пробегает через ящики',()=>{
- for(let seed=0;seed<100;seed++){
-  const map=buildLevel(grid,'0w1Max',seed),plan=createMission(grid,map);
-  assert.equal(plan.shots.length,totalHp);
-  for(const s of plan.segments.filter(s=>s.kind==='run'&&s.y0===WORLD.groundY&&s.y1===WORLD.groundY)){
-   for(let k=0;k<=20;k++){
-    const x=s.x0+(s.x1-s.x0)*k/20;
-    assert.ok(!map.obstacles.some(o=>x+70>o.x&&x+8<o.x+o.width));
-   }
+
+test('Зачистка идёт снизу вверх и никогда не пробивает живую клетку',()=>{
+  const live=new Map();
+  for(let col=0;col<53;col++)for(let row=0;row<7;row++){
+    const d=grid[col][row];if(!d||!d.level)continue;
+    live.set(`${col}:${row}`,{
+      key:`${col}:${row}`,col,row,x:WORLD.gridX+col*WORLD.step+WORLD.cell/2,
+      y:WORLD.gridY+row*WORLD.step+WORLD.cell/2,hp:hpForLevel(d.level)
+    });
   }
- }
-});
-test('Пустой календарь не создаёт вымышленных выстрелов',()=>{
- const empty=grid.map(w=>w.map(d=>d?{...d,level:0,count:0}:null));
- const plan=createMission(empty,buildLevel(empty,'0w1Max',777));
- assert.equal(plan.shots.length,0);
-});
-test('SVG содержит уровень, попадания, финал, но не содержит внешних скриптов',()=>{
- const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
- assert.ok(svg.includes('mission-complete')&&svg.includes('procedural-level')&&svg.includes('platform-0'));
- assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
- assert.doesNotMatch(svg,/<script\b|<foreignObject\b|\s(?:href|src)=["']https?:\/\//i);
-});
-
-
-test('HP по уровню активности: 0 / 1 / 1 / 2 / 3',()=>{
- assert.deepEqual([0,1,2,3,4].map(hpForLevel),[0,1,1,2,3]);
- assert.throws(()=>hpForLevel(5));
- assert.throws(()=>hpForLevel(-1));
+  for(const shot of mission.shots){
+    const state=live.get(shot.key);
+    assert.ok(state,`Неожиданная цель: ${shot.key}`);
+    assert.equal(firstLiveIntersection(shot.origin,shot,live)?.key,shot.key,`Перекрытие ${shot.key}`);
+    assert.ok(![...live.values()].some(cell=>cell.col===shot.col&&cell.row>shot.row&&cell.hp>0),`Нижняя клетка ещё жива: ${shot.key}`);
+    assert.equal(state.hp,shot.hpBefore);
+    state.hp--;
+    assert.equal(state.hp,shot.hpAfter);
+    if(state.hp===0)live.delete(shot.key);
+  }
+  assert.equal(live.size,0);
 });
 
-test('Первое столкновение: нижняя клетка закрывает верхнюю',()=>{
- const live=new Map([
-  ['lower',{key:'lower',col:2,row:6,x:180,y:204.5,hp:1}],
-  ['upper',{key:'upper',col:2,row:5,x:180,y:184.5,hp:1}],
- ]);
- const origin={x:120,y:312},goal={x:180,y:184.5};
- assert.equal(firstLiveIntersection(origin,goal,live)?.key,'lower');
- live.get('lower').hp=0;
- assert.equal(firstLiveIntersection(origin,goal,live)?.key,'upper');
+test('Каждый квадрат выдерживает строго заданное число выстрелов',()=>{
+  const grouped=new Map();
+  for(const shot of mission.shots){
+    if(!grouped.has(shot.key))grouped.set(shot.key,[]);
+    grouped.get(shot.key).push(shot);
+  }
+  assert.equal(grouped.size,active);
+  for(const [key,hits] of grouped){
+    const [col,row]=key.split(':').map(Number);
+    const hp=hpForLevel(grid[col][row].level);
+    assert.equal(hits.length,hp);
+    assert.ok(hits.slice(0,-1).every(s=>!s.finalHit&&s.hpAfter>0));
+    assert.equal(hits.at(-1).hpAfter,0);
+    assert.equal(hits.at(-1).finalHit,true);
+    assert.ok(hits.every((s,i)=>i===0||s.start>hits[i-1].impact));
+  }
 });
 
-test('Весь календарь уничтожается строго снизу вверх без прострела сквозь клетки',()=>{
- const live=new Map();
- for(let col=0;col<53;col++)for(let row=0;row<7;row++){
-  const d=grid[col][row];if(!d||!d.level)continue;
-  live.set(`${col}:${row}`,{key:`${col}:${row}`,col,row,
-   x:WORLD.gridX+col*WORLD.step+WORLD.cell/2,
-   y:WORLD.gridY+row*WORLD.step+WORLD.cell/2,hp:hpForLevel(d.level)});
- }
- for(const shot of mission.shots){
-  const state=live.get(shot.key);
-  assert.ok(state);
-  assert.equal(firstLiveIntersection(shot.origin,shot,live)?.key,shot.key);
-  assert.equal(state.hp,shot.hpBefore);
-  assert.ok(![...live.values()].some(v=>v.col===shot.col&&v.row>shot.row&&v.hp>0));
-  state.hp--;
-  assert.equal(state.hp,shot.hpAfter);
-  if(!state.hp)live.delete(shot.key);
- }
- assert.equal(live.size,0);
+test('SVG содержит промежуточное потускнение и восстановление по завершении цикла',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  assert.match(svg,/attributeName="fill"/);
+  assert.match(svg,/attributeName="opacity"/);
+  assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
 });
 
-test('Прочные клетки темнеют после попаданий, а затем уничтожаются',()=>{
- const byCell=new Map();
- for(const shot of mission.shots){
-  if(!byCell.has(shot.key))byCell.set(shot.key,[]);
-  byCell.get(shot.key).push(shot);
- }
- assert.equal(byCell.size,active);
- for(const [key,hits] of byCell){
-  const [col,row]=key.split(':').map(Number);
-  assert.equal(hits.length,hpForLevel(grid[col][row].level));
-  assert.ok(hits.slice(0,-1).every(x=>!x.finalHit&&x.hpAfter>0));
-  assert.equal(hits.at(-1).hpAfter,0);
-  assert.equal(hits.at(-1).finalHit,true);
- }
- const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
- assert.match(svg,/attributeName="fill"/);
- assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
+test('Вспышка создаётся в точке дула и не задваивается кадром shoot-stand',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  assert.equal((svg.match(/class="muzzle-flash"/g)||[]).length,totalHp);
+  assert.equal((svg.match(/class="bullet"/g)||[]).length,totalHp);
+  assert.match(svg,/href="#fx-muzzle"/);
+  assert.doesNotMatch(svg,/<use href="#soldier-shoot-stand"/);
+  assert.match(svg,/id="aim-upper"/);
+  assert.match(svg,/type="rotate" calcMode="discrete"/);
+  assert.match(svg,/type="translate" calcMode="linear"/);
+});
+
+test('Различаются короткие попадания и полноценные пиксельные взрывы',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  const destroyed=mission.shots.filter(s=>s.finalHit).length;
+  assert.equal(destroyed,active);
+  assert.equal((svg.match(/href="#fx-impact-break"/g)||[]).length,destroyed);
+  assert.equal((svg.match(/href="#fx-impact-damage"/g)||[]).length,totalHp-destroyed);
+  assert.match(svg,/id="fx-impact-break"/);
+  assert.match(svg,/type="scale" calcMode="linear"/);
+});
+
+test('Геометрия позиции корректно зеркалится при развороте бойца',()=>{
+  for(const angle of [-23,-7,0,14]){
+    const right=aimGeometry(200,374,'right',angle);
+    const left=aimGeometry(200,374,'left',angle);
+    assert.ok(Math.abs(right.origin.x+left.origin.x-(400+WORLD.spriteSize))<1e-9);
+    assert.ok(Math.abs(right.origin.y-left.origin.y)<1e-9);
+    assert.ok(Math.abs(right.barrel.x+left.barrel.x)<1e-9);
+    assert.ok(Math.abs(right.barrel.y-left.barrel.y)<1e-9);
+  }
 });

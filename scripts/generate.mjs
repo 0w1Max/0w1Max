@@ -8,28 +8,24 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { gunzipSync } from 'node:zlib';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLevel, createMission, WORLD } from './mission.mjs';
+import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#182b26', '#0f663c', '#1b984d', '#32c45d', '#9af345'];
-const VIEW_W = 1200;
-const VIEW_H = 430;
-const GRID_X = 72;
-const GRID_Y = 76;
-const STEP = 20;
-const CELL = 17;
+const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
 
 const escapeXml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-function round(x){return Math.round(x*10000)/10000}
-
-function fmt(n){return Number(n.toFixed(6)).toString()}
-
-function keyPct(t,duration){return fmt(Math.max(0,Math.min(1,t/duration)))}
-
-function animationAttr(name,keys,values,duration,mode='discrete'){
-return `<animate attributeName="${name}" calcMode="${mode}" keyTimes="${keys.map(t=>keyPct(t,duration)).join(';')}" values="${values.join(';')}" dur="${fmt(duration)}s" repeatCount="indefinite"/>`;
+const round = x => Math.round(x*10000)/10000;
+const fmt = n => Number(n.toFixed(6)).toString();
+function keyPct(t,duration) {return fmt(Math.max(0,Math.min(1,t/duration)));}
+function animationAttr(name,keys,values,duration,mode='discrete') {
+  return `<animate attributeName="${name}" calcMode="${mode}" keyTimes="${keys.map(t=>keyPct(t,duration)).join(';')}" values="${values.join(';')}" dur="${fmt(duration)}s" repeatCount="indefinite"/>`;
+}
+function timeline(times,values,duration){
+  if(times.length!==values.length || times[0]!==0 || times.at(-1)!==duration)throw new Error('Некорректная шкала анимации');
+  return {times,values};
 }
 
 async function fetchCalendar(username, token) {
@@ -71,43 +67,89 @@ export function normalizeWeeks(weeks) {
   return normalized;
 }
 
-function gridMarkup(grid,mission){
- const impacts=new Map();
- for(const shot of mission.shots){
-   if(!impacts.has(shot.key))impacts.set(shot.key,[]);
-   impacts.get(shot.key).push(shot);
- }
- let output='';
- for(let col=0;col<53;col++)for(let row=0;row<7;row++){
-   const day=grid[col][row];if(!day)continue;
-   const x=GRID_X+col*STEP,y=GRID_Y+row*STEP;
-   const hits=impacts.get(`${col}:${row}`)??[];
-   const keys=[0,...hits.map(h=>h.impact),mission.duration];
-   const opacity=['1',...hits.map(h=>h.finalHit?'0':'1'),'1'];
-   const shades=[COLORS[day.level],...hits.map(h=>h.finalHit?COLORS[1]:COLORS[Math.min(day.level,h.hpAfter+1)]),COLORS[day.level]];
-   const child=hits.length?animationAttr('opacity',keys,opacity,mission.duration)
-     +animationAttr('fill',keys,shades,mission.duration):'';
-   output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[day.level]}"><title>${escapeXml(`${day.date}: ${day.count} contributions`)}</title>${child}</rect>`;
- }
- return output;
+function gridMarkup(grid,mission) {
+  const impacts=new Map(); for(const s of mission.shots){if(!impacts.has(s.key))impacts.set(s.key,[]);impacts.get(s.key).push(s);}
+  let output='';
+  for(let col=0;col<53;col++)for(let row=0;row<7;row++){
+    const d=grid[col][row];if(!d)continue;
+    const key=`${col}:${row}`;
+    const hits=impacts.get(key)??[];
+    const x=GRID_X+col*STEP,y=GRID_Y+row*STEP;
+    const title=`${d.date}: ${d.count} contributions`;
+    // Урон уменьшает яркость, финальный выстрел скрывает квадрат.
+    const keys=[0,...hits.map(s=>s.impact),mission.duration];
+    const opacities=['1',...hits.map(s=>s.finalHit?'0':'1'),'1'];
+    const shades=[COLORS[d.level],...hits.map(s=>s.finalHit?COLORS[1]:COLORS[Math.min(d.level,s.hpAfter+1)]),COLORS[d.level]];
+    const child=hits.length ? animationAttr('opacity',keys,opacities,mission.duration)
+      +animationAttr('fill',keys,shades,mission.duration) : '';
+    output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[d.level]}"><title>${escapeXml(title)}</title>${child}</rect>`;
+  }
+  return output;
+}
+
+/** Общие пиксельные формы, которые повторно используются каждым выстрелом. */
+function effectsDefs(){
+  return `<g id="fx-muzzle" shape-rendering="crispEdges">
+    <path d="M0 -2h5v-3h5v-3h4v5h5v6h-6v5h-4v-4H5v-2H0Z" fill="#ff9e20"/>
+    <path d="M0 -1h7v-2h5v2h4v3h-5v2H7V2H0Z" fill="#fff4a8"/>
+    <rect x="17" y="-1" width="4" height="2" fill="#ffd064"/>
+  </g>
+  <g id="fx-impact-damage" shape-rendering="crispEdges">
+    <path d="M-2 -10h4v7h7v5H2v7h-4V2h-7v-5h7z" fill="#fff3a8"/>
+    <rect x="-12" y="-3" width="4" height="4" fill="#ff9b2c"/>
+    <rect x="8" y="-8" width="4" height="4" fill="#ff9b2c"/>
+    <rect x="5" y="8" width="3" height="3" fill="#4ae78a"/>
+  </g>
+  <g id="fx-impact-break" shape-rendering="crispEdges">
+    <rect x="-6" y="-6" width="12" height="12" fill="#fff1a0"/>
+    <path d="M-3 -12h6v6h8v6H5v6h-10V0h-7v-6h9z" fill="#ff9b2c"/>
+    <rect x="-18" y="-12" width="5" height="5" fill="#ffd75e"/>
+    <rect x="13" y="-11" width="6" height="5" fill="#ffcd48"/>
+    <rect x="-19" y="9" width="5" height="5" fill="#ec6b2e"/>
+    <rect x="12" y="13" width="5" height="5" fill="#ec6b2e"/>
+    <rect x="-5" y="-22" width="4" height="5" fill="#68e887"/>
+    <rect x="2" y="18" width="5" height="4" fill="#68e887"/>
+    <rect x="-24" y="-2" width="5" height="4" fill="#78c957"/>
+    <rect x="19" y="3" width="5" height="4" fill="#78c957"/>
+  </g>`;
 }
 
 function bulletMarkup(mission){
-const d=mission.duration;
-return mission.shots.map((s,i)=>{
- const dx=s.x-s.origin.x,dy=s.y-s.origin.y,dist=Math.hypot(dx,dy),angle=Math.atan2(dy,dx)*180/Math.PI;
- const bulletOpacity=animationAttr('opacity',[0,Math.max(0,s.start-.0004),s.start,s.impact,Math.min(d,s.impact+.025),d],['0','0','1','1','0','0'],d);
- const move=animationAttr('x',[0,s.start,s.impact,d],[0,0,round(dist),round(dist)],d,'linear');
- const fire=animationAttr('opacity',[0,Math.max(0,s.start-.0004),s.start,Math.min(d,s.start+.065),d],['0','0','1','0','0'],d);
- const hit=animationAttr('opacity',[0,Math.max(0,s.impact-.0004),s.impact,Math.min(d,s.impact+.16),d],['0','0','1','0','0'],d);
- return `<g id="shot-${i+1}" aria-label="Прицельный выстрел ${i+1}">
- <g transform="translate(${s.origin.x} ${s.origin.y}) rotate(${fmt(angle)})">
- <g>${bulletOpacity}<rect x="0" y="-2" width="12" height="4" rx="1" fill="#fff6a8">${move}</rect></g>
- <g>${fire}<path d="M-9 0l-7-6h10l3-8 3 9 11-4-7 9 9 7-11-2-2 9-5-10-10 4z" fill="#ffc93d"/></g>
- </g>
- <g transform="translate(${s.x} ${s.y})">${hit}<path d="M-9 -4h6v-9h6v9h7v5h-7v10h-7V2h-7z" fill="#ff8a22"/><rect x="-4" y="-4" width="8" height="8" fill="#fff2aa"/></g>
- </g>`;
-}).join('');
+  const duration=mission.duration;
+  return mission.shots.map((s,i)=>{
+    const dx=s.x-s.origin.x,dy=s.y-s.origin.y,dist=Math.hypot(dx,dy);
+    const angle=Math.atan2(dy,dx)*180/Math.PI;
+    const opacity=animationAttr('opacity',
+      [0,Math.max(0,s.start-.0004),s.start,s.impact,Math.min(duration,s.impact+.001),duration],
+      ['0','0','1','1','0','0'],duration);
+    const slide=`<animateTransform attributeName="transform" type="translate" calcMode="linear"
+      keyTimes="${[0,s.start,s.impact,duration].map(t=>keyPct(t,duration)).join(';')}"
+      values="0 0;0 0;${fmt(dist)} 0;${fmt(dist)} 0" dur="${fmt(duration)}s" repeatCount="indefinite"/>`;
+    const flash=animationAttr('opacity',
+      [0,Math.max(0,s.start-.0004),s.start,Math.min(duration,s.start+.048),duration],
+      ['0','0','1','0','0'],duration,'linear');
+    const fxLength=s.finalHit?.24:.105;
+    const impactTimes=[0,Math.max(0,s.impact-.0004),s.impact,Math.min(duration,s.impact+fxLength),duration];
+    const impactOpacity=animationAttr('opacity',impactTimes,['0','0','1','0','0'],duration,'linear');
+    const stages=[0,Math.max(0,s.impact-.0004),s.impact,
+      Math.min(duration,s.impact+fxLength*.28),Math.min(duration,s.impact+fxLength),duration];
+    const scales=s.finalHit?['.2','.2','.45','1','1.5','1.5']:['.4','.4','.65','1','1.15','1.15'];
+    const scaleAnimation=`<animateTransform attributeName="transform" type="scale" calcMode="linear"
+      keyTimes="${stages.map(t=>keyPct(t,duration)).join(';')}"
+      values="${scales.join(';')}" dur="${fmt(duration)}s" repeatCount="indefinite"/>`;
+    return `<g id="shot-${i+1}" aria-label="Прицельный выстрел ${i+1}">
+      <g id="shot-${i+1}-muzzle" transform="translate(${fmt(s.origin.x)} ${fmt(s.origin.y)}) rotate(${fmt(angle)})">
+        <g class="muzzle-flash" opacity="0">${flash}<use href="#fx-muzzle"/></g>
+        <g class="bullet" opacity="0">${opacity}
+          <g>${slide}<rect x="-12" y="-2" width="9" height="4" fill="#ffd96d"/>
+            <rect x="-3" y="-2" width="4" height="4" fill="#fff4ac"/></g>
+        </g>
+      </g>
+      <g id="shot-${i+1}-impact" transform="translate(${fmt(s.x)} ${fmt(s.y)})" opacity="0">${impactOpacity}
+        <g>${scaleAnimation}<use href="#fx-impact-${s.finalHit?'break':'damage'}"/></g>
+      </g>
+    </g>`;
+  }).join('');
 }
 
 function spriteDefs(sprites) {
@@ -120,47 +162,83 @@ function spriteDefs(sprites) {
   return out;
 }
 
-function playerMarkup(mission){
-const d=mission.duration,keys=[0],moves=[`${mission.initial.x} ${mission.initial.footY-WORLD.spriteSize}`];
-function add(t,x,y){const next=Math.min(t,d);if(next<=keys.at(-1))return;keys.push(round(next));moves.push(`${fmt(x)} ${fmt(y-WORLD.spriteSize)}`);}
-for(const s of mission.segments){
- if(['jump','hop','drop'].includes(s.kind)){
-  for(let i=1;i<=12;i++){const u=i/12;add(s.start+(s.end-s.start)*u,s.x0+(s.x1-s.x0)*u,s.y0+(s.y1-s.y0)*u-Math.sin(u*Math.PI)*57);}
- }else add(s.end,s.x1,s.y1);
-}
-if(keys.at(-1)!==d)add(d,mission.initial.x,mission.initial.footY);
-else {keys[keys.length-1]=d;moves[moves.length-1]=`${mission.initial.x} ${mission.initial.footY-WORLD.spriteSize}`;}
-const motion=`<animateTransform attributeName="transform" type="translate" calcMode="linear" keyTimes="${keys.map(t=>keyPct(t,d)).join(';')}" values="${moves.join(';')}" dur="${fmt(d)}s" repeatCount="indefinite"/>`;
-const marks=[{t:0,frame:'idle-a',face:'right'}];
-function mark(t,frame,face){const n=round(t);if(n>marks.at(-1).t&&n<d)marks.push({t:n,frame,face});else if(n===marks.at(-1).t)marks[marks.length-1]={t:n,frame,face};}
-for(const s of mission.segments){
- if(s.kind==='run'){const f=['run-a','run-b','run-c','run-d'];let i=0;for(let t=s.start;t<s.end;t+=.115)mark(t,f[i++%4],s.facing);}
- else if(['jump','hop','drop'].includes(s.kind))mark(s.start,'jump',s.facing);
- else if(s.kind==='shoot')mark(s.start,'shoot-stand',s.facing);
- else if(s.kind==='aim')mark(s.start,'aim',s.facing);
- else mark(s.start,'idle-a',s.facing);
-}
-mark(d-.02,'idle-a','right');marks.push({t:d,frame:'idle-a',face:'right'});
-const frames=['idle-a','run-a','run-b','run-c','run-d','jump','aim','shoot-stand'];
-let out='';
-for(const face of ['right','left']){
- const content=frames.map(frame=>{
-  const vals=marks.map(m=>m.frame===frame&&m.face===face?'1':'0');
-  return `<g opacity="${vals[0]}"><use href="#soldier-${frame}"/>${animationAttr('opacity',marks.map(m=>m.t),vals,d)}</g>`;
- }).join('');
- out+=face==='right'?`<g>${content}</g>`:`<g transform="translate(78 0) scale(-1 1)">${content}</g>`;
-}
-return `<g id="blue-commando" aria-label="Боец с синей повязкой">${motion}${out}</g>`;
+function playerMarkup(mission) {
+  const d=mission.duration;
+  const keys=[0],moves=[`${mission.initial.x} ${mission.initial.footY-WORLD.spriteSize}`];
+  function add(t,x,y){
+    const next=Math.min(t,d);
+    if(next<=keys.at(-1))return;
+    keys.push(round(next));moves.push(`${fmt(x)} ${fmt(y-WORLD.spriteSize)}`);
+  }
+  for(const s of mission.segments) {
+    if(['jump','hop','drop'].includes(s.kind)) {
+      for(let i=1;i<=12;i++) {
+        const u=i/12;
+        const x=s.x0+(s.x1-s.x0)*u;
+        const y=s.y0+(s.y1-s.y0)*u-Math.sin(u*Math.PI)*57;
+        add(s.start+(s.end-s.start)*u,x,y);
+      }
+    } else add(s.end,s.x1,s.y1);
+  }
+  if(keys.at(-1)!==d) add(d,mission.initial.x,mission.initial.footY);
+  else {keys[keys.length-1]=d;moves[moves.length-1]=`${mission.initial.x} ${mission.initial.footY-WORLD.spriteSize}`;}
+  const motion=`<animateTransform attributeName="transform" type="translate" calcMode="linear" keyTimes="${keys.map(t=>keyPct(t,d)).join(';')}" values="${moves.join(';')}" dur="${fmt(d)}s" repeatCount="indefinite"/>`;
+  // Кадры переключаются только при событиях; внутри run — 4 фазы шага.
+  const marks=[{t:0,frame:'idle-a',face:'right'}];
+  function push(t,frame,face){
+    const t0=round(t);
+    if(t0>marks.at(-1).t && t0<d) marks.push({t:t0,frame,face});
+    else if(t0===marks.at(-1).t) marks[marks.length-1]={t:t0,frame,face};
+  }
+  for(const s of mission.segments) {
+    const face=s.facing;
+    if(s.kind==='run') {
+      const frames=['run-a','run-b','run-c','run-d'];
+      let n=0;
+      for(let t=s.start;t<s.end;t+=.115)push(t,frames[n++%4],face);
+    } else if(['jump','hop','drop'].includes(s.kind))push(s.start,'jump',face);
+    else if(s.kind==='shoot')push(s.start,'aim',face); // без второго запечённого всполоха
+    else if(s.kind==='aim')push(s.start,'aim',face);
+    else push(s.start,'idle-a',face);
+  }
+  push(d-.02,'idle-a','right');
+  marks.push({t:d,frame:'idle-a',face:'right'});
+  // Поворот позы aim по тем же углам, которыми планировщик рассчитал луч.
+  const poseMarks=[{t:0,tilt:0}];
+  for(const shot of mission.shots){
+    const at=round(Math.max(0,shot.start-.052));
+    if(at>poseMarks.at(-1).t)poseMarks.push({t:at,tilt:shot.tilt});
+    else if(at===poseMarks.at(-1).t)poseMarks[poseMarks.length-1]={t:at,tilt:shot.tilt};
+  }
+  poseMarks.push({t:d,tilt:0});
+  const tiltAnimation=`<animateTransform attributeName="transform" type="rotate" calcMode="discrete"
+    keyTimes="${poseMarks.map(m=>keyPct(m.t,d)).join(';')}"
+    values="${poseMarks.map(m=>`${fmt(m.tilt)} ${WORLD.aimPivotX} ${WORLD.aimPivotY}`).join(';')}"
+    dur="${fmt(d)}s" repeatCount="indefinite"/>`;
+  const frames=['idle-a','run-a','run-b','run-c','run-d','jump','aim'];
+  let output='';
+  for(const face of ['right','left']){
+    const content=frames.map(name=>{
+      const vals=marks.map(m=>(m.frame===name&&m.face===face)?'1':'0');
+      const art=name==='aim' ? `<use href="#soldier-aim" clip-path="url(#aim-legs)"/>
+        <g>${tiltAnimation}<use href="#soldier-aim" clip-path="url(#aim-upper)"/></g>`
+        : `<use href="#soldier-${name}"/>`;
+      return `<g opacity="${vals[0]}">${art}${animationAttr('opacity',marks.map(m=>m.t),vals,d)}</g>`;
+    }).join('');
+    if(face==='right')output+=`<g>${content}</g>`;
+    else output+=`<g transform="translate(78 0) scale(-1 1)">${content}</g>`;
+  }
+  return `<g id="blue-commando" aria-label="Боец с синей повязкой">${motion}${output}</g>`;
 }
 
-function levelMarkup(level){
-const props=level.obstacles.map((o,i)=>{
-const y=WORLD.groundY-o.height;
-if(o.kind==='rock')return `<g id="obstacle-${i}" shape-rendering="crispEdges"><path d="M${o.x} ${WORLD.groundY}v-11h7v-${o.height-15}h11v-4h${o.width-23}v6h5v${o.height-13}h6v12z" fill="#7c8595" stroke="#29313b" stroke-width="3"/><path d="M${o.x+6} ${y+9}h11v5h-11z" fill="#afb7c4"/></g>`;
-return `<g id="obstacle-${i}" shape-rendering="crispEdges"><rect x="${o.x}" y="${y}" width="${o.width}" height="${o.height}" fill="#485b69" stroke="#16212e" stroke-width="3"/><path d="M${o.x+4} ${y+4}l${o.width-8} ${o.height-8}m0-${o.height-8}l-${o.width-8} ${o.height-8}" stroke="#b7c4cd" stroke-width="3"/></g>`;
-}).join('');
-const platforms=level.platforms.map((p,i)=>`<g id="platform-${i}" shape-rendering="crispEdges"><rect x="${p.x}" y="${p.y}" width="${p.width}" height="11" fill="#497a45" stroke="#102f2c" stroke-width="3"/><path d="M${p.x} ${p.y+2}h${p.width}" stroke="#b4ef63" stroke-width="4"/><rect x="${p.x+12}" y="${p.y+11}" width="6" height="${WORLD.groundY-p.y-11}" fill="#3f5361"/><rect x="${p.x+p.width-18}" y="${p.y+11}" width="6" height="${WORLD.groundY-p.y-11}" fill="#3f5361"/></g>`).join('');
-return `<g id="procedural-level" aria-label="Препятствия и платформы">${platforms}${props}</g>`;
+function levelMarkup(level) {
+  const props=level.obstacles.map((o,i)=>{
+    const y=WORLD.groundY-o.height;
+    if(o.kind==='rock')return `<g id="obstacle-${i}" shape-rendering="crispEdges"><path d="M${o.x} ${WORLD.groundY}v-11h7v-${o.height-15}h11v-4h${o.width-23}v6h5v${o.height-13}h6v12z" fill="#7c8595" stroke="#29313b" stroke-width="3"/><path d="M${o.x+6} ${y+9}h11v5h-11z" fill="#afb7c4"/></g>`;
+    return `<g id="obstacle-${i}" shape-rendering="crispEdges"><rect x="${o.x}" y="${y}" width="${o.width}" height="${o.height}" fill="#485b69" stroke="#16212e" stroke-width="3"/><path d="M${o.x+4} ${y+4}l${o.width-8} ${o.height-8}m0-${o.height-8}l-${o.width-8} ${o.height-8}" stroke="#b7c4cd" stroke-width="3"/></g>`;
+  }).join('');
+  const platforms=level.platforms.map((p,i)=>`<g id="platform-${i}" shape-rendering="crispEdges"><rect x="${p.x}" y="${p.y}" width="${p.width}" height="11" fill="#497a45" stroke="#102f2c" stroke-width="3"/><path d="M${p.x} ${p.y+2}h${p.width}" stroke="#b4ef63" stroke-width="4"/><rect x="${p.x+12}" y="${p.y+11}" width="6" height="${WORLD.groundY-p.y-11}" fill="#3f5361"/><rect x="${p.x+p.width-18}" y="${p.y+11}" width="6" height="${WORLD.groundY-p.y-11}" fill="#3f5361"/></g>`).join('');
+  return `<g id="procedural-level" aria-label="Препятствия и платформы">${platforms}${props}</g>`;
 }
 
 function background() {
@@ -219,18 +297,30 @@ function background() {
 `;
 }
 
-export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}){
-const grid=normalizeWeeks(weeks),level=buildLevel(grid,username,seedOverride),mission=createMission(grid,level);
-const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке бегает по процедурному уровню, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
-const scene=background(),defs=`<defs>${spriteDefs(sprites)}</defs>`;
-const months=['ЯНВ','ФЕВ','МАР','АПР','МАЙ','ИЮН','ИЮЛ','АВГ','СЕН','ОКТ','НОЯ','ДЕК'];
-let monthText='',prev=-1;
-for(let col=0;col<53;col++){const day=grid[col].find(Boolean);if(!day)continue;const m=Number(day.date.slice(5,7))-1;if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#9eb8ba" font-family="monospace" font-size="12">${months[m]}</text>`;prev=m;}}
-const top=`<rect x="65" y="27" width="1070" height="190" fill="#030e14" fill-opacity=".77" rx="6" stroke="#294c45" stroke-width="2"/><text x="72" y="20" font-family="monospace" font-size="18" fill="#a4f0b5">${escapeXml(username)} / GITHUB CONTRIBUTIONS</text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g>`;
-const d=mission.duration,finish=round(Math.max(0,mission.lastImpact+.06));
-const done=`<g id="mission-complete" opacity="0">${animationAttr('opacity',[0,finish,d-.09,d],['0','1','1','0'],d)}<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text></g>`;
-const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
-return `${header}${scene}${defs}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}</svg>\n`;
+export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
+  const grid=normalizeWeeks(weeks);
+  const level=buildLevel(grid,username,seedOverride);
+  const mission=createMission(grid,level);
+  const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке бегает по процедурному уровню, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
+  const scene=background();
+  const defs=`<defs>${spriteDefs(sprites)}${effectsDefs()}
+    <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
+    <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
+  </defs>`;
+  const months=['ЯНВ','ФЕВ','МАР','АПР','МАЙ','ИЮН','ИЮЛ','АВГ','СЕН','ОКТ','НОЯ','ДЕК'];
+  let monthText=''; let prev=-1;
+  for(let col=0;col<53;col++){
+    const day=grid[col].find(Boolean);if(!day)continue;
+    const m=Number(day.date.slice(5,7))-1;
+    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#9eb8ba" font-family="monospace" font-size="12">${months[m]}</text>`;prev=m;}
+  }
+  const top=`<rect x="65" y="27" width="1070" height="190" fill="#030e14" fill-opacity=".77" rx="6" stroke="#294c45" stroke-width="2"/><text x="72" y="20" font-family="monospace" font-size="18" fill="#a4f0b5">${escapeXml(username)} / GITHUB CONTRIBUTIONS</text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g>`;
+  const missionEnd=mission.duration;
+  const finishedAt=round(Math.max(0,mission.lastImpact+.06));
+  const missionComplete=animationAttr('opacity',[0,finishedAt,missionEnd-.09,missionEnd],['0','1','1','0'],missionEnd);
+  const done=`<g id="mission-complete" opacity="0">${missionComplete}<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text></g>`;
+  const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
+  return `${header}${scene}${defs}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}</svg>\n`;
 }
 
 async function main() {

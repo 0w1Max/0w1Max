@@ -5,7 +5,11 @@
 export const WORLD = Object.freeze({
   width: 1200, height: 430, groundY: 374, spriteSize: 78,
   gridX: 72, gridY: 76, step: 20, cell: 17,
-  muzzleRightX: 63, muzzleLeftX: 15, muzzleYFromFeet: 62,
+  // Опорные координаты исходного спрайта aim 78×78 (в пикселях).
+  aimPivotX: 38, aimPivotY: 42,
+  aimGripX: 38, aimGripY: 40,
+  aimTipX: 60, aimTipY: 14,
+  muzzleRightX: 60, muzzleLeftX: 18, muzzleYFromFeet: 64,
 });
 
 function hash32(value) {
@@ -64,81 +68,102 @@ export function buildLevel(grid, username='0w1Max', seedOverride) {
 }
 
 /**
- * HP клетки зависит от уровня contributions GitHub: 0,1,1,2,3.
- * Данные календаря остаются неизменными.
+ * Прочность зависит только от уровня активности GitHub.
+ * NONE=0, Q1/Q2=1, Q3=2, Q4=3. Исходные данные не мутируем.
  */
 export function hpForLevel(level) {
-  if (!Number.isInteger(level) || level<0 || level>4) throw new Error('Недопустимый уровень клетки');
-  return level===0?0:level>=3?level-1:1;
+  if (!Number.isInteger(level) || level < 0 || level > 4) throw new Error('Недопустимый уровень клетки');
+  return level === 0 ? 0 : level >= 3 ? level - 1 : 1;
 }
 
-function allTargets(grid){
+function allTargets(grid) {
   const out=[];
   for(let col=0;col<53;col++)for(let row=0;row<7;row++){
     const cell=grid[col][row];
-    // Нулевые дни остаются тёмным фоном. Зачищаются все существующие зелёные cells.
     if(!cell || cell.level===0)continue;
-    out.push({col,row,key:`${col}:${row}`,level:cell.level,maxHp:hpForLevel(cell.level),
-      x:WORLD.gridX+col*WORLD.step+WORLD.cell/2,y:WORLD.gridY+row*WORLD.step+WORLD.cell/2});
+    out.push({
+      col,row,key:`${col}:${row}`,level:cell.level,maxHp:hpForLevel(cell.level),
+      x:WORLD.gridX+col*WORLD.step+WORLD.cell/2,
+      y:WORLD.gridY+row*WORLD.step+WORLD.cell/2
+    });
   }
   return out;
 }
 
 /**
- * Первое столкновение линии полёта с живым прямоугольником клетки.
- * Не считаем целью квадрат, который находится за другой клеткой.
+ * Столкновение линии полёта с первой живой клеткой.
+ * Проверяется реальный прямоугольник клетки, а не только её центр/столбец.
  */
-export function firstLiveIntersection(origin,end,live){
+export function firstLiveIntersection(origin, end, live) {
   const dx=end.x-origin.x,dy=end.y-origin.y;
   let nearest=null,bestT=Infinity;
   for(const cell of live.values()){
     if(cell.hp<=0)continue;
-    const h=WORLD.cell/2;
+    const half=WORLD.cell/2;
+    const left=cell.x-half,right=cell.x+half,top=cell.y-half,bottom=cell.y+half;
     let t0=0,t1=1;
-    for(const [p,v,min,max] of [[origin.x,dx,cell.x-h,cell.x+h],[origin.y,dy,cell.y-h,cell.y+h]]){
+    for(const [p,v,min,max] of [[origin.x,dx,left,right],[origin.y,dy,top,bottom]]){
       if(Math.abs(v)<1e-9){
         if(p<min||p>max){t0=2;break;}
-      }else{
+      } else {
         let a=(min-p)/v,b=(max-p)/v;
         if(a>b)[a,b]=[b,a];
         t0=Math.max(t0,a);t1=Math.min(t1,b);
         if(t0>t1)break;
       }
     }
-    if(t0<=t1&&t0>=0&&t0<bestT){
+    if(t0<=t1 && t0>=0 && t0<bestT){
       bestT=t0;nearest={key:cell.key,t:t0,col:cell.col,row:cell.row};
     }
   }
   return nearest;
 }
 
+/**
+ * Единственный источник геометрии дула. Поворот верхней части спрайта aim
+ * относительно опорной точки применяется и к стволу, и к началу траектории.
+ * Угол tilt — градусы, положительный наклон опускает ствол в сторону движения.
+ */
+export function aimGeometry(playerX,footY,facing,tilt=0){
+  if(facing!=='left'&&facing!=='right')throw new Error('Некорректное направление персонажа');
+  const rad=tilt*Math.PI/180,co=Math.cos(rad),si=Math.sin(rad);
+  const rotate=(x,y)=>({
+    x:WORLD.aimPivotX+(x-WORLD.aimPivotX)*co-(y-WORLD.aimPivotY)*si,
+    y:WORLD.aimPivotY+(x-WORLD.aimPivotX)*si+(y-WORLD.aimPivotY)*co
+  });
+  const tip=rotate(WORLD.aimTipX,WORLD.aimTipY),grip=rotate(WORLD.aimGripX,WORLD.aimGripY);
+  const dir=facing==='right'?1:-1;
+  const offset=x=>facing==='right'?x:WORLD.spriteSize-x;
+  return {
+    origin:{x:playerX+offset(tip.x),y:footY-WORLD.spriteSize+tip.y},
+    barrel:{x:dir*(tip.x-grip.x),y:tip.y-grip.y},
+    tilt
+  };
+}
+
 function chooseFiringPosition(target,pass,level,currentX,live){
   const footCandidates=[];
   for(const groundY of [WORLD.groundY,...level.platforms.map(p=>p.y)]){
     for(const facing of ['right','left']){
-      const muzzleY=groundY-WORLD.muzzleYFromFeet;
-      const vertical=muzzleY-target.y;
-      if(vertical<12) continue;
-      const run=vertical*.57;
-      const offset=facing==='right'?WORLD.muzzleRightX:WORLD.muzzleLeftX;
-      const rawX=target.x-offset+(facing==='right'?-run:run);
-      if(rawX<6||rawX>1110)continue;
-      for(const adjust of [0,-24,24,-46,46,-70,70,-95,95]) {
-        const x=rawX+adjust;
+      // Смещаем плечо вместе с оружием; SVG повторяет тот же поворот.
+      for(const tilt of [-23,-19,-15,-11,-7,-3,0,3,7,11,14]){
+        const pose=aimGeometry(0,groundY,facing,tilt);
+        const vertical=pose.origin.y-target.y;
+        if(vertical<12||pose.barrel.y>=-2)continue;
+        const run=vertical*Math.abs(pose.barrel.x/pose.barrel.y);
+        const dir=facing==='right'?1:-1;
+        const x=target.x-pose.origin.x-dir*run;
         if(x<6||x>1110)continue;
-        const muzzleX=x+(facing==='right'?WORLD.muzzleRightX:WORLD.muzzleLeftX);
-        const horizontal=target.x-muzzleX;
-        if((facing==='right'&&horizontal<=0)||(facing==='left'&&horizontal>=0))continue;
-        const angle=Math.atan2(Math.abs(horizontal),vertical)*180/Math.PI;
-        if(angle<13||angle>52)continue; // Пуля обязана совпадать с наклоном ствола
+        const muzzle=aimGeometry(x,groundY,facing,tilt);
+        if(Math.abs((target.x-muzzle.origin.x)*muzzle.barrel.y-
+          (target.y-muzzle.origin.y)*muzzle.barrel.x)>0.01)continue;
         const onPlatform=level.platforms.find(p=>p.y===groundY);
         if(onPlatform && !(x+38>=onPlatform.x+14&&x+38<=onPlatform.x+onPlatform.width-14))continue;
         const blocking=level.obstacles.some(o=>groundY===WORLD.groundY && x+8<o.x+o.width+5 && x+70>o.x-5);
-        if(blocking)continue; // не останавливаться и не стрелять внутри препятствия
-        if(firstLiveIntersection({x:muzzleX,y:muzzleY},target,live)?.key!==target.key)continue;
-        footCandidates.push({x,footY:groundY,facing,platform:onPlatform??null,
-          cost:Math.abs(x-currentX)*.07 + Math.abs(adjust)*.55 +
-            (facing!==pass?13:0)+(onPlatform?-5:0)});
+        if(blocking)continue;
+        if(firstLiveIntersection(muzzle.origin,target,live)?.key!==target.key)continue;
+        footCandidates.push({x,footY:groundY,facing,tilt,platform:onPlatform??null,
+          cost:Math.abs(x-currentX)*.07+Math.abs(tilt)*.55+(facing!==pass?13:0)+(onPlatform?-5:0)});
       }
     }
   }
@@ -152,7 +177,7 @@ export function createMission(grid,level){
   const targets=allTargets(grid);
   const live=new Map(targets.map(cell=>[cell.key,{...cell,hp:cell.maxHp}]));
   const ordered=[];
-  // Стреляем снизу вверх, меняя направление патруля после каждого ряда.
+  // Снизу вверх; направления в соседних рядах чередуются.
   for(let row=6;row>=0;row--){
     const pass=6-row;
     const subset=targets.filter(v=>v.row===row).sort((a,b)=>
@@ -171,7 +196,7 @@ export function createMission(grid,level){
     return s;
   }
   function walkTo(x){
-    if(Math.abs(x-player.x)<1)return;
+    if(Math.abs(x-player.x)<.0001)return;
     const facing=x>player.x?'right':'left';
     segment('run',Math.abs(x-player.x)/speed,x,player.footY,facing);
   }
@@ -208,7 +233,7 @@ export function createMission(grid,level){
     return clamp(position,5,1110);
   }
   function moveGround(destX){
-    if(Math.abs(destX-player.x)<1)return;
+    if(Math.abs(destX-player.x)<.0001)return;
     const dir=destX>player.x?1:-1;
     // Запретная зона включает и ширину бойца: прыжок должен начаться ДО столкновения.
     const crossed=level.obstacles.filter(o=>dir>0?
@@ -245,20 +270,25 @@ export function createMission(grid,level){
     moveTo(dest);
     if(player.facing!==dest.facing)segment('turn',.045,player.x,player.footY,dest.facing);
     segment('aim',.052);
-    const origin={x:round(player.x+(player.facing==='right'?WORLD.muzzleRightX:WORLD.muzzleLeftX)),y:round(player.footY-WORLD.muzzleYFromFeet)};
-    if(firstLiveIntersection(origin,target,live)?.key!==target.key)throw new Error(`Траектория перекрыта: ${target.key}`);
+    const geometry=aimGeometry(player.x,player.footY,player.facing,dest.tilt);
+    const origin={x:round(geometry.origin.x),y:round(geometry.origin.y)};
+    if(firstLiveIntersection(origin,target,live)?.key!==target.key)
+      throw new Error(`Траектория перекрыта перед выстрелом: ${target.key}`);
     const distance=Math.hypot(origin.x-target.x,origin.y-target.y);
     const state=live.get(target.key);
-    if(!state||state.hp!==target.maxHp)throw new Error(`Неверное состояние цели: ${target.key}`);
+    if(!state || state.hp!==target.maxHp)throw new Error(`Неверное состояние цели: ${target.key}`);
     for(let hit=1;hit<=target.maxHp;hit++){
-      const start=round(t),impact=round(start+distance/780),hpBefore=state.hp;
+      const start=round(t);
+      const impact=round(start+distance/780);
+      const hpBefore=state.hp;
       state.hp--;
-      shots.push({...target,origin,facing:player.facing,start,impact,playerX:round(player.x),footY:round(player.footY),
+      shots.push({...target,origin,facing:player.facing,tilt:dest.tilt,start,impact,
+        playerX:round(player.x),footY:round(player.footY),
         hitIndex:hit,hpBefore,hpAfter:state.hp,finalHit:state.hp===0});
-      // Следующий выстрел только после предыдущего попадания.
+      // Дожидаемся попадания, прежде чем менять состояние следующей цели.
       segment('shoot',Math.max(.105,impact-start+.018));
     }
-    if(state.hp!==0)throw new Error(`Не уничтожена цель: ${target.key}`);
+    if(state.hp!==0)throw new Error(`Цель не уничтожена: ${target.key}`);
     live.delete(target.key);
     if(used.has(target.key))throw new Error(`Повторная цель: ${target.key}`);
     used.add(target.key);
@@ -268,8 +298,9 @@ export function createMission(grid,level){
   segment('clear',1.25);
   const duration=round(t);
   if(duration>720)throw new Error(`Непрактичная длительность анимации: ${duration}с`);
-  if(used.size!==targets.length||live.size!==0)throw new Error(`Не все квадраты обработаны: ${used.size}/${targets.length}`);
-  const totalHp=targets.reduce((n,c)=>n+c.maxHp,0);
+  if(used.size!==targets.length || live.size!==0)
+    throw new Error(`Не все квадраты обработаны: ${used.size}/${targets.length}`);
+  const totalHp=targets.reduce((sum,cell)=>sum+cell.maxHp,0);
   if(shots.length!==totalHp)throw new Error(`Недостаточно попаданий: ${shots.length}/${totalHp}`);
   return {duration,segments,shots,jumps,level,targets:targets.length,totalHp,initial:{x:90,footY:WORLD.groundY},lastImpact};
 }
