@@ -9,6 +9,7 @@ import { gunzipSync } from 'node:zlib';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
+import { renderLocation } from './locations.mjs';
 import { levelMarkup } from './level-art.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -256,68 +257,12 @@ function playerMarkup(mission) {
   return `<g id="blue-commando" aria-label="Боец с синей повязкой">${motion}${output}</g>`;
 }
 
-function background() {
-  // Pixel-art scenery is generated as vector shapes; no third-party image hosts.
-  const palm = (x, base, size, dim = false) => {
-    const leaf = dim ? '#0b3b37' : '#1d7850';
-    const highlight = dim ? '#105047' : '#56b64b';
-    const trunk = dim ? '#18413b' : '#94613a';
-    return `<g transform="translate(${x} ${base}) scale(${size})" shape-rendering="crispEdges">
-      <path d="M-5 0h12v-19H5v-19H2v-18H-1v-17H-4v-17H-7v-22h11v20h3v18h3v18h3v18h3v20h-5V0Z" fill="${trunk}"/>
-      <path d="M-5 -95h9v10h-9zM0 -70h10v5H0z" fill="${dim ? '#25665b' : '#d99453'}"/>
-      <path d="M0 -112h-14v-8h-22v-6h-19v8h-12v10h-10v14h8v-8h11v-6h19v3h10v10h14v14h8v-20h7z" fill="${leaf}"/>
-      <path d="M1 -113h13v-7h21v-5h21v10h14v8h10v15h-9v-9h-11v-6h-19v5h-13v10H10v12H3z" fill="${leaf}"/>
-      <path d="M-1 -117h-14v-16h-16v-12h-18v-10h-13v8h11v10h9v12h10v12h13v12H-3zM4 -118h15v-16h16v-12h17v-9h13v7h-9v12h-11v13H33v11H19v12H5z" fill="${highlight}"/>
-      <path d="M-9 -121h-14v-5h-15v-6h-13v-4h16v5h20v6h12zM8 -123h15v-6h15v-7h13v-4H36v5H19v7H6z" fill="${dim ? '#16665d' : '#90d95d'}"/>
-    </g>`;
-  };
-  const silhouettes = Array.from({length:30}, (_,i) => {
-    const x=i*43-13;
-    const h=28+(i*13)%32;
-    return `<path d="M${x} 369v-${h}h5v-${(i*7)%11+8}h4v${(i*7)%11+8}h5v${h}h-4v-18h-9v18z" fill="${i%3===0?'#103b3c':'#0b3035'}"/>`;
-  }).join('');
-  const rockySpots = Array.from({length:54},(_,i)=>{
-    const x=11+i*23;
-    const y=400+((i*17)%23);
-    const w=7+((i*7)%12);
-    return `<rect x="${x}" y="${y}" width="${w}" height="${4+(i%3)*2}" fill="${i%4===0?'#cc7d3e':i%3===0?'#70462b':'#90603b'}"/>`;
-  }).join('');
-  const shrubs = Array.from({length:64}, (_,i)=> {
-    const x=(i*61)%1200;
-    const y=368+(i%3)*2;
-    const h=5+(i*17)%14;
-    return `<path d="M${x-7} ${y}v-${h}h3v${h-5}h3v-${h+3}h3v${h-5}h4v${h}z" fill="${i%4===0?'#52984e':'#2a6945'}"/>`;
-  }).join('');
-  return `<defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#030b16"/><stop offset="0.55" stop-color="#0b1e36"/><stop offset="1" stop-color="#24475e"/></linearGradient>
-    <pattern id="grass" width="32" height="16" patternUnits="userSpaceOnUse"><rect width="32" height="16" fill="#194626"/><path d="M0 0h9v4h8v-3h15v5H21v4h-9v-4H0z" fill="#7be244"/><rect x="6" y="8" width="5" height="5" fill="#3e9136"/></pattern>
-    <pattern id="dirt" width="48" height="36" patternUnits="userSpaceOnUse"><rect width="48" height="36" fill="#543624"/><path d="M0 0h19v8H7v10h-7M22 19h16v7H27v10h-5" fill="#a56a32"/><path d="M19 8h5v7h-5M38 0h8v5h-8" fill="#e28b42"/></pattern>
-    <pattern id="dither" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="2" height="2" x="1" y="1" fill="#a4c9dc" opacity=".20"/></pattern>
-  </defs>
-  <rect width="1200" height="430" fill="url(#sky)"/>
-  <g fill="#163452" shape-rendering="crispEdges">
-    <path d="M0 329V303L90 276l55 13 71-34 49 20 94-71 69 55 80-35 52 24 96-81 88 80 100-57 74 64 94-34 78 66 110-34v77z"/>
-    <path d="M0 329v-27l83-26 59 13 74-33 48 19 95-70 15 16-25 23-29 2 8 11-66 12-31 24-99 17-60-21zM597 268l59-99 36 46-25-12-12 27-13-5-16 29zM872 272l38-48 37 46-27-12-9-21-20 24z" fill="#6488b1" opacity=".85"/>
-    <path d="M0 340V310l75-19 86 21 93-31 108 24 84-32 92 26 88-24 111 40 93-29 117 22 93-39 111 51v20z" fill="#132b46"/>
-  </g>
-  <g shape-rendering="crispEdges" opacity=".7"><path d="M45 275h85v4H45zM345 283h70v3h-70zM889 281h75v4h-75z" fill="#427090"/><path d="M20 306h96v2H20zM790 302h140v2H790z" fill="url(#dither)"/></g>
-  <path d="M0 374v-60l55-10 70 30 80-19 67 24 79-14 75 22 91-17 64 17 97-21 75 13 100-28 96 26 104-22 86 24 77-14 64 30v19Z" fill="#092b32"/>
-  ${silhouettes}
-  ${palm(50,374,1.14)}${palm(152,375,.57,true)}${palm(1134,375,1.08)}${palm(1055,376,.58,true)}${palm(790,375,.42,true)}
-  ${shrubs}
-  <rect x="0" y="374" width="1200" height="14" fill="url(#grass)"/>
-  <rect x="0" y="388" width="1200" height="42" fill="url(#dirt)"/>
-  ${rockySpots}
-  <path d="M0 388h1200" stroke="#b9f667" stroke-width="2"/>
-`;
-}
-
 export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const grid=normalizeWeeks(weeks);
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
   const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке непредсказуемо патрулирует процедурный уровень, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
-  const scene=background();
+  const scene=renderLocation(level.location,level.seed);
   const defs=`<defs>${spriteDefs(sprites)}${effectsDefs()}
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
@@ -348,7 +293,17 @@ async function main() {
   const out=resolve(getArg('--output', resolve(ROOT,'generated','commando-activity.svg')));
   const sprites=JSON.parse(gunzipSync(Buffer.from((await readFile(resolve(ROOT,'assets','sprites.json.gz.b64'),'utf8')).trim(),'base64')).toString('utf8'));
   const weeks=demo ? JSON.parse(gunzipSync(Buffer.from((await readFile(resolve(ROOT,'fixtures','demo-calendar.json.gz.b64'),'utf8')).trim(),'base64')).toString('utf8')).weeks : await fetchCalendar(USERNAME,process.env.GITHUB_TOKEN||process.env.GH_TOKEN);
-  const svg=renderSvg({weeks,sprites,username:USERNAME,fixture:demo});
+  // В CI каждый новый запуск создаёт новую карту. COMMANDO_MAP_SEED позволяет воспроизвести её.
+  const rawSeed=process.env.COMMANDO_MAP_SEED ?? process.env.GITHUB_RUN_ID;
+  let seedOverride;
+  if(rawSeed!==undefined){
+    if(!/^\d+$/.test(rawSeed))throw new Error('COMMANDO_MAP_SEED должен быть неотрицательным целым числом');
+    seedOverride=Number(BigInt(rawSeed)&0xffffffffn);
+  } else {
+    const {randomInt}=await import('node:crypto');
+    seedOverride=randomInt(0,4294967296);
+  }
+  const svg=renderSvg({weeks,sprites,username:USERNAME,fixture:demo,seedOverride});
   await mkdir(dirname(out),{recursive:true});
   await writeFile(out,svg,'utf8');
   console.log(`SVG создан: ${out} (${Buffer.byteLength(svg)} байт, ${demo?'демо':'реальные данные'})`);

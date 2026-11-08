@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {gunzipSync} from 'node:zlib';
 import {normalizeWeeks,renderSvg} from './scripts/generate.mjs';
+import {LOCATION_POOL,selectLocation,renderLocation} from './scripts/locations.mjs';
 import {buildLevel,createMission,WORLD,hpForLevel,firstLiveIntersection,aimGeometry,OBSTACLE_POOL,PLATFORM_POOL,randomCount,pickUnique,validateLayout} from './scripts/mission.mjs';
 import {levelMarkup} from './scripts/level-art.mjs';
 
@@ -422,4 +423,42 @@ test('Неактивные дни почти прозрачные, активн�
   assert.ok(active.length>0,'В демо должны быть активные дни');
   assert.ok(empty.every(tag=>tag.includes('fill-opacity="0.10"')),'Пустые клетки должны быть прозрачными на 90%');
   assert.ok(active.every(tag=>tag.includes('fill-opacity="1"')),'Активные клетки сохраняют непрозрачность');
+});
+
+test('Локации: пять уникальных стилей, выбор воспроизводим и разнообразен',()=>{
+  assert.equal(LOCATION_POOL.length,5);
+  const found=new Set();
+  for(let seed=0;seed<200;seed++){
+    const place=selectLocation(seed);
+    assert.ok(LOCATION_POOL.includes(place));
+    assert.equal(selectLocation(seed),place);
+    assert.equal(buildLevel(grid,'0w1Max',seed).location,place);
+    found.add(place);
+  }
+  assert.deepEqual([...found].sort(),[...LOCATION_POOL].sort());
+  assert.throws(()=>selectLocation(-1));
+  assert.throws(()=>renderLocation('unknown',12));
+});
+
+test('Каждая локация содержит уникальный SVG-пейзаж без внешних ресурсов',()=>{
+  const scenes=LOCATION_POOL.map(location=>{
+    const scene=renderLocation(location,1729);
+    assert.ok(scene.includes('data-location="'+location+'"'));
+    assert.ok(scene.includes('height="430"'));
+    assert.ok(scene.includes('y="374"'));
+    assert.doesNotMatch(scene,/<script\b|<foreignObject\b|\s(?:href|src)=["']https?:\/\//i);
+    return scene;
+  });
+  assert.equal(new Set(scenes).size,LOCATION_POOL.length);
+});
+
+test('Миссия и геометрия GitHub не зависят от выбранного окружения',()=>{
+  const map=buildLevel(grid,'0w1Max',303);
+  assert.ok(LOCATION_POOL.includes(map.location));
+  const plan=createMission(grid,map);
+  assert.equal(plan.shots.length,totalHp);
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:303});
+  assert.ok(svg.includes('data-location="'+map.location+'"'));
+  assert.match(svg,/id="contribution-grid"/);
+  assert.match(svg,/id="blue-commando"/);
 });

@@ -2,6 +2,8 @@
  * Детерминированный планировщик игрового уровня для SVG README.
  * Только вычисления: данные GitHub и побочные эффекты остаются за генератором.
  */
+import {selectLocation} from './locations.mjs';
+
 export const WORLD = Object.freeze({
   width: 1200, height: 430, groundY: 374, spriteSize: 78,
   gridX: 72, gridY: 76, step: 20, cell: 17,
@@ -134,7 +136,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride) {
       break;
     }
   }
-  const level={seed,obstacles,platforms};
+  const level={seed,location:selectLocation(seed),obstacles,platforms};
   const checked=validateLayout(level);
   if(!checked.valid)throw new Error('Некорректная карта: '+checked.issues.join('; '));
   return level;
