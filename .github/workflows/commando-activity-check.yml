@@ -52,3 +52,80 @@ jobs:
             generated/real.svg
           if-no-files-found: error
           retention-days: 7
+
+  preview:
+    name: Встроенный SVG-предпросмотр в Draft PR
+    needs: test
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.head_ref == 'feature/commando-activity-svg-v1'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Получить именно проверенный коммит PR
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Установить Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Сгенерировать анимацию по реальному календарю
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: 0w1Max
+        run: |
+          node scripts/generate.mjs --output preview/commando-activity.svg
+          python3 -c "import xml.etree.ElementTree as ET; ET.parse('preview/commando-activity.svg')"
+          if grep -q 'DEMO / TEST DATA' preview/commando-activity.svg; then
+            echo 'Ошибка: тестовый SVG запрещено публиковать как реальный'
+            exit 1
+          fi
+      - name: Обновить только preview/commando-activity.svg в ветке PR
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const crypto = require('crypto');
+            const {owner, repo} = context.repo;
+            const pr = context.payload.pull_request;
+            if (!pr || pr.head.repo.full_name !== context.repo.owner + '/' + context.repo.repo ||
+                pr.head.ref !== 'feature/commando-activity-svg-v1') {
+              throw new Error('Предпросмотр разрешён только для собственной ветки Draft PR');
+            }
+            const branch = pr.head.ref;
+            const current = await github.rest.git.getRef({owner, repo, ref: 'heads/' + branch});
+            if (current.data.object.sha !== pr.head.sha) {
+              core.warning('Ветка обновлена за время проверки — устаревший SVG не публикуем.');
+              return;
+            }
+            const path = 'preview/commando-activity.svg';
+            const bytes = fs.readFileSync(path);
+            const blobSha = crypto.createHash('sha1')
+              .update('blob ' + bytes.length + '\0')
+              .update(bytes).digest('hex');
+            let previous;
+            try {
+              const result = await github.rest.repos.getContent({owner, repo, path, ref: branch});
+              if (Array.isArray(result.data)) throw new Error('Ожидался SVG-файл');
+              previous = result.data;
+            } catch(error) {
+              if (error.status !== 404) throw error;
+            }
+            if (previous?.sha === blobSha) {
+              core.info('SVG не изменился: коммит не нужен.');
+              return;
+            }
+            const args = {
+              owner, repo, path, branch,
+              content: bytes.toString('base64'),
+              message: 'chore(profile): обновить SVG-предпросмотр в Draft PR'
+            };
+            if (previous) args.sha = previous.sha;
+            const result = await github.rest.repos.createOrUpdateFileContents(args);
+            core.info('Предпросмотр опубликован в рабочей ветке: ' + result.data.commit.sha);
