@@ -10,6 +10,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 import { renderLocation } from './locations.mjs';
+import {desertScene} from './canyon-scene.mjs';
 import { levelMarkup } from './level-art.mjs';
 import {soldierColor} from './biomes.mjs';
 
@@ -263,7 +264,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
   const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке непредсказуемо патрулирует процедурный уровень, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
-  const scene=renderLocation(level.location,level.seed);
+  const scene=level.location==='desert' ? desertScene() : renderLocation(level.location,level.seed);
   const defs=`<defs>${spriteDefs(sprites,level.location)}${effectsDefs()}
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>

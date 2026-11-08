@@ -509,3 +509,25 @@ test('SVG содержит согласованные биом, бойца и г
   assert.ok(svg.includes('id="blue-commando"'));
   assert.ok(svg.includes('fill-opacity="0.10"'));
 });
+
+
+test('Детализированный пиксельный каньон включён в SVG без внешних ресурсов',()=>{
+  const desertSeed=Array.from({length:80},(_,i)=>i).find(s=>buildLevel(grid,'0w1Max',s).location==='desert');
+  assert.ok(Number.isInteger(desertSeed));
+  const result=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:desertSeed});
+  assert.match(result,/id="desert-canyon-v3"/);
+  const encoded=result.match(/href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/)?.[1];
+  assert.ok(encoded && encoded.length>100000);
+  const bytes=Buffer.from(encoded,'base64');
+  assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+  assert.equal(bytes.readUInt32BE(16),1200);
+  assert.equal(bytes.readUInt32BE(20),430);
+  assert.ok(bytes.length<500000,'Фон слишком тяжёлый');
+  assert.match(result,/id="blue-commando"/);
+  assert.match(result,/id="contribution-grid"/);
+  assert.doesNotMatch(result,/<script\b|href="https?:\/\//i);
+  const jungleSeed=Array.from({length:80},(_,i)=>i).find(s=>buildLevel(grid,'0w1Max',s).location==='jungle');
+  assert.ok(Number.isInteger(jungleSeed));
+  const jungle=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:jungleSeed});
+  assert.doesNotMatch(jungle,/id="desert-canyon-v3"/);
+});
