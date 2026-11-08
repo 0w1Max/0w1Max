@@ -352,7 +352,7 @@ test('Пулы объектов: 6 препятствий и 5 платформ,
   assert.equal(new Set(pickUnique(['a','b','c','d'],4,()=>0.5)).size,4);
 });
 
-test('На 1000 seed доступны все количества 0..3 и 0..2; типы не повторяются',()=>{
+test('На 1000 seed: препятствия уникальны, платформы в одной карте одинаковые',()=>{
   const countsObstacles=new Set(),countsPlatforms=new Set(),types=new Set(),pTypes=new Set();
   for(let seed=0;seed<1000;seed++){
     const level=buildLevel(grid,'0w1Max',seed);
@@ -361,12 +361,33 @@ test('На 1000 seed доступны все количества 0..3 и 0..2; 
     for(const x of level.obstacles)types.add(x.kind);
     for(const x of level.platforms)pTypes.add(x.kind);
     assert.equal(new Set(level.obstacles.map(o=>o.kind)).size,level.obstacles.length);
-    assert.equal(new Set(level.platforms.map(o=>o.kind)).size,level.platforms.length);
+    assert.ok(new Set(level.platforms.map(o=>o.kind)).size<=1);
+    assert.ok(new Set(level.platforms.map(o=>o.width)).size<=1);
   }
   assert.deepEqual([...countsObstacles].sort(),[0,1,2,3]);
   assert.deepEqual([...countsPlatforms].sort(),[0,1,2]);
   assert.deepEqual([...types].sort(),[...OBSTACLE_POOL].sort());
   assert.deepEqual([...pTypes].sort(),[...PLATFORM_POOL].sort());
+});
+
+
+test('Если платформы две, они одного типа и размера, а разные seed дают разные стили',()=>{
+  const double=[];
+  for(let seed=0;seed<1000;seed++){
+    const map=buildLevel(grid,'0w1Max',seed);
+    if(map.platforms.length!==2)continue;
+    double.push(map);
+    assert.equal(map.platforms[0].kind,map.platforms[1].kind,`Типы различаются, seed=${seed}`);
+    assert.equal(map.platforms[0].width,map.platforms[1].width,`Ширина различается, seed=${seed}`);
+    assert.deepEqual(buildLevel(grid,'0w1Max',seed),map);
+  }
+  assert.ok(double.length>0);
+  assert.deepEqual([...new Set(double.map(map=>map.platforms[0].kind))].sort(),[...PLATFORM_POOL].sort());
+  const valid=double[0];
+  const invalidKind={...valid,platforms:valid.platforms.map((p,i)=>i?{...p,kind:PLATFORM_POOL.find(kind=>kind!==p.kind)}:p)};
+  assert.equal(validateLayout(invalidKind).valid,false);
+  const invalidWidth={...valid,platforms:valid.platforms.map((p,i)=>i?{...p,width:p.width+1}:p)};
+  assert.equal(validateLayout(invalidWidth).valid,false);
 });
 
 test('Пустая сцена без препятствий и платформ корректна, негодные карты отклоняются',()=>{

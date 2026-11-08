@@ -63,8 +63,10 @@ export function validateLayout(level) {
   if(level.platforms.length>2)issues.push('Больше двух платформ');
   if(new Set(level.obstacles.map(o=>o.kind)).size!==level.obstacles.length)
     issues.push('Повторение типа препятствия');
-  if(new Set(level.platforms.map(p=>p.kind)).size!==level.platforms.length)
-    issues.push('Повторение типа платформы');
+  if(new Set(level.platforms.map(p=>p.kind)).size>1)
+    issues.push('На одной карте платформы разных типов');
+  if(new Set(level.platforms.map(p=>p.width)).size>1)
+    issues.push('На одной карте платформы разной ширины');
   for(let i=0;i<level.platforms.length;i++){
     const p=level.platforms[i];
     if(!PLATFORM_POOL.includes(p.kind)||p.x<190||p.x+p.width>1110||
@@ -102,14 +104,16 @@ export function buildLevel(grid, username='0w1Max', seedOverride) {
   const rand=seededRandom(seed);
   const platformCount=randomCount(rand,2);
   const obstacleCount=randomCount(rand,3);
-  const platformTypes=pickUnique(PLATFORM_POOL,platformCount,rand);
+  // Одна общая модель и ширина для всех платформ этой карты.
+  const platformKind=platformCount ? PLATFORM_POOL[Math.floor(rand()*PLATFORM_POOL.length)] : null;
+  const platformWidth=platformCount ? 116+Math.floor(rand()*34) : null;
   const obstacleTypes=pickUnique(OBSTACLE_POOL,obstacleCount,rand);
   // Две непересекающиеся зоны, доступные для прыжка с земли.
   const zones=pickUnique([0,1],platformCount,rand).sort();
   const platforms=zones.map((zone,i)=>({
-    kind:platformTypes[i],
+    kind:platformKind,
     x:Math.round((zone===0?255:735)+rand()*80),
-    width:116+Math.floor(rand()*34),
+    width:platformWidth,
     y:317+Math.floor(rand()*16)
   }));
   const sizes={
