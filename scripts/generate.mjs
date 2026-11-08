@@ -205,7 +205,7 @@ function background() {
   <rect x="0" y="388" width="1200" height="42" fill="url(#dirt)"/>
   ${rockySpots}
   <path d="M0 388h1200" stroke="#b9f667" stroke-width="2"/>
-  <g shape-rendering="crispEdges"><rect x="1030" y="335" width="36" height="39" fill="#536476" stroke="#16232a" stroke-width="4"/><path d="M1037 342l22 25m0-25l-22 25" stroke="#b7c5c5" stroke-width="4"/><rect x="1073" y="322" width="43" height="52" fill="#536476" stroke="#18252e" stroke-width="4"/><path d="M1081 330l27 35m0-35l-27 35" stroke="#b7c5c5" stroke-width="4"/></g>`;
+`;
 }
 
 export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}){
