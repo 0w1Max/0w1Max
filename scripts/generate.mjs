@@ -72,13 +72,24 @@ export function normalizeWeeks(weeks) {
 }
 
 function gridMarkup(grid,mission){
-const impacts=new Map(mission.shots.map(s=>[s.key,s.impact]));let output='';
-for(let col=0;col<53;col++)for(let row=0;row<7;row++){
- const d=grid[col][row];if(!d)continue;
- const impact=impacts.get(`${col}:${row}`),x=GRID_X+col*STEP,y=GRID_Y+row*STEP;
- const child=impact===undefined?'':animationAttr('opacity',[0,impact,mission.duration-.025,mission.duration],['1','0','0','1'],mission.duration);
- output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[d.level]}"><title>${escapeXml(`${d.date}: ${d.count} contributions`)}</title>${child}</rect>`;
-}return output;
+ const impacts=new Map();
+ for(const shot of mission.shots){
+   if(!impacts.has(shot.key))impacts.set(shot.key,[]);
+   impacts.get(shot.key).push(shot);
+ }
+ let output='';
+ for(let col=0;col<53;col++)for(let row=0;row<7;row++){
+   const day=grid[col][row];if(!day)continue;
+   const x=GRID_X+col*STEP,y=GRID_Y+row*STEP;
+   const hits=impacts.get(`${col}:${row}`)??[];
+   const keys=[0,...hits.map(h=>h.impact),mission.duration];
+   const opacity=['1',...hits.map(h=>h.finalHit?'0':'1'),'1'];
+   const shades=[COLORS[day.level],...hits.map(h=>h.finalHit?COLORS[1]:COLORS[Math.min(day.level,h.hpAfter+1)]),COLORS[day.level]];
+   const child=hits.length?animationAttr('opacity',keys,opacity,mission.duration)
+     +animationAttr('fill',keys,shades,mission.duration):'';
+   output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[day.level]}"><title>${escapeXml(`${day.date}: ${day.count} contributions`)}</title>${child}</rect>`;
+ }
+ return output;
 }
 
 function bulletMarkup(mission){
