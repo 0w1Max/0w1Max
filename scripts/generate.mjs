@@ -102,7 +102,8 @@ function gridMarkup(grid,mission) {
       const shades=[COLORS[cell.level],...hits.map(h=>h.finalHit?COLORS[1]:COLORS[Math.min(cell.level,h.hpAfter+1)]),COLORS[cell.level],COLORS[cell.level]];
       child+=animationAttr('fill',shadeKeys,shades,mission.duration);
     }
-    output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[cell.level]}"><title>${escapeXml(title)}</title>${child}</rect>`;
+    const fillOpacity = cell.level === 0 ? "0.10" : "1";
+    output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[cell.level]}" fill-opacity="${fillOpacity}"><title>${escapeXml(title)}</title>${child}</rect>`;
   }
   return output;
 }

@@ -339,3 +339,16 @@ test('SVG плавно восстанавливает клетки и не те�
   assert.match(svg,/id="blue-commando"/);
   assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
 });
+
+
+test('Неактивные дни почти прозрачные, активные клетки остаются непрозрачными',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
+  assert.ok(cells,'SVG должен содержать поле активности');
+  const empty=[...cells.matchAll(/<rect\b[^>]*fill="#182b26"[^>]*>/g)].map(m=>m[0]);
+  const active=[...cells.matchAll(/<rect\b[^>]*fill="#(?:0f663c|1b984d|32c45d|9af345)"[^>]*>/g)].map(m=>m[0]);
+  assert.ok(empty.length>0,'В демо должны быть пустые дни');
+  assert.ok(active.length>0,'В демо должны быть активные дни');
+  assert.ok(empty.every(tag=>tag.includes('fill-opacity="0.10"')),'Пустые клетки должны быть прозрачными на 90%');
+  assert.ok(active.every(tag=>tag.includes('fill-opacity="1"')),'Активные клетки сохраняют непрозрачность');
+});
