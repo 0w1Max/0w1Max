@@ -9,6 +9,7 @@ import { gunzipSync } from 'node:zlib';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
+import { levelMarkup } from './level-art.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
@@ -253,18 +254,6 @@ function playerMarkup(mission) {
     else output+=`<g transform="translate(78 0) scale(-1 1)">${content}</g>`;
   }
   return `<g id="blue-commando" aria-label="Боец с синей повязкой">${motion}${output}</g>`;
-}
-
-function levelMarkup(level) {
-  const props=level.obstacles.map((o,i)=>{
-    const y=WORLD.groundY-o.height;
-    if(o.kind!=='rock')throw new Error(`Неизвестный тип препятствия: ${o.kind}`);
-    const fill=o.variant==='slate'?'#617a77':'#7c8595';
-    const shine=o.variant==='slate'?'#83a499':'#afb7c4';
-    return `<g id="obstacle-${i}" shape-rendering="crispEdges"><path d="M${o.x} ${WORLD.groundY}v-11h7v-${o.height-15}h11v-4h${o.width-23}v6h5v${o.height-13}h6v12z" fill="${fill}" stroke="#29313b" stroke-width="3"/><path d="M${o.x+6} ${y+9}h11v5h-11z" fill="${shine}"/></g>`;
-  }).join('');
-  const platforms=level.platforms.map((p,i)=>`<g id="platform-${i}" shape-rendering="crispEdges"><rect x="${p.x}" y="${p.y}" width="${p.width}" height="11" fill="#497a45" stroke="#102f2c" stroke-width="3"/><path d="M${p.x} ${p.y+2}h${p.width}" stroke="#b4ef63" stroke-width="4"/><rect x="${p.x+12}" y="${p.y+11}" width="6" height="${WORLD.groundY-p.y-11}" fill="#3f5361"/><rect x="${p.x+p.width-18}" y="${p.y+11}" width="6" height="${WORLD.groundY-p.y-11}" fill="#3f5361"/></g>`).join('');
-  return `<g id="procedural-level" aria-label="Препятствия и платформы">${platforms}${props}</g>`;
 }
 
 function background() {

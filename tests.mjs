@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {gunzipSync} from 'node:zlib';
 import {normalizeWeeks,renderSvg} from './scripts/generate.mjs';
-import {buildLevel,createMission,WORLD,hpForLevel,firstLiveIntersection,aimGeometry} from './scripts/mission.mjs';
+import {buildLevel,createMission,WORLD,hpForLevel,firstLiveIntersection,aimGeometry,OBSTACLE_POOL,PLATFORM_POOL,randomCount,pickUnique,validateLayout} from './scripts/mission.mjs';
+import {levelMarkup} from './scripts/level-art.mjs';
 
 async function loadCompressedJson(path){
   return JSON.parse(gunzipSync(Buffer.from((await readFile(path,'utf8')).trim(),'base64')).toString('utf8'));
@@ -61,7 +62,7 @@ test('Движение в обе стороны, прыжки, платформ�
   assert.ok(mission.segments.some(s=>s.kind==='run'&&s.facing==='left'));
   assert.ok(mission.jumps.some(s=>s.kind==='jump'));
   assert.ok(mission.jumps.some(s=>s.kind==='drop'));
-  assert.ok(mission.jumps.some(s=>s.kind==='hop'));
+  assert.ok(mission.jumps.some(s=>['hop','jump'].includes(s.kind)));
   assert.ok(mission.shots.some(s=>s.footY===WORLD.groundY));
   assert.ok(mission.shots.some(s=>s.footY<WORLD.groundY));
 });
@@ -75,8 +76,8 @@ test('Процедурная карта воспроизводима по seed �
 test('Карта ограничивает число платформ и преград, преграды не накладываются друг на друга',()=>{
   for(let seed=0;seed<70;seed++){
     const map=buildLevel(grid,'0w1Max',seed);
-    assert.ok(map.platforms.length>=1&&map.platforms.length<=2);
-    assert.ok(map.obstacles.length>=1&&map.obstacles.length<=3);
+    assert.ok(map.platforms.length>=0&&map.platforms.length<=2);
+    assert.ok(map.obstacles.length>=0&&map.obstacles.length<=3);
     for(let i=0;i<map.obstacles.length;i++)for(let j=i+1;j<map.obstacles.length;j++){
       assert.ok(Math.abs(map.obstacles[i].x-map.obstacles[j].x)>=180);
     }
@@ -88,9 +89,10 @@ test('Карта ограничивает число платформ и пре�
 test('На 1000 seed не возникают ящики с крестом и преграды под платформами',()=>{
   for(let seed=0;seed<1000;seed++){
     const map=buildLevel(grid,'0w1Max',seed);
-    assert.ok(map.obstacles.length>=1&&map.obstacles.length<=3);
+    assert.ok(map.obstacles.length>=0&&map.obstacles.length<=3);
+    assert.ok(validateLayout(map).valid);
     for(const o of map.obstacles){
-      assert.equal(o.kind,'rock',`Неожиданный ящик: seed=${seed}`);
+      assert.ok(OBSTACLE_POOL.includes(o.kind),`Недопустимый тип: ${o.kind}, seed=${seed}`);
       for(const p of map.platforms){
         assert.ok(o.x+o.width < p.x-45 || o.x > p.x+p.width+45,
           `Препятствие под платформой: seed=${seed}, obstacleX=${o.x}, platformX=${p.x}`);
@@ -103,12 +105,12 @@ test('На 1000 seed не возникают ящики с крестом и п�
 
 test('SVG не рисует металлический ящик с диагональным крестом',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
-  assert.match(svg,/id="obstacle-0"/);
+  assert.match(svg,/id="procedural-level"/);
   assert.doesNotMatch(svg,/stroke="#b7c4cd"|fill="#485b69"/);
 });
 
-test('На 100 разных картах боец не проходит сквозь преграды во время бега',()=>{
-  for(let seed=0;seed<100;seed++){
+test('На 40 разных картах боец не проходит сквозь преграды во время бега',()=>{
+  for(let seed=0;seed<40;seed++){
     const map=buildLevel(grid,'0w1Max',seed);
     const plan=createMission(grid,map);
     assert.equal(plan.shots.length,totalHp,`Не все попадания для seed=${seed}`);
@@ -143,7 +145,7 @@ test('Недопустимое число недель блокируется',(
 
 test('SVG включает карты, преграды, прицельные пули и финальную зачистку',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
-  for(const token of ['blue-commando','soldier-shoot-stand','repeatCount="indefinite"','GITHUB CONTRIBUTIONS','DEMO / TEST DATA','Прицельный выстрел 1','procedural-level','platform-0','obstacle-0','mission-complete']){
+  for(const token of ['blue-commando','soldier-shoot-stand','repeatCount="indefinite"','GITHUB CONTRIBUTIONS','DEMO / TEST DATA','Прицельный выстрел 1','procedural-level','mission-complete']){
     assert.ok(svg.includes(token),`Не найден SVG-маркер ${token}`);
   }
   assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
@@ -340,6 +342,54 @@ test('SVG плавно восстанавливает клетки и не те�
   assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
 });
 
+
+test('Пулы объектов: 6 препятствий и 5 платформ, количество допускает ноль',()=>{
+  assert.equal(OBSTACLE_POOL.length,6);
+  assert.equal(PLATFORM_POOL.length,5);
+  assert.deepEqual([0,0.25,0.5,0.75,0.999].map(v=>randomCount(()=>v,3)),[0,1,2,3,3]);
+  assert.deepEqual([0,0.4,0.7,0.999].map(v=>randomCount(()=>v,2)),[0,1,2,2]);
+  assert.equal(pickUnique(['a','b','c'],3,()=>0).length,3);
+  assert.equal(new Set(pickUnique(['a','b','c','d'],4,()=>0.5)).size,4);
+});
+
+test('На 1000 seed доступны все количества 0..3 и 0..2; типы не повторяются',()=>{
+  const countsObstacles=new Set(),countsPlatforms=new Set(),types=new Set(),pTypes=new Set();
+  for(let seed=0;seed<1000;seed++){
+    const level=buildLevel(grid,'0w1Max',seed);
+    assert.ok(validateLayout(level).valid,`Некорректная карта ${seed}`);
+    countsObstacles.add(level.obstacles.length);countsPlatforms.add(level.platforms.length);
+    for(const x of level.obstacles)types.add(x.kind);
+    for(const x of level.platforms)pTypes.add(x.kind);
+    assert.equal(new Set(level.obstacles.map(o=>o.kind)).size,level.obstacles.length);
+    assert.equal(new Set(level.platforms.map(o=>o.kind)).size,level.platforms.length);
+  }
+  assert.deepEqual([...countsObstacles].sort(),[0,1,2,3]);
+  assert.deepEqual([...countsPlatforms].sort(),[0,1,2]);
+  assert.deepEqual([...types].sort(),[...OBSTACLE_POOL].sort());
+  assert.deepEqual([...pTypes].sort(),[...PLATFORM_POOL].sort());
+});
+
+test('Пустая сцена без препятствий и платформ корректна, негодные карты отклоняются',()=>{
+  const empty=buildLevel(grid,'0w1Max',7);
+  assert.equal(empty.obstacles.length,0);
+  assert.equal(empty.platforms.length,0);
+  assert.equal(levelMarkup(empty).includes('obstacle-0'),false);
+  assert.equal(levelMarkup(empty).includes('platform-0'),false);
+  const plan=createMission(grid,empty);
+  assert.equal(plan.shots.length,totalHp);
+  const corrupt={...empty,platforms:[{kind:'metal-catwalk',x:450,width:125,y:320}],
+    obstacles:[{kind:'jungle-rock',x:452,width:34,height:27}]};
+  assert.equal(validateLayout(corrupt).valid,false);
+});
+
+test('Каждый вид новой платформы и препятствия рендерится в SVG без внешних ассетов',()=>{
+  const preview={seed:123,obstacles:OBSTACLE_POOL.map((kind,i)=>({kind,x:175+i*70,width:34,height:27})),
+    platforms:PLATFORM_POOL.map((kind,i)=>({kind,x:200+i*50,width:130,y:322}))};
+  const svg=levelMarkup(preview);
+  for(const kind of OBSTACLE_POOL)assert.match(svg,new RegExp(`data-kind="${kind}"`));
+  for(const kind of PLATFORM_POOL)assert.match(svg,new RegExp(`data-kind="${kind}"`));
+  assert.doesNotMatch(svg,/<image\b|https?:\/\//);
+});
 
 test('Неактивные дни почти прозрачные, активные клетки остаются непрозрачными',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});

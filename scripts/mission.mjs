@@ -33,46 +33,107 @@ function seededRandom(seed) {
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const round=x=>Math.round(x*10000)/10000;
 
+/** Коллекции оригинальных 8-bit объектов, оформляемые рендерером отдельно. */
+export const OBSTACLE_POOL = Object.freeze([
+  'jungle-rock', 'fallen-log', 'sandbags', 'stone-ruin', 'tree-stump', 'supply-crate'
+]);
+export const PLATFORM_POOL = Object.freeze([
+  'wooden-bridge', 'mossy-stone', 'vine-ledge', 'metal-catwalk', 'camo-platform'
+]);
+
+export function randomCount(random,max) {
+  if(!Number.isInteger(max)||max<0)throw new Error('Некорректный предел объектов');
+  return Math.floor(random()*(max+1));
+}
+
+/** Fisher–Yates: без повторений, пока есть уникальные варианты. */
+export function pickUnique(pool,count,random) {
+  if(!Array.isArray(pool)||!Number.isInteger(count)||count<0)throw new Error('Неверный пул объектов');
+  const options=[...new Set(pool)];
+  for(let i=options.length-1;i>0;i--){
+    const j=Math.floor(random()*(i+1));
+    [options[i],options[j]]=[options[j],options[i]];
+  }
+  return options.slice(0,count);
+}
+
+export function validateLayout(level) {
+  const issues=[];
+  if(level.obstacles.length>3)issues.push('Больше трёх препятствий');
+  if(level.platforms.length>2)issues.push('Больше двух платформ');
+  if(new Set(level.obstacles.map(o=>o.kind)).size!==level.obstacles.length)
+    issues.push('Повторение типа препятствия');
+  if(new Set(level.platforms.map(p=>p.kind)).size!==level.platforms.length)
+    issues.push('Повторение типа платформы');
+  for(let i=0;i<level.platforms.length;i++){
+    const p=level.platforms[i];
+    if(!PLATFORM_POOL.includes(p.kind)||p.x<190||p.x+p.width>1110||
+      p.width<110||p.width>165||p.y<310||p.y>340)
+      issues.push(`Платформа ${i} вне допустимых размеров`);
+    for(let j=i+1;j<level.platforms.length;j++){
+      const q=level.platforms[j];
+      if(!(p.x+p.width+90<q.x||q.x+q.width+90<p.x))
+        issues.push(`Платформы ${i}/${j} слишком близко`);
+    }
+  }
+  for(let i=0;i<level.obstacles.length;i++){
+    const o=level.obstacles[i];
+    if(!OBSTACLE_POOL.includes(o.kind)||o.x<290||o.x+o.width>1120||
+      o.width<20||o.width>55||o.height<15||o.height>36)
+      issues.push(`Препятствие ${i} вне допустимых размеров`);
+    for(let j=i+1;j<level.obstacles.length;j++){
+      const q=level.obstacles[j];
+      if(Math.abs(o.x-q.x)<180)issues.push(`Препятствия ${i}/${j} слишком близко`);
+    }
+    for(let j=0;j<level.platforms.length;j++){
+      const p=level.platforms[j];
+      if(!(o.x+o.width<p.x-45||o.x>p.x+p.width+45))
+        issues.push(`Препятствие ${i} перекрывает платформу ${j}`);
+    }
+  }
+  return {valid:issues.length===0,issues};
+}
+
 export function buildLevel(grid, username='0w1Max', seedOverride) {
   if (!Array.isArray(grid) || grid.length!==53 || grid.some(w=>!Array.isArray(w)||w.length!==7)) {
     throw new Error('Для карты нужен календарь 53 × 7');
   }
   const seed=seedOverride ?? hash32(username+'|'+grid.flat().map(d=>d?`${d.date}:${d.count}:${d.level}`:'-').join('|'));
   const rand=seededRandom(seed);
+  const platformCount=randomCount(rand,2);
+  const obstacleCount=randomCount(rand,3);
+  const platformTypes=pickUnique(PLATFORM_POOL,platformCount,rand);
+  const obstacleTypes=pickUnique(OBSTACLE_POOL,obstacleCount,rand);
+  // Две непересекающиеся зоны, доступные для прыжка с земли.
+  const zones=pickUnique([0,1],platformCount,rand).sort();
+  const platforms=zones.map((zone,i)=>({
+    kind:platformTypes[i],
+    x:Math.round((zone===0?255:735)+rand()*80),
+    width:116+Math.floor(rand()*34),
+    y:317+Math.floor(rand()*16)
+  }));
+  const sizes={
+    'jungle-rock':[34,27], 'fallen-log':[44,19], 'sandbags':[45,25],
+    'stone-ruin':[32,32], 'tree-stump':[31,30], 'supply-crate':[34,27]
+  };
   const obstacles=[];
-  const count=1+Math.floor(rand()*3); // 1–3 небольших препятствия
-  for (let i=0;i<count;i++) {
-    const sectorStart=310+i*(520/count);
-    const x=Math.round(sectorStart+rand()*(520/count-55));
-    const width=24+Math.floor(rand()*16);
-    obstacles.push({x,width,height:21+Math.floor(rand()*13),kind:'rock',variant:rand()<.5?'slate':'granite'});
+  for(const kind of obstacleTypes){
+    const [width,height]=sizes[kind];
+    // Левый участок x < 290 оставлен свободным для заключительного патруля.
+    // 50 воспроизводимых кандидатов: при нехватке места объект НЕ добавляем.
+    for(let attempt=0;attempt<50;attempt++){
+      const x=290+Math.floor(rand()*780);
+      const o={kind,x,width,height};
+      if(obstacles.some(prev=>Math.abs(prev.x-x)<180))continue;
+      if(platforms.some(p=>!(x+width<p.x-45||x>p.x+p.width+45)))continue;
+      obstacles.push(o);
+      break;
+    }
   }
-  const platforms=[];
-  const pCount=1+Math.floor(rand()*2); // 1–2 доступные платформы
-  for(let i=0;i<pCount;i++) {
-    const base=260+i*460;
-    const x=Math.round(base+rand()*80);
-    const width=118+Math.round(rand()*31);
-    const y=319+Math.round(rand()*14);
-    platforms.push({x,y,width});
-  }
-  // Не размещаем препятствия под платформами и в зоне подхода к ним.
-  const awayFromPlatforms=o=>platforms.every(p=>
-    o.x+o.width < p.x-45 || o.x > p.x+p.width+45);
-  const safeObstacles=[];
-  for(const o of obstacles) {
-    if(!awayFromPlatforms(o))continue;
-    if(safeObstacles.some(prev=>Math.abs(o.x-prev.x)<180))continue;
-    safeObstacles.push(o);
-  }
-  if(!safeObstacles.length) {
-    // Раньше x=340 игнорировал проверку и создавал ящик с крестом прямо под платформой.
-    const fallback=[560,1010,190].map(x=>({x,width:30,height:24,kind:'rock',variant:'granite'}))
-      .find(awayFromPlatforms);
-    if(!fallback)throw new Error('Нет безопасного места для запасного препятствия');
-    safeObstacles.push(fallback);
-  }
-  return {seed,obstacles:safeObstacles,platforms};
+  const level={seed,obstacles,platforms};
+  const checked=validateLayout(level);
+  if(!checked.valid)throw new Error('Некорректная карта: '+checked.issues.join('; '));
+  return level;
 }
 
 /**
