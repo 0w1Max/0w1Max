@@ -6,6 +6,7 @@ import {normalizeWeeks,renderSvg} from './scripts/generate.mjs';
 import {LOCATION_POOL,selectLocation,renderLocation} from './scripts/locations.mjs';
 import {buildLevel,createMission,WORLD,hpForLevel,firstLiveIntersection,aimGeometry,OBSTACLE_POOL,PLATFORM_POOL,randomCount,pickUnique,validateLayout} from './scripts/mission.mjs';
 import {levelMarkup} from './scripts/level-art.mjs';
+import {BIOMES,biomeFor,soldierColor} from './scripts/biomes.mjs';
 
 async function loadCompressedJson(path){
   return JSON.parse(gunzipSync(Buffer.from((await readFile(path,'utf8')).trim(),'base64')).toString('utf8'));
@@ -461,4 +462,50 @@ test('Миссия и геометрия GitHub не зависят от выб�
   assert.ok(svg.includes('data-location="'+map.location+'"'));
   assert.match(svg,/id="contribution-grid"/);
   assert.match(svg,/id="blue-commando"/);
+});
+
+
+test('Тематические локации: 1500 карт соответствуют наборам объектов',()=>{
+  const seen=new Set();
+  for(let seed=0;seed<1500;seed++){
+    const level=buildLevel(grid,'0w1Max',seed);
+    const theme=biomeFor(level.location);
+    seen.add(level.location);
+    assert.ok(validateLayout(level).valid,'Недопустимая карта '+seed);
+    assert.ok(level.obstacles.length<=3 && level.platforms.length<=2);
+    assert.ok(level.obstacles.every(o=>theme.obstacles.includes(o.kind)),'Чужая преграда '+seed);
+    assert.ok(level.platforms.every(p=>theme.platforms.includes(p.kind)),'Чужая платформа '+seed);
+    assert.equal(new Set(level.obstacles.map(o=>o.kind)).size,level.obstacles.length);
+    assert.ok(new Set(level.platforms.map(p=>p.kind)).size<=1);
+    assert.ok(new Set(level.platforms.map(p=>p.width)).size<=1);
+    assert.deepEqual(buildLevel(grid,'0w1Max',seed),level);
+  }
+  assert.deepEqual([...seen].sort(),Object.keys(BIOMES).sort());
+});
+
+test('В каждой локации собственные платформы, препятствия и цвет формы',()=>{
+  assert.equal(soldierColor('#1747be','desert'),'#1747be');
+  assert.equal(soldierColor('#0442e8','snow'),'#0442e8');
+  assert.equal(soldierColor('#f9b377','volcano'),'#f9b377');
+  assert.equal(soldierColor('#857f39','jungle'),'#857f39');
+  for(const location of Object.keys(BIOMES)){
+    if(location!=='jungle')assert.notEqual(soldierColor('#857f39',location),'#857f39');
+    const theme=biomeFor(location);
+    const sample={seed:1,location,platforms:[{kind:theme.platforms[0],x:330,y:321,width:130}],
+      obstacles:[{kind:theme.obstacles[0],x:700,width:34,height:27}]};
+    const svg=levelMarkup(sample);
+    assert.ok(svg.includes('data-biome="'+location+'"'));
+    assert.equal((svg.match(/data-theme-detail=/g)||[]).length,2);
+    assert.doesNotMatch(svg,/<script\b|<foreignObject\b|\s(?:src|href)=["']https?:\/\//i);
+  }
+  assert.throws(()=>biomeFor('unknown'));
+});
+
+test('SVG содержит согласованные биом, бойца и график',()=>{
+  const seed=49,level=buildLevel(grid,'0w1Max',seed);
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:seed});
+  assert.ok(svg.includes('data-biome="'+level.location+'"'));
+  assert.ok(svg.includes('data-location="'+level.location+'"'));
+  assert.ok(svg.includes('id="blue-commando"'));
+  assert.ok(svg.includes('fill-opacity="0.10"'));
 });

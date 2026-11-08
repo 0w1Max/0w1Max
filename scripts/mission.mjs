@@ -3,6 +3,7 @@
  * Только вычисления: данные GitHub и побочные эффекты остаются за генератором.
  */
 import {selectLocation} from './locations.mjs';
+import {biomeFor} from './biomes.mjs';
 
 export const WORLD = Object.freeze({
   width: 1200, height: 430, groundY: 374, spriteSize: 78,
@@ -69,6 +70,11 @@ export function validateLayout(level) {
     issues.push('На одной карте платформы разных типов');
   if(new Set(level.platforms.map(p=>p.width)).size>1)
     issues.push('На одной карте платформы разной ширины');
+  if(level.location!==undefined){
+    const theme=biomeFor(level.location);
+    if(level.obstacles.some(o=>!theme.obstacles.includes(o.kind)))issues.push('Преграда не соответствует локации');
+    if(level.platforms.some(p=>!theme.platforms.includes(p.kind)))issues.push('Платформа не соответствует локации');
+  }
   for(let i=0;i<level.platforms.length;i++){
     const p=level.platforms[i];
     if(!PLATFORM_POOL.includes(p.kind)||p.x<190||p.x+p.width>1110||
@@ -103,13 +109,15 @@ export function buildLevel(grid, username='0w1Max', seedOverride) {
     throw new Error('Для карты нужен календарь 53 × 7');
   }
   const seed=seedOverride ?? hash32(username+'|'+grid.flat().map(d=>d?`${d.date}:${d.count}:${d.level}`:'-').join('|'));
+  const location=selectLocation(seed);
+  const biome=biomeFor(location);
   const rand=seededRandom(seed);
   const platformCount=randomCount(rand,2);
   const obstacleCount=randomCount(rand,3);
   // Одна общая модель и ширина для всех платформ этой карты.
-  const platformKind=platformCount ? PLATFORM_POOL[Math.floor(rand()*PLATFORM_POOL.length)] : null;
+  const platformKind=platformCount ? biome.platforms[Math.floor(rand()*biome.platforms.length)] : null;
   const platformWidth=platformCount ? 116+Math.floor(rand()*34) : null;
-  const obstacleTypes=pickUnique(OBSTACLE_POOL,obstacleCount,rand);
+  const obstacleTypes=pickUnique(biome.obstacles,obstacleCount,rand);
   // Две непересекающиеся зоны, доступные для прыжка с земли.
   const zones=pickUnique([0,1],platformCount,rand).sort();
   const platforms=zones.map((zone,i)=>({
@@ -136,7 +144,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride) {
       break;
     }
   }
-  const level={seed,location:selectLocation(seed),obstacles,platforms};
+  const level={seed,location,obstacles,platforms};
   const checked=validateLayout(level);
   if(!checked.valid)throw new Error('Некорректная карта: '+checked.issues.join('; '));
   return level;
