@@ -1,0 +1,45 @@
+name: Проверка 8-bit генератора
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'assets/sprites.json.gz.b64'
+      - 'fixtures/**'
+      - 'tests.mjs'
+      - '.github/workflows/commando-activity*.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Получить исходники
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Установить Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Запустить тесты
+        run: node --test tests.mjs
+      - name: Создать SVG на тестовом календаре
+        run: node scripts/generate.mjs --demo --output generated/demo.svg
+      - name: Проверить XML и маркировку тестовых данных
+        run: |
+          python3 -c "import xml.etree.ElementTree as ET; ET.parse('generated/demo.svg')"
+          grep -q 'DEMO / TEST DATA' generated/demo.svg
+      - name: Проверить SVG по реальной активности (без публикации)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: 0w1Max
+        run: |
+          node scripts/generate.mjs --output generated/real.svg
+          python3 -c "import xml.etree.ElementTree as ET; ET.parse('generated/real.svg')"
+          if grep -q 'DEMO / TEST DATA' generated/real.svg; then
+            echo 'Ошибка: генератор вернул демо вместо реальных данных'
+            exit 1
+          fi
