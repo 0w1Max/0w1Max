@@ -45,7 +45,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride) {
     const sectorStart=310+i*(520/count);
     const x=Math.round(sectorStart+rand()*(520/count-55));
     const width=24+Math.floor(rand()*16);
-    obstacles.push({x,width,height:21+Math.floor(rand()*13),kind:rand()<.5?'crate':'rock'});
+    obstacles.push({x,width,height:21+Math.floor(rand()*13),kind:'rock',variant:rand()<.5?'slate':'granite'});
   }
   const platforms=[];
   const pCount=1+Math.floor(rand()*2); // 1–2 доступные платформы
@@ -56,14 +56,22 @@ export function buildLevel(grid, username='0w1Max', seedOverride) {
     const y=319+Math.round(rand()*14);
     platforms.push({x,y,width});
   }
-  // Убираем преграды под платформами: у каждого объекта должен быть понятный маршрут.
+  // Не размещаем препятствия под платформами и в зоне подхода к ним.
+  const awayFromPlatforms=o=>platforms.every(p=>
+    o.x+o.width < p.x-45 || o.x > p.x+p.width+45);
   const safeObstacles=[];
   for(const o of obstacles) {
-    if(!platforms.every(p=>o.x+o.width < p.x-45 || o.x > p.x+p.width+45))continue;
+    if(!awayFromPlatforms(o))continue;
     if(safeObstacles.some(prev=>Math.abs(o.x-prev.x)<180))continue;
     safeObstacles.push(o);
   }
-  if(!safeObstacles.length) safeObstacles.push({x:340,width:30,height:24,kind:'crate'});
+  if(!safeObstacles.length) {
+    // Раньше x=340 игнорировал проверку и создавал ящик с крестом прямо под платформой.
+    const fallback=[560,1010,190].map(x=>({x,width:30,height:24,kind:'rock',variant:'granite'}))
+      .find(awayFromPlatforms);
+    if(!fallback)throw new Error('Нет безопасного места для запасного препятствия');
+    safeObstacles.push(fallback);
+  }
   return {seed,obstacles:safeObstacles,platforms};
 }
 

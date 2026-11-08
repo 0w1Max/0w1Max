@@ -83,6 +83,30 @@ test('Карта ограничивает число платформ и пре�
   }
 });
 
+
+
+test('На 1000 seed не возникают ящики с крестом и преграды под платформами',()=>{
+  for(let seed=0;seed<1000;seed++){
+    const map=buildLevel(grid,'0w1Max',seed);
+    assert.ok(map.obstacles.length>=1&&map.obstacles.length<=3);
+    for(const o of map.obstacles){
+      assert.equal(o.kind,'rock',`Неожиданный ящик: seed=${seed}`);
+      for(const p of map.platforms){
+        assert.ok(o.x+o.width < p.x-45 || o.x > p.x+p.width+45,
+          `Препятствие под платформой: seed=${seed}, obstacleX=${o.x}, platformX=${p.x}`);
+      }
+    }
+  }
+  // Текущий демонстрационный seed раньше принудительно ставил x=340 под платформой x=334.
+  assert.ok(!level.obstacles.some(o=>o.x===340));
+});
+
+test('SVG не рисует металлический ящик с диагональным крестом',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  assert.match(svg,/id="obstacle-0"/);
+  assert.doesNotMatch(svg,/stroke="#b7c4cd"|fill="#485b69"/);
+});
+
 test('На 100 разных картах боец не проходит сквозь преграды во время бега',()=>{
   for(let seed=0;seed<100;seed++){
     const map=buildLevel(grid,'0w1Max',seed);

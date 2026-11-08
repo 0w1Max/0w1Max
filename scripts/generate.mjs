@@ -257,8 +257,10 @@ function playerMarkup(mission) {
 function levelMarkup(level) {
   const props=level.obstacles.map((o,i)=>{
     const y=WORLD.groundY-o.height;
-    if(o.kind==='rock')return `<g id="obstacle-${i}" shape-rendering="crispEdges"><path d="M${o.x} ${WORLD.groundY}v-11h7v-${o.height-15}h11v-4h${o.width-23}v6h5v${o.height-13}h6v12z" fill="#7c8595" stroke="#29313b" stroke-width="3"/><path d="M${o.x+6} ${y+9}h11v5h-11z" fill="#afb7c4"/></g>`;
-    return `<g id="obstacle-${i}" shape-rendering="crispEdges"><rect x="${o.x}" y="${y}" width="${o.width}" height="${o.height}" fill="#485b69" stroke="#16212e" stroke-width="3"/><path d="M${o.x+4} ${y+4}l${o.width-8} ${o.height-8}m0-${o.height-8}l-${o.width-8} ${o.height-8}" stroke="#b7c4cd" stroke-width="3"/></g>`;
+    if(o.kind!=='rock')throw new Error(`Неизвестный тип препятствия: ${o.kind}`);
+    const fill=o.variant==='slate'?'#617a77':'#7c8595';
+    const shine=o.variant==='slate'?'#83a499':'#afb7c4';
+    return `<g id="obstacle-${i}" shape-rendering="crispEdges"><path d="M${o.x} ${WORLD.groundY}v-11h7v-${o.height-15}h11v-4h${o.width-23}v6h5v${o.height-13}h6v12z" fill="${fill}" stroke="#29313b" stroke-width="3"/><path d="M${o.x+6} ${y+9}h11v5h-11z" fill="${shine}"/></g>`;
   }).join('');
   const platforms=level.platforms.map((p,i)=>`<g id="platform-${i}" shape-rendering="crispEdges"><rect x="${p.x}" y="${p.y}" width="${p.width}" height="11" fill="#497a45" stroke="#102f2c" stroke-width="3"/><path d="M${p.x} ${p.y+2}h${p.width}" stroke="#b4ef63" stroke-width="4"/><rect x="${p.x+12}" y="${p.y+11}" width="6" height="${WORLD.groundY-p.y-11}" fill="#3f5361"/><rect x="${p.x+p.width-18}" y="${p.y+11}" width="6" height="${WORLD.groundY-p.y-11}" fill="#3f5361"/></g>`).join('');
   return `<g id="procedural-level" aria-label="Препятствия и платформы">${platforms}${props}</g>`;
