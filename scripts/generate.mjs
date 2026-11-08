@@ -159,21 +159,57 @@ function spriteMarkup() {
 }
 
 function background() {
+  // Pixel-art scenery is generated as vector shapes; no third-party image hosts.
+  const palm = (x, base, size, dim = false) => {
+    const leaf = dim ? '#0b3b37' : '#1d7850';
+    const highlight = dim ? '#105047' : '#56b64b';
+    const trunk = dim ? '#18413b' : '#94613a';
+    return `<g transform="translate(${x} ${base}) scale(${size})" shape-rendering="crispEdges">
+      <path d="M-5 0h12v-19H5v-19H2v-18H-1v-17H-4v-17H-7v-22h11v20h3v18h3v18h3v18h3v20h-5V0Z" fill="${trunk}"/>
+      <path d="M-5 -95h9v10h-9zM0 -70h10v5H0z" fill="${dim ? '#25665b' : '#d99453'}"/>
+      <path d="M0 -112h-14v-8h-22v-6h-19v8h-12v10h-10v14h8v-8h11v-6h19v3h10v10h14v14h8v-20h7z" fill="${leaf}"/>
+      <path d="M1 -113h13v-7h21v-5h21v10h14v8h10v15h-9v-9h-11v-6h-19v5h-13v10H10v12H3z" fill="${leaf}"/>
+      <path d="M-1 -117h-14v-16h-16v-12h-18v-10h-13v8h11v10h9v12h10v12h13v12H-3zM4 -118h15v-16h16v-12h17v-9h13v7h-9v12h-11v13H33v11H19v12H5z" fill="${highlight}"/>
+      <path d="M-9 -121h-14v-5h-15v-6h-13v-4h16v5h20v6h12zM8 -123h15v-6h15v-7h13v-4H36v5H19v7H6z" fill="${dim ? '#16665d' : '#90d95d'}"/>
+    </g>`;
+  };
+  const silhouettes = Array.from({length:30}, (_,i) => {
+    const x=i*43-13;
+    const h=28+(i*13)%32;
+    return `<path d="M${x} 369v-${h}h5v-${(i*7)%11+8}h4v${(i*7)%11+8}h5v${h}h-4v-18h-9v18z" fill="${i%3===0?'#103b3c':'#0b3035'}"/>`;
+  }).join('');
+  const rockySpots = Array.from({length:54},(_,i)=>{
+    const x=11+i*23;
+    const y=400+((i*17)%23);
+    const w=7+((i*7)%12);
+    return `<rect x="${x}" y="${y}" width="${w}" height="${4+(i%3)*2}" fill="${i%4===0?'#cc7d3e':i%3===0?'#70462b':'#90603b'}"/>`;
+  }).join('');
+  const shrubs = Array.from({length:64}, (_,i)=> {
+    const x=(i*61)%1200;
+    const y=368+(i%3)*2;
+    const h=5+(i*17)%14;
+    return `<path d="M${x-7} ${y}v-${h}h3v${h-5}h3v-${h+3}h3v${h-5}h4v${h}z" fill="${i%4===0?'#52984e':'#2a6945'}"/>`;
+  }).join('');
   return `<defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#06111e"/><stop offset="1" stop-color="#12374a"/></linearGradient>
-    <pattern id="grass" width="32" height="16" patternUnits="userSpaceOnUse"><rect width="32" height="16" fill="#153a25"/><path d="M0 0h9v4h8v-3h15v5H21v4h-9v-4H0z" fill="#6ddb3e"/><rect x="6" y="8" width="5" height="5" fill="#397d33"/></pattern>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#030b16"/><stop offset="0.55" stop-color="#0b1e36"/><stop offset="1" stop-color="#24475e"/></linearGradient>
+    <pattern id="grass" width="32" height="16" patternUnits="userSpaceOnUse"><rect width="32" height="16" fill="#194626"/><path d="M0 0h9v4h8v-3h15v5H21v4h-9v-4H0z" fill="#7be244"/><rect x="6" y="8" width="5" height="5" fill="#3e9136"/></pattern>
     <pattern id="dirt" width="48" height="36" patternUnits="userSpaceOnUse"><rect width="48" height="36" fill="#543624"/><path d="M0 0h19v8H7v10h-7M22 19h16v7H27v10h-5" fill="#a56a32"/><path d="M19 8h5v7h-5M38 0h8v5h-8" fill="#e28b42"/></pattern>
+    <pattern id="dither" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="2" height="2" x="1" y="1" fill="#a4c9dc" opacity=".20"/></pattern>
   </defs>
   <rect width="1200" height="430" fill="url(#sky)"/>
-  <g fill="#0b253a" shape-rendering="crispEdges"><path d="M0 336V275L65 250L106 270L173 210L253 270L329 220L420 294L522 219L638 287L741 196L868 284L995 223L1103 301L1200 240V336Z"/><path d="M0 336V306L88 280L176 308L290 258L396 300L502 256L620 314L727 252L821 311L934 267L1038 314L1100 259L1200 312V336Z" fill="#133a43"/></g>
-  <path d="M0 376v-39l85 -18 70 16 88-32 70 36 86-18 81 15 74-29 90 28 114-30 110 28 95-27 87 29 110-35v52Z" fill="#0b292b"/>
-  <g stroke="#286a42" stroke-width="7" stroke-linecap="square" fill="none" opacity=".85">
-    <path d="M44 372V296m0 10l-36-14m36 11l43-28m-43 17l-26-41m26 29l13-50"/>
-    <path d="M1140 372V286m0 19l-38-27m38 26l41-38m-41 14l-17-39m17 44l22-48"/>
-    <path d="M950 370V331m0 12l-26-20m26 20l29-24"/>
+  <g fill="#163452" shape-rendering="crispEdges">
+    <path d="M0 329V303L90 276l55 13 71-34 49 20 94-71 69 55 80-35 52 24 96-81 88 80 100-57 74 64 94-34 78 66 110-34v77z"/>
+    <path d="M0 329v-27l83-26 59 13 74-33 48 19 95-70 15 16-25 23-29 2 8 11-66 12-31 24-99 17-60-21zM597 268l59-99 36 46-25-12-12 27-13-5-16 29zM872 272l38-48 37 46-27-12-9-21-20 24z" fill="#6488b1" opacity=".85"/>
+    <path d="M0 340V310l75-19 86 21 93-31 108 24 84-32 92 26 88-24 111 40 93-29 117 22 93-39 111 51v20z" fill="#132b46"/>
   </g>
+  <g shape-rendering="crispEdges" opacity=".7"><path d="M45 275h85v4H45zM345 283h70v3h-70zM889 281h75v4h-75z" fill="#427090"/><path d="M20 306h96v2H20zM790 302h140v2H790z" fill="url(#dither)"/></g>
+  <path d="M0 374v-60l55-10 70 30 80-19 67 24 79-14 75 22 91-17 64 17 97-21 75 13 100-28 96 26 104-22 86 24 77-14 64 30v19Z" fill="#092b32"/>
+  ${silhouettes}
+  ${palm(50,374,1.14)}${palm(152,375,.57,true)}${palm(1134,375,1.08)}${palm(1055,376,.58,true)}${palm(790,375,.42,true)}
+  ${shrubs}
   <rect x="0" y="374" width="1200" height="14" fill="url(#grass)"/>
   <rect x="0" y="388" width="1200" height="42" fill="url(#dirt)"/>
+  ${rockySpots}
   <path d="M0 388h1200" stroke="#b9f667" stroke-width="2"/>
   <g shape-rendering="crispEdges"><rect x="1030" y="335" width="36" height="39" fill="#536476" stroke="#16232a" stroke-width="4"/><path d="M1037 342l22 25m0-25l-22 25" stroke="#b7c5c5" stroke-width="4"/><rect x="1073" y="322" width="43" height="52" fill="#536476" stroke="#18252e" stroke-width="4"/><path d="M1081 330l27 35m0-35l-27 35" stroke="#b7c5c5" stroke-width="4"/></g>`;
 }

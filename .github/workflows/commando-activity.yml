@@ -15,6 +15,8 @@ concurrency:
 
 jobs:
   render:
+    # Отдельное разрешение на публикацию: переменная репозитория должна быть явно включена.
+    if: vars.COMMANDO_ACTIVITY_PUBLISH == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

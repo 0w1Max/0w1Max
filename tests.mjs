@@ -29,3 +29,15 @@ test('Неверный уровень активности блокируетс�
 test('Недопустимое количество недель блокируется',()=>{
   assert.throws(()=>normalizeWeeks(Array.from({length:56},()=>({contributionDays:[]}))));
 });
+
+test('SVG не содержит сторонних внешних адресов или скриптов',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  assert.doesNotMatch(svg,/<script\b|<foreignObject\b|\s(?:href|src)=["\']https?:\/\//i);
+  assert.match(svg,/id="contribution-grid"/);
+  assert.match(svg,/id="blue-commando"/);
+});
+test('Реальный режим не помечен как демонстрационный',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:false});
+  assert.doesNotMatch(svg,/DEMO \/ TEST DATA/);
+  assert.match(svg,/Календарь получен через API GitHub/);
+});

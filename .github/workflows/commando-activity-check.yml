@@ -43,3 +43,12 @@ jobs:
             echo 'Ошибка: генератор вернул демо вместо реальных данных'
             exit 1
           fi
+      - name: Сохранить SVG для визуальной приёмки
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: commando-svg-preview
+          path: |
+            generated/demo.svg
+            generated/real.svg
+          if-no-files-found: error
+          retention-days: 7
