@@ -192,10 +192,10 @@ function playerMarkup(mission) {
   }
   for(const s of mission.segments) {
     const face=s.facing;
-    if(s.kind==='run') {
+    if(s.kind==='run'||s.kind==='walk') {
       const frames=['run-a','run-b','run-c','run-d'];
       let n=0;
-      for(let t=s.start;t<s.end;t+=.115)push(t,frames[n++%4],face);
+      for(let t=s.start;t<s.end;t+=(s.kind==='walk'?.18:.115))push(t,frames[n++%4],face);
     } else if(['jump','hop','drop'].includes(s.kind))push(s.start,'jump',face);
     else if(s.kind==='shoot')push(s.start,'aim',face); // без второго запечённого всполоха
     else if(s.kind==='aim')push(s.start,'aim',face);
@@ -301,7 +301,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const grid=normalizeWeeks(weeks);
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
-  const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке бегает по процедурному уровню, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
+  const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке непредсказуемо патрулирует процедурный уровень, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
   const scene=background();
   const defs=`<defs>${spriteDefs(sprites)}${effectsDefs()}
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>

@@ -176,14 +176,18 @@ function chooseFiringPosition(target,pass,level,currentX,live){
 export function createMission(grid,level){
   const targets=allTargets(grid);
   const live=new Map(targets.map(cell=>[cell.key,{...cell,hp:cell.maxHp}]));
-  const ordered=[];
-  // Снизу вверх; направления в соседних рядах чередуются.
-  for(let row=6;row>=0;row--){
-    const pass=6-row;
-    const subset=targets.filter(v=>v.row===row).sort((a,b)=>
-      (pass%2===0?a.col-b.col:b.col-a.col));
-    ordered.push(...subset.map(v=>({...v,pass,preferredFacing:pass%2===0?'right':'left'})));
-  }
+  // Псевдослучайность привязана к seed карты + содержимому календаря.
+  // Нет Math.random(): повторный запуск строит тот же маршрут и набор попаданий.
+  const rand=seededRandom(hash32(`mission-v3|${level.seed}|`+
+    targets.map(v=>`${v.key}:${v.maxHp}`).join('|')));
+  // У каждого столбца собственная очередь: верхняя клетка открывается после
+  // уничтожения всех живых клеток под ней. При этом сами столбцы НЕ сортируются
+  // по рядам; следующий выстрел может быть в любом открытом столбце.
+  const columns=Array.from({length:53},()=>[]);
+  for(const target of targets) columns[target.col].push(target);
+  for(const cells of columns)cells.sort((a,b)=>b.row-a.row);
+  let selectionIndex=0;
+  const targetOrder=[];
   let t=0,player={x:90,footY:WORLD.groundY,facing:'right'};
   const segments=[],shots=[],jumps=[];
   const speed=168;
@@ -198,7 +202,9 @@ export function createMission(grid,level){
   function walkTo(x){
     if(Math.abs(x-player.x)<.0001)return;
     const facing=x>player.x?'right':'left';
-    segment('run',Math.abs(x-player.x)/speed,x,player.footY,facing);
+    const distance=Math.abs(x-player.x);
+    const walking=distance<130 && rand()<.48;
+    segment(walking?'walk':'run',distance/(walking?108:speed),x,player.footY,facing);
   }
   function leapTo(x,y,kind='jump'){
     segment(kind,Math.max(.46,Math.abs(x-player.x)/180),x,y,x>player.x?'right':'left');
@@ -257,16 +263,55 @@ export function createMission(grid,level){
   }
 
   const used=new Set();
-  let previousPass=null;
-  for(const target of ordered){
-    if(previousPass!==null && target.pass!==previousPass && player.footY===WORLD.groundY){
-      const direction=target.preferredFacing==='left'?-1:1;
-      const hopX=clamp(player.x+direction*74,5,1110);
-      const safe=level.obstacles.every(o=>hopX+70<=o.x || hopX+8>=o.x+o.width);
-      if(safe && Math.abs(hopX-player.x)>40)leapTo(hopX,WORLD.groundY,'hop');
+  function chooseNextTarget(){
+    // По одному ближайшему к земле оставшемуся квадрату на столбец.
+    // Отдельно от ограничения по столбцам проверяется реальный луч пули:
+    // любой пересечённый живой квадрат делает кандидат недоступным.
+    const frontier=columns.map(cells=>cells.find(c=>live.has(c.key))).filter(Boolean);
+    if(!frontier.length) return null;
+    // Ранжирование не по строкам, а по текущей окрестности бойца с шумом.
+    // Редкие дальние кандидаты дают неожиданные развороты, но не вынуждают
+    // бойца каждые несколько выстрелов пересекать всю карту.
+    const ranked=frontier.map(target=>({target,
+      nearby:Math.abs(target.x-(player.x+WORLD.spriteSize/2)) + rand()*210,
+      lottery:rand()})).sort((a,b)=>a.nearby-b.nearby);
+    const shortlist=ranked.slice(0,10).map(v=>v.target);
+    const distant=ranked.slice(10).sort((a,b)=>a.lottery-b.lottery);
+    shortlist.push(...distant.slice(0,4).map(v=>v.target));
+    const options=[];
+    const budget=shortlist.length;
+    const tryCandidate=(target)=>{
+      let dest;
+      try{dest=chooseFiringPosition(target,player.facing,level,player.x,live);}
+      catch(error){if(!/^Нельзя прицелиться/.test(error.message))throw error;return;}
+      const cost=Math.abs(dest.x-player.x)+(dest.footY===player.footY?0:110);
+      // Местные цели немного предпочтительнее, но удалённые тоже возможны.
+      // Диапазон весов не допускает вырождения в полностью жадный обход.
+      const weight=.045+5*Math.exp(-cost/125)+rand()*.07;
+      options.push({target,dest,weight});
+    };
+    for(let i=0;i<budget;i++)tryCandidate(shortlist[i]);
+    // Если случайная выборка вся перекрыта, ищем среди остальных.
+    if(!options.length)for(const candidate of ranked.slice(10+4))tryCandidate(candidate.target);
+    if(!options.length)throw new Error('Не найдено ни одной доступной цели при живых клетках');
+    const total=options.reduce((v,o)=>v+o.weight,0);
+    let ticket=rand()*total;
+    for(const choice of options){ticket-=choice.weight;if(ticket<=0)return choice;}
+    return options.at(-1);
+  }
+
+  while(live.size){
+    // Короткие свободные пробежки нарушают ритм «переход-выстрел»,
+    // а переходы через препятствия остаются под контролем moveGround.
+    if(selectionIndex>0 && selectionIndex%7===0 && rand()<.32 &&
+      player.footY===WORLD.groundY){
+      const direction=rand()<.5?-1:1;
+      const x=safeGroundLanding(clamp(player.x+direction*(45+rand()*105),5,1110),direction);
+      moveGround(x);
     }
-    previousPass=target.pass;
-    const dest=chooseFiringPosition(target,target.preferredFacing,level,player.x,live);
+    const choice=chooseNextTarget();
+    if(!choice)throw new Error('Исчезла доступная цель при незавершённой миссии');
+    const {target,dest}=choice;
     moveTo(dest);
     if(player.facing!==dest.facing)segment('turn',.045,player.x,player.footY,dest.facing);
     segment('aim',.052);
@@ -274,6 +319,7 @@ export function createMission(grid,level){
     const origin={x:round(geometry.origin.x),y:round(geometry.origin.y)};
     if(firstLiveIntersection(origin,target,live)?.key!==target.key)
       throw new Error(`Траектория перекрыта перед выстрелом: ${target.key}`);
+    // Важно: цель остаётся живой до последнего попадания.
     const distance=Math.hypot(origin.x-target.x,origin.y-target.y);
     const state=live.get(target.key);
     if(!state || state.hp!==target.maxHp)throw new Error(`Неверное состояние цели: ${target.key}`);
@@ -285,13 +331,14 @@ export function createMission(grid,level){
       shots.push({...target,origin,facing:player.facing,tilt:dest.tilt,start,impact,
         playerX:round(player.x),footY:round(player.footY),
         hitIndex:hit,hpBefore,hpAfter:state.hp,finalHit:state.hp===0});
-      // Дожидаемся попадания, прежде чем менять состояние следующей цели.
       segment('shoot',Math.max(.105,impact-start+.018));
     }
     if(state.hp!==0)throw new Error(`Цель не уничтожена: ${target.key}`);
     live.delete(target.key);
     if(used.has(target.key))throw new Error(`Повторная цель: ${target.key}`);
     used.add(target.key);
+    targetOrder.push(target.key);
+    selectionIndex++;
   }
   const lastImpact=shots.reduce((v,s)=>Math.max(v,s.impact),t);
   if(t<lastImpact)segment('aim',lastImpact-t);
@@ -302,5 +349,5 @@ export function createMission(grid,level){
     throw new Error(`Не все квадраты обработаны: ${used.size}/${targets.length}`);
   const totalHp=targets.reduce((sum,cell)=>sum+cell.maxHp,0);
   if(shots.length!==totalHp)throw new Error(`Недостаточно попаданий: ${shots.length}/${totalHp}`);
-  return {duration,segments,shots,jumps,level,targets:targets.length,totalHp,initial:{x:90,footY:WORLD.groundY},lastImpact};
+  return {duration,segments,shots,jumps,level,targets:targets.length,totalHp,targetOrder,initial:{x:90,footY:WORLD.groundY},lastImpact};
 }

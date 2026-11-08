@@ -88,7 +88,7 @@ test('На 100 разных картах боец не проходит скво
     const map=buildLevel(grid,'0w1Max',seed);
     const plan=createMission(grid,map);
     assert.equal(plan.shots.length,totalHp,`Не все попадания для seed=${seed}`);
-    for(const s of plan.segments.filter(s=>s.kind==='run'&&s.y0===WORLD.groundY&&s.y1===WORLD.groundY)){
+    for(const s of plan.segments.filter(s=>['walk','run'].includes(s.kind)&&s.y0===WORLD.groundY&&s.y1===WORLD.groundY)){
       for(let sample=0;sample<=20;sample++){
         const x=s.x0+(s.x1-s.x0)*sample/20;
         const collision=map.obstacles.find(o=>x+70>o.x && x+8<o.x+o.width);
@@ -234,4 +234,41 @@ test('Геометрия позиции корректно зеркалится 
     assert.ok(Math.abs(right.barrel.x+left.barrel.x)<1e-9);
     assert.ok(Math.abs(right.barrel.y-left.barrel.y)<1e-9);
   }
+});
+
+
+test('Цели выбираются не по рядам: верхние доступны через пропуски в нижних',()=>{
+  const order=mission.targetOrder.map(key=>key.split(':').map(Number));
+  assert.equal(order.length,active);
+  // В первых 40 попаданиях должны встречаться разные ряды,
+  // а не весь нижний ряд, за которым следующий.
+  const first=order.slice(0,40).map(([col,row])=>row);
+  assert.ok(new Set(first).size>=3,'Стрельба по-прежнему привязана к одному ряду');
+  assert.ok(first.some(row=>row<=4),'Верхние клетки через пустые места не выбираются');
+  assert.ok(first.some(row=>row===6),'Нижние клетки тоже выбираются');
+  assert.ok(first.slice(1).filter((r,i)=>r!==first[i]).length>=14,'Нет смены высоты целей');
+});
+
+test('В каждом столбце нижние живые цели защищают верхние при случайном порядке',()=>{
+  const seen=new Set();
+  for(const key of mission.targetOrder){
+    const [col,row]=key.split(':').map(Number);
+    for(let lower=row+1;lower<7;lower++){
+      if(grid[col][lower]?.level>0)assert.ok(seen.has(`${col}:${lower}`),`Раннее поражение ${key}`);
+    }
+    seen.add(key);
+  }
+  assert.equal(seen.size,active);
+});
+
+test('Seed изменяет маршрут и порядок выстрелов, повторный seed даёт ровно тот же порядок',()=>{
+  const same=createMission(grid,buildLevel(grid,'0w1Max',818));
+  const sameAgain=createMission(grid,buildLevel(grid,'0w1Max',818));
+  const other=createMission(grid,buildLevel(grid,'0w1Max',819));
+  assert.deepEqual(same.targetOrder,sameAgain.targetOrder);
+  assert.notDeepEqual(same.targetOrder,other.targetOrder);
+  assert.notDeepEqual(same.targetOrder,grid.flat().filter(Boolean).map(d=>d.date));
+  assert.ok(same.segments.some(s=>s.kind==='walk'));
+  assert.ok(same.segments.some(s=>s.kind==='run'));
+  assert.ok(same.segments.some(s=>s.kind==='hop'));
 });
