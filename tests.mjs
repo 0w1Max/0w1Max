@@ -516,13 +516,10 @@ test('Детализированный пиксельный каньон вкл�
   assert.ok(Number.isInteger(desertSeed));
   const result=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:desertSeed});
   assert.match(result,/id="desert-canyon-v3"/);
-  const encoded=result.match(/href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/)?.[1];
-  assert.ok(encoded && encoded.length>100000);
-  const bytes=Buffer.from(encoded,'base64');
-  assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
-  assert.equal(bytes.readUInt32BE(16),1200);
-  assert.equal(bytes.readUInt32BE(20),430);
-  assert.ok(bytes.length<500000,'Фон слишком тяжёлый');
+  assert.match(result,/data-art-version="4.0"/);
+  assert.match(result,/<path fill="#[a-f0-9]{6}" d="M/);
+  assert.doesNotMatch(result,/<image\b|data:image\/png|<foreignObject\b|<script\b/i);
+  assert.ok(result.length<1500000,'Чрезмерный размер автономного SVG');
   assert.match(result,/id="blue-commando"/);
   assert.match(result,/id="contribution-grid"/);
   assert.doesNotMatch(result,/<script\b|href="https?:\/\//i);
