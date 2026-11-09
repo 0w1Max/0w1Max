@@ -265,7 +265,13 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const mission=createMission(grid,level);
   const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке непредсказуемо патрулирует процедурный уровень, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
   const scene=level.location==='desert' ? desertScene() : renderLocation(level.location,level.seed);
-  const defs=`<defs>${spriteDefs(sprites,level.location)}${effectsDefs()}
+  const defs=`<defs>
+    <linearGradient id="contribution-scrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#05111e" stop-opacity=".85"/>
+      <stop offset=".64" stop-color="#071927" stop-opacity=".68"/>
+      <stop offset="1" stop-color="#071927" stop-opacity="0"/>
+    </linearGradient>
+    ${spriteDefs(sprites,level.location)}${effectsDefs()}
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
@@ -276,7 +282,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
     const m=Number(day.date.slice(5,7))-1;
     if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#9eb8ba" font-family="monospace" font-size="12">${months[m]}</text>`;prev=m;}
   }
-  const top=`<rect x="65" y="27" width="1070" height="190" fill="#030e14" fill-opacity=".77" rx="6" stroke="#294c45" stroke-width="2"/><text x="72" y="20" font-family="monospace" font-size="18" fill="#a4f0b5">${escapeXml(username)} / GITHUB CONTRIBUTIONS</text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g>`;
+  // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
+  const top=`<g id="contribution-overlay"><rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/><text x="72" y="23" font-family="monospace" font-size="16" font-weight="bold" fill="#f2f7fa">${escapeXml(username)}<tspan font-weight="normal" fill="#b7d9db"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));

@@ -531,3 +531,19 @@ test('Детализированный пиксельный каньон вкл�
   const jungle=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:jungleSeed});
   assert.doesNotMatch(jungle,/id="desert-canyon-v3"/);
 });
+
+
+test('Каньон: квадратное поле интегрировано в сцену без тяжёлой рамки HUD',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
+  assert.match(svg,/id="desert-canyon-v3"/);
+  assert.match(svg,/id="contribution-overlay"/);
+  assert.match(svg,/id="contribution-scrim"/);
+  assert.match(svg,/id="contribution-shade"/);
+  assert.match(svg,/id="contribution-grid"/);
+  assert.match(svg,/0w1Max<tspan/);
+  assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
+  assert.doesNotMatch(svg,/stroke="#294c45" stroke-width="2"/);
+  assert.match(svg,/fill-opacity="0.10"/);
+  assert.match(svg,/id="blue-commando"/);
+  assert.match(svg,/id="mission-complete"/);
+});
