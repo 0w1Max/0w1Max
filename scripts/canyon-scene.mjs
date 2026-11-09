@@ -1,8 +1,14 @@
 /** GitHub-совместимый векторный pixel-art: PNG используется только на этапе сборки. */
 import {readFileSync} from 'node:fs';
 import {inflateSync} from 'node:zlib';
+import {WORLD} from './mission.mjs';
 
 const WIDTH=1200, HEIGHT=430, SW=400, SH=143;
+// На исходном PNG видимая поверхность грунта начинается с y=381,
+// тогда как движение бойца и препятствия рассчитаны на WORLD.groundY=374.
+// Меняем только дискретизацию фоновой текстуры, сохраняя коллизии.
+export const CANYON_SOURCE_GROUND_Y=381;
+export const CANYON_GROUND_ROW=Math.floor(WORLD.groundY*SH/HEIGHT);
 let cache;
 
 function decodePng(buffer){
@@ -54,7 +60,12 @@ function decodePng(buffer){
 function makePaths(pixels,palette){
   const paths=Array.from({length:palette.length},()=>[]);
   for(let y=0;y<SH;y++){
-    const sy=Math.min(HEIGHT-1,Math.floor((y+.5)*HEIGHT/SH));
+    // Устраняем полоску неба между ботинками и землёй. Нижний участок
+    // растягиваем на оставшуюся высоту SVG, вместо сдвига физики персонажа.
+    const sy=y<CANYON_GROUND_ROW
+      ? Math.min(HEIGHT-1,Math.floor((y+.5)*HEIGHT/SH))
+      : Math.min(HEIGHT-1,CANYON_SOURCE_GROUND_Y+
+          Math.floor((y-CANYON_GROUND_ROW+.5)*(HEIGHT-CANYON_SOURCE_GROUND_Y)/(SH-CANYON_GROUND_ROW)));
     let last=-1,from=0;
     for(let x=0;x<=SW;x++){
       const index=x===SW?-1:pixels[sy*WIDTH+Math.min(WIDTH-1,Math.floor((x+.5)*WIDTH/SW))];
@@ -68,7 +79,7 @@ function makePaths(pixels,palette){
     }
   }
   const art=paths.map((segments,i)=>segments.length?'<path fill="'+palette[i]+'" d="'+segments.join('')+'"/>':'').join('');
-  return '<g id="desert-canyon-v3" data-location="desert" data-art-version="4.0" shape-rendering="crispEdges"><g transform="scale(3 '+(HEIGHT/SH)+')">'+art+'</g></g>';
+  return '<g id="desert-canyon-v3" data-location="desert" data-art-version="4.1" data-ground-baseline="'+WORLD.groundY+'" shape-rendering="crispEdges"><g transform="scale(3 '+(HEIGHT/SH)+')">'+art+'</g></g>';
 }
 export function desertScene(){
   if(cache)return cache;

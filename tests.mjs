@@ -418,11 +418,11 @@ test('Неактивные дни почти прозрачные, активн�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells,'SVG должен содержать поле активности');
-  const empty=[...cells.matchAll(/<rect\b[^>]*fill="#182b26"[^>]*>/g)].map(m=>m[0]);
+  const empty=[...cells.matchAll(/<rect\b[^>]*fill="#91aab2"[^>]*>/g)].map(m=>m[0]);
   const active=[...cells.matchAll(/<rect\b[^>]*fill="#(?:0f663c|1b984d|32c45d|9af345)"[^>]*>/g)].map(m=>m[0]);
   assert.ok(empty.length>0,'В демо должны быть пустые дни');
   assert.ok(active.length>0,'В демо должны быть активные дни');
-  assert.ok(empty.every(tag=>tag.includes('fill-opacity="0.10"')),'Пустые клетки должны быть прозрачными на 90%');
+  assert.ok(empty.every(tag=>tag.includes('fill-opacity="0.16"')),'Пустые клетки должны быть прозрачными на 84%');
   assert.ok(active.every(tag=>tag.includes('fill-opacity="1"')),'Активные клетки сохраняют непрозрачность');
 });
 
@@ -507,7 +507,7 @@ test('SVG содержит согласованные биом, бойца и г
   assert.ok(svg.includes('data-biome="'+level.location+'"'));
   assert.ok(svg.includes('data-location="'+level.location+'"'));
   assert.ok(svg.includes('id="blue-commando"'));
-  assert.ok(svg.includes('fill-opacity="0.10"'));
+  assert.ok(svg.includes('fill-opacity="0.16"'));
 });
 
 
@@ -516,7 +516,7 @@ test('Детализированный пиксельный каньон вкл�
   assert.ok(Number.isInteger(desertSeed));
   const result=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:desertSeed});
   assert.match(result,/id="desert-canyon-v3"/);
-  assert.match(result,/data-art-version="4.0"/);
+  assert.match(result,/data-art-version="4.1"/);
   assert.match(result,/<path fill="#[a-f0-9]{6}" d="M/);
   assert.doesNotMatch(result,/<image\b|data:image\/png|<foreignObject\b|<script\b/i);
   assert.ok(result.length<3000000,'Превышен бюджет размера автономного SVG (3 МБ)');
@@ -540,7 +540,30 @@ test('Каньон: квадратное поле интегрировано в 
   assert.match(svg,/0w1Max<tspan/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
   assert.doesNotMatch(svg,/stroke="#294c45" stroke-width="2"/);
-  assert.match(svg,/fill-opacity="0.10"/);
+  assert.match(svg,/fill-opacity="0.16"/);
   assert.match(svg,/id="blue-commando"/);
   assert.match(svg,/id="mission-complete"/);
+});
+
+
+test('Каньон: линия визуального грунта соответствует физике без сдвига бойца',async()=>{
+  const {CANYON_SOURCE_GROUND_Y,CANYON_GROUND_ROW}=await import('./scripts/canyon-scene.mjs');
+  assert.equal(WORLD.groundY,374);
+  assert.equal(CANYON_SOURCE_GROUND_Y,381);
+  assert.equal(CANYON_GROUND_ROW,Math.floor(WORLD.groundY*143/430));
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
+  assert.match(svg,/data-art-version="4\.1"/);
+  assert.match(svg,/data-ground-baseline="374"/);
+  assert.match(svg,/id="blue-commando"/);
+  assert.match(svg,/id="procedural-level"/);
+  assert.doesNotMatch(svg,/<image\b|data:image\/png/i);
+});
+
+test('Пустые клетки видны на тёмном фоне без тяжёлой рамки',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
+  const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
+  assert.ok(cells);
+  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#91aab2"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.16"')));
+  assert.match(svg,/<stop offset="\.75" stop-color="#071927" stop-opacity="\.78"/);
+  assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
 });
