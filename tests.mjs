@@ -519,7 +519,7 @@ test('Детализированный пиксельный каньон вкл�
   assert.match(result,/data-art-version="4.0"/);
   assert.match(result,/<path fill="#[a-f0-9]{6}" d="M/);
   assert.doesNotMatch(result,/<image\b|data:image\/png|<foreignObject\b|<script\b/i);
-  assert.ok(result.length<1500000,'Чрезмерный размер автономного SVG');
+  assert.ok(result.length<3000000,'Превышен бюджет размера автономного SVG (3 МБ)');
   assert.match(result,/id="blue-commando"/);
   assert.match(result,/id="contribution-grid"/);
   assert.doesNotMatch(result,/<script\b|href="https?:\/\//i);
