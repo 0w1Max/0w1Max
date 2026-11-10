@@ -7,7 +7,7 @@ import {biomeFor} from './biomes.mjs';
 
 export const WORLD = Object.freeze({
   width: 1200, height: 430, groundY: 374, spriteSize: 78,
-  gridX: 72, gridY: 76, step: 20, cell: 17,
+  gridX: 72, gridY: 76, step: 20, cell: 18,
   // Опорные координаты исходного спрайта aim 78×78 (в пикселях).
   aimPivotX: 38, aimPivotY: 42,
   aimGripX: 38, aimGripY: 40,

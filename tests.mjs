@@ -151,7 +151,7 @@ test('SVG включает карты, преграды, прицельные п
     assert.ok(svg.includes(token),`Не найден SVG-маркер ${token}`);
   }
   assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
-  assert.equal((svg.match(/<rect x="[0-9]+" y="[0-9]+" width="17" height="17"/g)||[]).length,grid.flat().filter(Boolean).length);
+  assert.equal((svg.match(/<rect x="[0-9]+" y="[0-9]+" width="18" height="18"/g)||[]).length,grid.flat().filter(Boolean).length);
 });
 
 test('SVG не содержит внешних адресов, скриптов, foreignObject и небезопасных источников',()=>{
@@ -418,11 +418,11 @@ test('Неактивные дни почти прозрачные, активн�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells,'SVG должен содержать поле активности');
-  const empty=[...cells.matchAll(/<rect\b[^>]*fill="#91aab2"[^>]*>/g)].map(m=>m[0]);
-  const active=[...cells.matchAll(/<rect\b[^>]*fill="#(?:0f663c|1b984d|32c45d|9af345)"[^>]*>/g)].map(m=>m[0]);
+  const empty=[...cells.matchAll(/<rect\b[^>]*fill="#a8bcc4"[^>]*>/g)].map(m=>m[0]);
+  const active=[...cells.matchAll(/<rect\b[^>]*fill="#(?:166f43|22a857|3dd96b|b7ff63)"[^>]*>/g)].map(m=>m[0]);
   assert.ok(empty.length>0,'В демо должны быть пустые дни');
   assert.ok(active.length>0,'В демо должны быть активные дни');
-  assert.ok(empty.every(tag=>tag.includes('fill-opacity="0.16"')),'Пустые клетки должны быть прозрачными на 84%');
+  assert.ok(empty.every(tag=>tag.includes('fill-opacity="0.22"')),'Пустые клетки должны быть прозрачными на 78%');
   assert.ok(active.every(tag=>tag.includes('fill-opacity="1"')),'Активные клетки сохраняют непрозрачность');
 });
 
@@ -507,7 +507,7 @@ test('SVG содержит согласованные биом, бойца и г
   assert.ok(svg.includes('data-biome="'+level.location+'"'));
   assert.ok(svg.includes('data-location="'+level.location+'"'));
   assert.ok(svg.includes('id="blue-commando"'));
-  assert.ok(svg.includes('fill-opacity="0.16"'));
+  assert.ok(svg.includes('fill-opacity="0.22"'));
 });
 
 
@@ -516,7 +516,7 @@ test('Детализированный пиксельный каньон вкл�
   assert.ok(Number.isInteger(desertSeed));
   const result=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:desertSeed});
   assert.match(result,/id="desert-canyon-v3"/);
-  assert.match(result,/data-art-version="4.1"/);
+  assert.match(result,/data-art-version="5.0"/);
   assert.match(result,/<path fill="#[a-f0-9]{6}" d="M/);
   assert.doesNotMatch(result,/<image\b|data:image\/png|<foreignObject\b|<script\b/i);
   assert.ok(result.length<3000000,'Превышен бюджет размера автономного SVG (3 МБ)');
@@ -540,7 +540,7 @@ test('Каньон: квадратное поле интегрировано в 
   assert.match(svg,/0w1Max<tspan/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
   assert.doesNotMatch(svg,/stroke="#294c45" stroke-width="2"/);
-  assert.match(svg,/fill-opacity="0.16"/);
+  assert.match(svg,/fill-opacity="0.22"/);
   assert.match(svg,/id="blue-commando"/);
   assert.match(svg,/id="mission-complete"/);
 });
@@ -552,7 +552,7 @@ test('Каньон: линия визуального грунта соотве�
   assert.equal(CANYON_SOURCE_GROUND_Y,381);
   assert.equal(CANYON_GROUND_ROW,Math.floor(WORLD.groundY*143/430));
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
-  assert.match(svg,/data-art-version="4\.1"/);
+  assert.match(svg,/data-art-version="5\.0"/);
   assert.match(svg,/data-ground-baseline="374"/);
   assert.match(svg,/id="blue-commando"/);
   assert.match(svg,/id="procedural-level"/);
@@ -563,7 +563,32 @@ test('Пустые клетки видны на тёмном фоне без т�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells);
-  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#91aab2"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.16"')));
-  assert.match(svg,/<stop offset="\.75" stop-color="#071927" stop-opacity="\.78"/);
+  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#a8bcc4"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.22"')));
+  assert.match(svg,/<stop offset="\.75" stop-color="#071927" stop-opacity="\.82"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
+});
+
+
+test('Каньон V5: художественный фон чистый, без повторяющихся гор и огромных скальных колонн',async()=>{
+  const {desertScene}=await import('./scripts/canyon-scene.mjs');
+  const svg=desertScene();
+  assert.match(svg,/id="mesa-west"/);
+  assert.match(svg,/id="mesa-east"/);
+  assert.match(svg,/id="distant-ridges"/);
+  assert.match(svg,/id="desert-clouds"/);
+  assert.match(svg,/id="canyon-ground-texture"/);
+  assert.match(svg,/data-ground-baseline="374"/);
+  assert.equal((svg.match(/id="mesa-(?:west|east)"/g)||[]).length,2);
+  assert.doesNotMatch(svg,/<image\b|data:image|https?:\/\//);
+});
+
+test('Календарь V5: клетка 18px при шаге 20px и одинаковая физика попаданий',()=>{
+  assert.equal(WORLD.cell,18);
+  assert.equal(WORLD.step,20);
+  assert.equal(WORLD.groundY,374);
+  assert.equal(WORLD.gridX+52*WORLD.step+WORLD.cell,1130);
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  assert.match(svg,/width="18" height="18"/);
+  assert.match(svg,/font-size="18" font-weight="bold"/);
+  assert.match(svg,/font-size="13">/);
 });

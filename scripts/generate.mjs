@@ -17,7 +17,7 @@ import {soldierColor} from './biomes.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
-const COLORS = ['#91aab2', '#0f663c', '#1b984d', '#32c45d', '#9af345'];
+const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
 const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
 
 const escapeXml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -106,7 +106,7 @@ function gridMarkup(grid,mission) {
       const shades=[COLORS[cell.level],...hits.map(h=>h.finalHit?COLORS[1]:COLORS[Math.min(cell.level,h.hpAfter+1)]),COLORS[cell.level],COLORS[cell.level]];
       child+=animationAttr('fill',shadeKeys,shades,mission.duration);
     }
-    const fillOpacity = cell.level === 0 ? "0.16" : "1";
+    const fillOpacity = cell.level === 0 ? "0.22" : "1";
     output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[cell.level]}" fill-opacity="${fillOpacity}"><title>${escapeXml(title)}</title>${child}</rect>`;
   }
   return output;
@@ -267,9 +267,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const scene=level.location==='desert' ? desertScene() : renderLocation(level.location,level.seed);
   const defs=`<defs>
     <linearGradient id="contribution-scrim" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#05111e" stop-opacity=".90"/>
-      <stop offset=".75" stop-color="#071927" stop-opacity=".78"/>
-      <stop offset=".88" stop-color="#071927" stop-opacity=".66"/>
+      <stop offset="0" stop-color="#05111e" stop-opacity=".93"/>
+      <stop offset=".75" stop-color="#071927" stop-opacity=".82"/>
+      <stop offset=".88" stop-color="#071927" stop-opacity=".70"/>
       <stop offset="1" stop-color="#071927" stop-opacity="0"/>
     </linearGradient>
     ${spriteDefs(sprites,level.location)}${effectsDefs()}
@@ -281,10 +281,10 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   for(let col=0;col<53;col++){
     const day=grid[col].find(Boolean);if(!day)continue;
     const m=Number(day.date.slice(5,7))-1;
-    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#d0e4e8" font-family="monospace" font-size="12">${months[m]}</text>`;prev=m;}
+    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#d0e4e8" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
-  const top=`<g id="contribution-overlay"><rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/><text x="72" y="23" font-family="monospace" font-size="16" font-weight="bold" fill="#f2f7fa">${escapeXml(username)}<tspan font-weight="normal" fill="#d5e8e9"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g></g>`;
+  const top=`<g id="contribution-overlay"><rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/><text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="#f2f7fa">${escapeXml(username)}<tspan font-weight="normal" fill="#d5e8e9"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
