@@ -1,0 +1,74 @@
+name: Commando Activity · обновление календаря
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Два обновления в сутки, по UTC. Запускается только на default branch.
+    - cron: '17 4,16 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: commando-activity-publication
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == '0w1Max/0w1Max' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Получить код из main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Установить Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Проверить генератор и механику игры
+        run: node --test tests.mjs
+
+      - name: Пересобрать каньон из календаря GitHub
+        env:
+          GH_TOKEN: ${{ secrets.COMMANDO_READ_USER_TOKEN }}
+          GITHUB_USER: 0w1Max
+          COMMANDO_MAP_SEED: '3'
+        run: node scripts/generate.mjs --output generated/commando-activity.svg
+
+      - name: Проверить готовый SVG
+        run: node scripts/validate-publish.mjs generated/commando-activity.svg
+
+      - name: Опубликовать только SVG в output (без изменений main)
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const crypto = require('crypto');
+            const {owner, repo} = context.repo;
+            if (owner !== '0w1Max' || repo !== '0w1Max' || context.ref !== 'refs/heads/main') {
+              throw new Error('Публикация разрешена только из main профильного репозитория');
+            }
+            const branch = 'output';
+            const path = 'commando-activity.svg';
+            const branchRef = await github.rest.git.getRef({owner,repo,ref:'heads/'+branch});
+            if (!branchRef?.data?.object?.sha)throw new Error('Ветка output не найдена');
+            const bytes=fs.readFileSync('generated/commando-activity.svg');
+            const blobSha=crypto.createHash('sha1')
+              .update('blob '+bytes.length+'\0').update(bytes).digest('hex');
+            const old=await github.rest.repos.getContent({owner,repo,path,ref:branch});
+            if(Array.isArray(old.data))throw new Error('В output должен быть файл SVG');
+            if(old.data.sha===blobSha){
+              core.info('Календарь не изменился, новый коммит не нужен');
+              return;
+            }
+            await github.rest.repos.createOrUpdateFileContents({
+              owner,repo,branch,path,sha:old.data.sha,
+              content:bytes.toString('base64'),
+              message:'chore(profile): обновить календарь Commando Activity'
+            });
+            core.info('SVG обновлён в ветке output без публикации исходников или секретов');

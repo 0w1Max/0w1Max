@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/commando-activity.svg">
-    <img src="./assets/commando-activity.svg" alt="Commando Activity — анимированная 8-битная игра по реальной активности GitHub 0w1Max" width="100%">
+  <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg">
+    <img src="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg" alt="Commando Activity — анимированная 8-битная игра по реальной активности GitHub 0w1Max" width="100%">
   </a>
 </p>
 
