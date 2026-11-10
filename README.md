@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="./assets/profile-hero.svg" alt="Максим Крупецков — веб-разработка, JavaScript и ИИ" width="100%">
+  <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/commando-activity.svg">
+    <img src="./assets/commando-activity.svg" alt="Commando Activity — анимированная 8-битная игра по реальной активности GitHub 0w1Max" width="100%">
+  </a>
 </p>
 
 Создаю сайты и веб-приложения для бизнеса, развиваю собственные продукты. В работе использую JavaScript, Git и AI-ассистентов — от формулировки задачи до проверки изменений.
