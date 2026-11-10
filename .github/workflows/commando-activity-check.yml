@@ -82,7 +82,7 @@ jobs:
       - name: Проверить SVG галереи
         run: |
           python3 -c "from pathlib import Path; import xml.etree.ElementTree as ET; files=[Path('preview/commando-activity.svg'),Path('preview/desert-canyon.svg'),*sorted(Path('preview/biomes').glob('*.svg'))]; assert len(files)==7, len(files); [ET.parse(p) for p in files]; print('PASS: 7 SVG')"
-      - name: Обновить оба SVG-предпросмотра в ветке PR
+      - name: Опубликовать галерею SVG только в ветке Draft PR
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
