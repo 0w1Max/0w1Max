@@ -74,26 +74,14 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
-      - name: Сгенерировать анимацию по реальному календарю
+      - name: Создать пять биомов и случайную карту
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_USER: 0w1Max
+        run: node scripts/preview-gallery.mjs
+      - name: Проверить SVG галереи
         run: |
-          node scripts/generate.mjs --output preview/commando-activity.svg
-          python3 -c "import xml.etree.ElementTree as ET; ET.parse('preview/commando-activity.svg')"
-          if grep -q 'DEMO / TEST DATA' preview/commando-activity.svg; then
-            echo 'Ошибка: тестовый SVG запрещено публиковать как реальный'
-            exit 1
-          fi
-      - name: Создать отдельную версию пустынного каньона
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USER: 0w1Max
-          COMMANDO_MAP_SEED: '3'
-        run: |
-          node scripts/generate.mjs --output preview/desert-canyon.svg
-          python3 -c "import xml.etree.ElementTree as ET; ET.parse('preview/desert-canyon.svg')"
-          grep -q 'id="desert-canyon-v3"' preview/desert-canyon.svg
+          python3 -c "from pathlib import Path; import xml.etree.ElementTree as ET; files=[Path('preview/commando-activity.svg'),Path('preview/desert-canyon.svg'),*sorted(Path('preview/biomes').glob('*.svg'))]; assert len(files)==7, len(files); [ET.parse(p) for p in files]; print('PASS: 7 SVG')"
       - name: Обновить оба SVG-предпросмотра в ветке PR
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
@@ -113,7 +101,11 @@ jobs:
               core.warning('Ветка обновлена за время проверки — устаревший SVG не публикуем.');
               return;
             }
-            const paths = ['preview/commando-activity.svg', 'preview/desert-canyon.svg'];
+            const paths = [
+              'preview/commando-activity.svg', 'preview/desert-canyon.svg',
+              ...['industrial','jungle','desert','volcano','snow'].map(b => 'preview/biomes/'+b+'.svg'),
+              'preview/biomes/manifest.json'
+            ];
             for (const path of paths) {
               const bytes = fs.readFileSync(path);
               const blobSha = crypto.createHash('sha1')

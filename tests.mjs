@@ -592,3 +592,35 @@ test('Календарь V5: клетка 18px при шаге 20px и один�
   assert.match(svg,/font-size="18" font-weight="bold"/);
   assert.match(svg,/font-size="13">/);
 });
+
+
+test('Галерея пяти биомов сохраняет проходимость, seed и игровую механику',async()=>{
+  const {GALLERY_SEEDS,seedForPreviewRun,validateGallerySeeds}=await import('./scripts/preview-gallery.mjs');
+  assert.deepEqual(Object.keys(GALLERY_SEEDS).sort(),LOCATION_POOL.slice().sort());
+  validateGallerySeeds(grid,'0w1Max');
+  for(const [location,seed] of Object.entries(GALLERY_SEEDS)){
+    const map=buildLevel(grid,'0w1Max',seed);
+    const plan=createMission(grid,map);
+    assert.equal(map.location,location);
+    assert.ok(validateLayout(map).valid);
+    assert.equal(plan.shots.length,totalHp,'Недостающие выстрелы: '+location);
+    assert.equal(plan.totalHp,totalHp);
+    assert.equal(plan.segments.at(-1).x1,plan.initial.x);
+    assert.equal(plan.segments.at(-1).y1,plan.initial.footY);
+    assert.deepEqual(buildLevel(grid,'0w1Max',seed),map);
+  }
+  assert.equal(seedForPreviewRun('42841054053'),Number(42841054053n&0xffffffffn));
+  assert.equal(seedForPreviewRun('42841054053','2'),Number(42841054054n&0xffffffffn));
+  assert.throws(()=>seedForPreviewRun('invalid'));
+});
+
+test('Случайные карты используют все локации и разные наборы препятствий',()=>{
+  const biomes=new Set(),layouts=new Set();
+  for(let seed=100;seed<150;seed++){
+    const map=buildLevel(grid,'0w1Max',seed);
+    biomes.add(map.location);
+    layouts.add(JSON.stringify({obstacles:map.obstacles,platforms:map.platforms}));
+  }
+  assert.deepEqual([...biomes].sort(),LOCATION_POOL.slice().sort());
+  assert.ok(layouts.size>=20,'Недостаточно разнообразия игровых уровней');
+});

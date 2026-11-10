@@ -32,7 +32,7 @@ function timeline(times,values,duration){
   return {times,values};
 }
 
-async function fetchCalendar(username, token) {
+export async function fetchCalendar(username, token) {
   if (!/^[A-Za-z\d-]{1,39}$/.test(username)) throw new Error('Некорректное имя GitHub пользователя');
   if (!token) throw new Error('Для настоящего календаря нужен GITHUB_TOKEN (или GH_TOKEN)');
   const query = `query($login:String!){ user(login:$login){ contributionsCollection { contributionCalendar { weeks { contributionDays { date contributionCount contributionLevel } } } } } }`;
