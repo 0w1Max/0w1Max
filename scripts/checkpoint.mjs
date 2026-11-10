@@ -14,6 +14,7 @@ export function checkpointMarkup(level,mission){
   if(!Number.isFinite(mission.duration)||mission.finishAt<0||
     mission.finishAt>=mission.returnStart||mission.returnStart>=mission.duration)
     throw new Error('Некорректное время победной сцены checkpoint');
+  if(gateX+97>WORLD.width)throw new Error('Checkpoint обрезается правой границей мира');
   const win=mission.finishAt,leave=mission.returnStart,d=mission.duration;
   const dark='#382f36',sh='#68433d',stone='#935849',warm='#bf7954',light='#e0a06a';
   const base=[
@@ -29,7 +30,7 @@ export function checkpointMarkup(level,mission){
   // Узкая арка справа от точки остановки бойца. Ступени — единичные
   // пиксельные блоки, а не растянутые вертикальные колонны.
   const arch=[
-    '<path d="M'+gateX+' 374V331h5v-14h6v-10h7v-8h8v-7h68v8h8v9h7v14h3v51h-19v-56h-16v-5h-38v5h-15v56z" fill="'+dark+'"/>',
+    '<path d="M'+gateX+' 374V332h5v-14h7v-11h8v-7h63v7h8v11h6v56h-19v-56h-13v-5h-39v5h-13v56z" fill="'+dark+'"/>',
     '<path d="M1105 373v-40h5v-14h7v-12h9v-8h47v7h9v14h8v54h-14v-59h-16v-6h-28v6h-13v59z" fill="'+stone+'"/>',
     R(1113,322,8,16,light),R(1120,311,14,6,warm),
     R(1137,301,44,5,light),R(1182,320,6,18,light),
