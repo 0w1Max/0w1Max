@@ -15,8 +15,6 @@ export const WORLD = Object.freeze({
   muzzleRightX: 60, muzzleLeftX: 18, muzzleYFromFeet: 64,
 });
 
-export const DESERT_CHECKPOINT = Object.freeze({playerX:1005,gateX:1100,freeLaneFrom:985});
-
 function hash32(value) {
   let h = 2166136261;
   for (let i=0; i<value.length; i++) {
@@ -77,8 +75,6 @@ export function validateLayout(level) {
     if(level.obstacles.some(o=>!theme.obstacles.includes(o.kind)))issues.push('Преграда не соответствует локации');
     if(level.platforms.some(p=>!theme.platforms.includes(p.kind)))issues.push('Платформа не соответствует локации');
   }
-  if(level.location==='desert' && level.obstacles.some(o=>o.x+o.width>=DESERT_CHECKPOINT.freeLaneFrom))
-    issues.push('Преграда перекрывает подход к checkpoint');
   for(let i=0;i<level.platforms.length;i++){
     const p=level.platforms[i];
     if(!PLATFORM_POOL.includes(p.kind)||p.x<190||p.x+p.width>1110||
@@ -140,7 +136,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride) {
     // Левый участок x < 290 оставлен свободным для заключительного патруля.
     // 50 воспроизводимых кандидатов: при нехватке места объект НЕ добавляем.
     for(let attempt=0;attempt<50;attempt++){
-      const x=290+Math.floor(rand()*(location==='desert'?640:780));
+      const x=290+Math.floor(rand()*780);
       const o={kind,x,width,height};
       if(obstacles.some(prev=>Math.abs(prev.x-x)<180))continue;
       if(platforms.some(p=>!(x+width<p.x-45||x>p.x+p.width+45)))continue;
@@ -429,17 +425,10 @@ export function createMission(grid,level){
   }
   const lastImpact=shots.reduce((v,s)=>Math.max(v,s.impact),t);
   if(t<lastImpact)segment('aim',lastImpact-t);
-  // Для каньона после зачистки — реальный проход к правому checkpoint.
-  // Правый коридор свободен: площадка не пересекает препятствия.
-  if(level.location==='desert'){
-    moveTo({x:DESERT_CHECKPOINT.playerX,footY:WORLD.groundY,platform:null});
-    if(player.facing!=='right')segment('turn',.14,player.x,player.footY,'right');
-    if(level.obstacles.some(o=>DESERT_CHECKPOINT.playerX+70>o.x &&
-      DESERT_CHECKPOINT.playerX+8<o.x+o.width))
-      throw new Error('Точка checkpoint пересекает препятствие');
-  }
+  // Победная поза не телепортирует бойца: после неё он реально проходит
+  // остаток уровня, перепрыгивая препятствия и спускаясь с платформ.
   const finishAt=round(t);
-  segment('victory',level.location==='desert'?1.25:.78);
+  segment('victory',.78);
   const returnStart=round(t);
   const spawnX=90;
   moveTo({x:spawnX,footY:WORLD.groundY,platform:null});

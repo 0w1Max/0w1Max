@@ -11,7 +11,6 @@ import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 import { renderLocation } from './locations.mjs';
 import {desertScene} from './canyon-scene.mjs';
-import {checkpointMarkup} from './checkpoint.mjs';
 import { levelMarkup } from './level-art.mjs';
 import {soldierColor} from './biomes.mjs';
 
@@ -292,15 +291,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const fadeEnd=round(Math.min(fadeBegin+.55,missionEnd-.10));
   const missionComplete=animationAttr('opacity',
     [0,round(finishedAt-.001),finishedAt,fadeBegin,fadeEnd,missionEnd],['0','0','1','1','0','0'],missionEnd,'linear');
-  const clearArt=level.location==='desert'
-    ? `<rect x="483" y="242" width="234" height="36" fill="#191e2c" fill-opacity=".77"/>
-       <rect x="491" y="243" width="218" height="2" fill="#d89b6f"/>
-       <rect x="491" y="275" width="218" height="2" fill="#885847"/>
-       <text x="600" y="267" text-anchor="middle" font-family="monospace" font-size="19" font-weight="bold" letter-spacing="2" fill="#f9e0a5">STAGE CLEAR</text>`
-    : `<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text>`;
-  const done=`<g id="mission-complete" opacity="0">${missionComplete}${clearArt}</g>`;
+  const done=`<g id="mission-complete" opacity="0">${missionComplete}<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text></g>`;
   const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
-  return `${header}${scene}${defs}${top}${indicator}${levelMarkup(level)}${checkpointMarkup(level,mission)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}</svg>\n`;
+  return `${header}${scene}${defs}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}</svg>\n`;
 }
 
 async function main() {

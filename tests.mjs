@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {gunzipSync} from 'node:zlib';
 import {normalizeWeeks,renderSvg} from './scripts/generate.mjs';
 import {LOCATION_POOL,selectLocation,renderLocation} from './scripts/locations.mjs';
-import {buildLevel,createMission,WORLD,DESERT_CHECKPOINT,hpForLevel,firstLiveIntersection,aimGeometry,OBSTACLE_POOL,PLATFORM_POOL,randomCount,pickUnique,validateLayout} from './scripts/mission.mjs';
+import {buildLevel,createMission,WORLD,hpForLevel,firstLiveIntersection,aimGeometry,OBSTACLE_POOL,PLATFORM_POOL,randomCount,pickUnique,validateLayout} from './scripts/mission.mjs';
 import {levelMarkup} from './scripts/level-art.mjs';
 import {BIOMES,biomeFor,soldierColor} from './scripts/biomes.mjs';
 
@@ -626,54 +626,37 @@ test('Случайные карты используют все локации �
 });
 
 
-test('Каньон: прибытие к checkpoint и бесшовный возврат',()=>{
-  let found=0;
-  for(let seed=0;seed<80;seed++){
-    const map=buildLevel(grid,'0w1Max',seed);
-    if(map.location!=='desert')continue;
-    found++;
-    const plan=createMission(grid,map);
-    const victory=plan.segments.find(s=>s.kind==='victory');
-    assert.ok(victory,'Нет победной сцены, seed='+seed);
-    assert.equal(victory.x0,DESERT_CHECKPOINT.playerX);
-    assert.equal(victory.y0,WORLD.groundY);
-    assert.equal(victory.facing,'right');
-    assert.equal(plan.finishAt,victory.start);
-    assert.ok(plan.finishAt>=plan.lastImpact);
-    assert.ok(map.obstacles.every(o=>o.x+o.width<DESERT_CHECKPOINT.freeLaneFrom));
-    assert.ok(map.obstacles.every(o=>!(DESERT_CHECKPOINT.playerX+70>o.x &&
-      DESERT_CHECKPOINT.playerX+8<o.x+o.width)));
-    assert.equal(plan.segments.at(-1).x1,plan.initial.x);
-    assert.equal(plan.segments.at(-1).y1,plan.initial.footY);
-    for(let i=1;i<plan.segments.length;i++){
-      assert.equal(plan.segments[i].x0,plan.segments[i-1].x1,'Скачок X, seed='+seed);
-      assert.equal(plan.segments[i].y0,plan.segments[i-1].y1,'Скачок Y, seed='+seed);
-    }
+test('Вулкан V2: детальная пиксельная сцена и все слои присутствуют',async()=>{
+  const {volcanoScene}=await import('./scripts/volcano-scene.mjs');
+  const ids=['volcano-stage-v2','volcano-caldera','volcano-eruption','volcano-far-ridges',
+    'volcano-ancient-ruins','volcano-lava-waterfalls','volcano-rock-sprites',
+    'volcano-basalt-floor','volcano-lava-embers'];
+  for(const seed of [0,6,10,17,111,999]){
+    const scene=volcanoScene(seed);
+    assert.equal(scene,volcanoScene(seed),'Повтор одного seed должен дать тот же SVG');
+    for(const id of ids)assert.ok(scene.includes('id="'+id+'"'),'Нет слоя '+id);
+    assert.doesNotMatch(scene,/<script\b|<image\b|data:image\/|<foreignObject\b|\s(?:href|src)=["']https?:\/\//i);
+    assert.ok(scene.includes('y="374"'),'Поверхность земли должна совпадать с физикой y=374');
+    assert.ok(scene.length>16000,'Недостаточно деталей вулканической сцены');
   }
-  assert.ok(found>=5,'Недостаточно проверено пустынных карт');
+  assert.notEqual(volcanoScene(0),volcanoScene(1));
+  assert.throws(()=>volcanoScene(-1));
 });
 
-test('Арка и флаг — только в каньоне, без внешних ресурсов',async()=>{
-  const {checkpointMarkup}=await import('./scripts/checkpoint.mjs');
-  const level=buildLevel(grid,'0w1Max',3);
-  assert.equal(level.location,'desert');
-  const plan=createMission(grid,level);
-  const art=checkpointMarkup(level,plan);
-  assert.match(art,/id="desert-end-zone"/);
-  assert.match(art,/data-ground-y="374"/);
-  assert.match(art,/data-checkpoint-player-x="1005"/);
-  assert.match(art,/id="desert-victory-flag"/);
-  assert.match(art,/CHECKPOINT/);
-  assert.doesNotMatch(art,/<image\b|data:image\/|<script\b|<foreignObject\b/i);
-  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
-  assert.match(svg,/STAGE CLEAR/);
-  assert.match(svg,/id="desert-end-zone"/);
-  assert.ok(svg.indexOf('id="desert-end-zone"')<svg.indexOf('id="blue-commando"'));
-  for(const seed of [0,1,6,7]){
-    const other=buildLevel(grid,'0w1Max',seed);
-    const otherPlan=createMission(grid,other);
-    assert.equal(checkpointMarkup(other,otherPlan),'');
-    const otherSvg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:seed});
-    assert.doesNotMatch(otherSvg,/id="desert-end-zone"/);
+test('Вулкан V2: действует только для своего биома и не содержит checkpoint',async()=>{
+  const {volcanoScene}=await import('./scripts/volcano-scene.mjs');
+  const lavaSeed=[0,1,2,3,4,5,6,7,8,9,10,11,12].find(seed=>buildLevel(grid,'0w1Max',seed).location==='volcano');
+  assert.ok(lavaSeed!==undefined);
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:lavaSeed});
+  assert.match(svg,/id="volcano-stage-v2"/);
+  assert.match(svg,/id="volcano-caldera"/);
+  assert.match(svg,/id="volcano-ancient-ruins"/);
+  assert.doesNotMatch(svg,/desert-end-zone|desert-victory-flag|STAGE CLEAR/);
+  for(const seed of [0,1,3,7]){
+    const level=buildLevel(grid,'0w1Max',seed);
+    if(level.location==='volcano')continue;
+    const other=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:seed});
+    assert.doesNotMatch(other,/id="volcano-stage-v2"/);
+    assert.doesNotMatch(other,/desert-end-zone/);
   }
 });

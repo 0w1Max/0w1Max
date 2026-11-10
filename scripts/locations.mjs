@@ -1,3 +1,4 @@
+import {volcanoScene} from './volcano-scene.mjs';
 /** Пять детерминированных пиксельных окружений. Коллизии уровня не меняются. */
 export const LOCATION_POOL = Object.freeze(['jungle','desert','snow','volcano','industrial']);
 export const LOCATION_NAMES = Object.freeze({
@@ -72,14 +73,7 @@ function snow(seed){
     ground('#c3e0ed','#617987','#f0faff',['#b0d0df','#7ca0b0','#d1e2e8'],seed);
 }
 function volcano(seed){
-  let embers='';
-  for(let i=0;i<27;i++)embers+=rect(spot(seed,i),345+(i*9)%23,3+(i%3)*2,2,i%2?'#ef722c':'#c74e35');
-  return rect(888,248,51,51,'#ec6c37')+
-    shape('M0 351v-60l94-31 78 24 81-43 72 35 82-49 72 31 83-44 77 38 80-39 78 44 83-50 95 41 100-35 104 77v60z','#5c3445')+
-    shape('M289 359l212-161 213 161z','#373541')+
-    shape('M463 226l38-28 42 30-27-13-15 10-15-9z','#fd8542')+
-    shape('M0 367v-44l124-35 102 30 85-23 110 37 100-26 104 32 106-34 93 29 100-35 105 39 71-27v57z','#242b35')+
-    embers+ground('#392d38','#201e29','#e76a33',['#b54a30','#e07732','#6e4551'],seed);
+  return volcanoScene(seed);
 }
 function industrial(seed){
   let city='';
