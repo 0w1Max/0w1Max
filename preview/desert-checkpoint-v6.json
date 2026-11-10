@@ -1,0 +1,24 @@
+{
+  "type": "review-only",
+  "file": "preview/desert-checkpoint-v6.svg",
+  "source": "real counts/levels extracted from published output/commando-activity.svg",
+  "profile": "0w1Max",
+  "biome": "desert",
+  "seed": 3,
+  "calendarCells": 367,
+  "shots": 107,
+  "durationSeconds": 109.0179,
+  "checkpoint": {
+    "playerX": 1005,
+    "gateX": 1100,
+    "archRight": 1197
+  },
+  "checks": {
+    "source": true,
+    "route": true,
+    "xmlNesting": true,
+    "matchedShots": true,
+    "notDemo": true
+  },
+  "note": "Draft PR preview, does not update main or output"
+}
