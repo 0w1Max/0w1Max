@@ -3,6 +3,7 @@ import { WORLD } from './mission.mjs';
 import {biomeFor,tintTerrainArt,obstacleBiomeDetail,platformBiomeDetail} from './biomes.mjs';
 import {volcanoObstacleSprites, volcanoPlatformSprites, volcanoSprite, volcanoSpriteDefinitions} from './volcano-sprites.mjs';
 import {jungleObstacleSprites, junglePlatformSprites, jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
+import {desertObstacleSprites, desertPlatformSprites, desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
 const n = value => Number(value.toFixed(3));
 
 function obstacle(o, i) {
@@ -91,6 +92,7 @@ function platform(p,i) {
 
 const spriteTerrain = {
   volcano: [volcanoObstacleSprites, volcanoPlatformSprites, volcanoSpriteDefinitions, volcanoSprite],
+  desert: [desertObstacleSprites, desertPlatformSprites, desertSpriteDefinitions, desertSprite],
   jungle: [jungleObstacleSprites, junglePlatformSprites, jungleSpriteDefinitions, jungleSprite]
 };
 

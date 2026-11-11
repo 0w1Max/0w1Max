@@ -515,8 +515,8 @@ test('Детализированный пиксельный каньон вкл�
   const desertSeed=Array.from({length:80},(_,i)=>i).find(s=>buildLevel(grid,'0w1Max',s).location==='desert');
   assert.ok(Number.isInteger(desertSeed));
   const result=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:desertSeed});
-  assert.match(result,/id="desert-canyon-v3"/);
-  assert.match(result,/data-art-version="5.0"/);
+  assert.match(result,/id="desert-canyon-v6"/);
+  assert.match(result,/data-ground-baseline="374"/);
   assert.match(result,/<path fill="#[a-f0-9]{6}" d="M/);
   assert.doesNotMatch(result,/<image\b|data:image\/png|<foreignObject\b|<script\b/i);
   assert.ok(result.length<3000000,'Превышен бюджет размера автономного SVG (3 МБ)');
@@ -526,16 +526,16 @@ test('Детализированный пиксельный каньон вкл�
   const jungleSeed=Array.from({length:80},(_,i)=>i).find(s=>buildLevel(grid,'0w1Max',s).location==='jungle');
   assert.ok(Number.isInteger(jungleSeed));
   const jungle=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:jungleSeed});
-  assert.doesNotMatch(jungle,/id="desert-canyon-v3"/);
+  assert.doesNotMatch(jungle,/id="desert-canyon-v6"/);
 });
 
 
 test('Каньон: квадратное поле интегрировано в сцену без тяжёлой рамки HUD',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
-  assert.match(svg,/id="desert-canyon-v3"/);
+  assert.match(svg,/id="desert-canyon-v6"/);
   assert.match(svg,/id="contribution-overlay"/);
   assert.match(svg,/id="contribution-scrim"/);
-  assert.match(svg,/id="contribution-shade"/);
+  assert.doesNotMatch(svg,/id="contribution-shade"/);
   assert.match(svg,/id="contribution-grid"/);
   assert.match(svg,/0w1Max<tspan/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
@@ -546,15 +546,14 @@ test('Каньон: квадратное поле интегрировано в 
 });
 
 
-test('Каньон: линия визуального грунта соответствует физике без сдвига бойца',async()=>{
-  const {CANYON_SOURCE_GROUND_Y,CANYON_GROUND_ROW}=await import('./scripts/canyon-scene.mjs');
-  assert.equal(WORLD.groundY,374);
-  assert.equal(CANYON_SOURCE_GROUND_Y,381);
-  assert.equal(CANYON_GROUND_ROW,Math.floor(WORLD.groundY*143/430));
+test('Каньон: линия грунта, статичный кадр бойца и полный размер',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
-  assert.match(svg,/data-art-version="5\.0"/);
+  assert.match(svg,/width="1200" height="400" viewBox="0 0 1200 478"/);
   assert.match(svg,/data-ground-baseline="374"/);
-  assert.match(svg,/id="blue-commando"/);
+  const floor=[...svg.matchAll(/href="#desert-sprite-ground-\d+" x="(\d+)" y="374" width="150" height="104"/g)];
+  assert.deepEqual(floor.map(([,x])=>Number(x)),[0,150,300,450,600,750,900,1050]);
+  const player=svg.match(/id="blue-commando" transform="translate\([^ ]+ ([^)]+)\)"/);
+  assert.equal(Number(player?.[1])+WORLD.spriteSize,WORLD.groundY);
   assert.match(svg,/id="procedural-level"/);
   assert.doesNotMatch(svg,/<image\b|data:image\/png/i);
 });
@@ -564,22 +563,29 @@ test('Пустые клетки видны на тёмном фоне без т�
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells);
   assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#a8bcc4"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.22"')));
-  assert.match(svg,/<stop offset="\.75" stop-color="#071927" stop-opacity="\.82"/);
+  assert.match(cells,/stroke="#110c11" stroke-opacity="\.75"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
 });
 
 
-test('Каньон V5: художественный фон чистый, без повторяющихся гор и огромных скальных колонн',async()=>{
-  const {desertScene}=await import('./scripts/canyon-scene.mjs');
-  const svg=desertScene();
-  assert.match(svg,/id="mesa-west"/);
-  assert.match(svg,/id="mesa-east"/);
-  assert.match(svg,/id="distant-ridges"/);
-  assert.match(svg,/id="desert-clouds"/);
-  assert.match(svg,/id="canyon-ground-texture"/);
-  assert.match(svg,/data-ground-baseline="374"/);
-  assert.equal((svg.match(/id="mesa-(?:west|east)"/g)||[]).length,2);
-  assert.doesNotMatch(svg,/<image\b|data:image|https?:\/\//);
+test('Каньон: независимые слои и все тематические спрайты',()=>{
+  const backdrop=renderLocation('desert',3);
+  for(const name of ['west-cliff','distant-mesas','east-arch']){
+    assert.match(backdrop,new RegExp('href="#desert-sprite-'+name+'"'));
+  }
+  assert.doesNotMatch(backdrop,/<image\b|data:image|https?:\/\//);
+  const seen=new Set();
+  for(let seed=0;seed<1000;seed++){
+    const level=buildLevel(grid,'0w1Max',seed);
+    if(level.location!=='desert')continue;
+    assert.ok(validateLayout(level).valid);
+    const art=levelMarkup(level);
+    const objects=[...art.matchAll(/data-sprite="([^"]+)"><use href="#desert-sprite-\1"/g)];
+    assert.equal(objects.length,level.obstacles.length+level.platforms.length);
+    for(const [,name] of objects)seen.add(name);
+  }
+  assert.deepEqual([...seen].sort(),['broken-pillar','desert-sandbags','dusty-crate','plank-bridge',
+    'rusted-gangway','sandstone-boulder','sandstone-shelf']);
 });
 
 test('Календарь V5: клетка 18px при шаге 20px и одинаковая физика попаданий',()=>{

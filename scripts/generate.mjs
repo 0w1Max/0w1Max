@@ -10,7 +10,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 import { renderLocation } from './locations.mjs';
-import {desertScene} from './canyon-scene.mjs';
+import {desertDimensions} from './canyon-scene.mjs';
 import {jungleDimensions} from './jungle-scene.mjs';
 import {volcanoDimensions} from './volcano-scene.mjs';
 import { levelMarkup } from './level-art.mjs';
@@ -266,13 +266,14 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const grid=normalizeWeeks(weeks);
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
-  const pixelViewport = level.location === 'volcano' ? volcanoDimensions() :
+  const pixelViewport = level.location === 'desert' ? desertDimensions() :
+    level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() : null;
   const viewport = pixelViewport
     ? `width="${WORLD.width}" height="${pixelViewport.displayHeight}" viewBox="0 0 ${WORLD.width} ${pixelViewport.viewHeight}" preserveAspectRatio="none"`
     : `width="${WORLD.width}" height="${WORLD.height}" viewBox="0 0 ${WORLD.width} ${WORLD.height}"`;
   const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" ${viewport} role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке непредсказуемо патрулирует процедурный уровень, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
-  const scene=level.location==='desert' ? desertScene() : renderLocation(level.location,level.seed);
+  const scene=renderLocation(level.location,level.seed);
   const defs=`<defs>
     <linearGradient id="contribution-scrim" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#05111e" stop-opacity=".93"/>

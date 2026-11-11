@@ -1,3 +1,4 @@
+import {desertScene as desert} from './canyon-scene.mjs';
 import {jungleScene as jungle} from './jungle-scene.mjs';
 import {volcanoScene} from './volcano-scene.mjs';
 /** Пять детерминированных пиксельных окружений. Коллизии уровня не меняются. */
@@ -26,30 +27,10 @@ function ground(top,dirt,edge,rocks,seed){
   }
   return rect(0,374,1200,14,top)+rect(0,388,1200,42,dirt)+rect(0,387,1200,3,edge)+details;
 }
-function cactus(x,scale){
-  return group(x,374,scale,
-    shape('M-8 0v-72h13v72zM-8 -21h-15v-15h-8v-20h9v12h14zM5 -37h15v-15h10v24H5z','#568e6f')+
-    rect(-5,-61,4,52,'#93bf94'));
-}
 function pine(x,scale){
   return group(x,374,scale,rect(-4,-24,8,24,'#667682')+
     shape('M0 -112l20 30h-10l18 28H15l22 27h-74l22-27h-13l18-28h-10z','#285367')+
     shape('M-8 -93H9l7 11h-32zM-21 -58h42l8 8h-58zM-34 -32h68l4 6h-76z','#d3e9f1'));
-}
-function scrub(seed,count,color){
-  let out='';
-  for(let i=0;i<count;i++){
-    const x=spot(seed,i),height=5+(i*11)%11;
-    out+=shape('M'+x+' 374v-'+height+'h3v'+(height-4)+'h4v-7h3v'+height+'z',color);
-  }
-  return out;
-}
-function desert(seed){
-  return rect(908,242,70,70,'#f0b36d')+
-    shape('M0 352v-78h65v-30h68v-45h76v41h56v58h67v54zM387 354v-79h63v-36h76v-38h60v36h65v54h89v63zM801 352v-68h52v-45h90v-28h51v44h69v45h72v52z','#af6452')+
-    shape('M0 363v-29l110-33 108 25 85-26 93 27 109-22 93 31 105-35 102 25 111-30 100 34 84-13v46z','#d28e6c')+
-    cactus(82,.58)+cactus(1132,.69)+cactus(825,.4)+scrub(seed,12,'#ba9e5c')+
-    ground('#b88f5b','#87513c','#e2b479',['#a66c48','#cb8660','#70503e'],seed);
 }
 function snow(seed){
   return rect(857,229,48,48,'#e2f4ff')+
