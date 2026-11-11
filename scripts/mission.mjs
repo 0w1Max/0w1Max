@@ -23,7 +23,7 @@ function hash32(value) {
   }
   return h >>> 0;
 }
-function seededRandom(seed) {
+export function seededRandom(seed) {
   let state=seed>>>0;
   return () => {
     state+=0x6d2b79f5;

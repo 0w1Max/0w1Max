@@ -626,56 +626,69 @@ test('Случайные карты используют все локации �
 });
 
 
-test('Вулкан V3: строгий NES-тайлсет и воспроизводимая сцена',async()=>{
+test('Вулкан: сборка сцены из локальных спрайтов и линия настила',async()=>{
   const {volcanoScene}=await import('./scripts/volcano-scene.mjs');
-  const expected=['volcano-stage-v3','volcano-horizon','volcano-ridges',
-    'volcano-caldera','volcano-smoke','volcano-ruins',
-    'volcano-lava-waterfalls','volcano-basalt-floor'];
   for(const seed of [0,1,6,10,17,111,999]){
     const scene=volcanoScene(seed);
     assert.equal(scene,volcanoScene(seed));
-    for(const id of expected)assert.ok(scene.includes('id="'+id+'"'),'Отсутствует '+id);
-    assert.ok(scene.includes('y="374"'),'Линия земли y=374');
+    for(const name of ['lavafall','cavern','furnace','bridge','lava-a','lava-b']){
+      assert.ok(scene.includes('id="volcano-sprite-'+name+'"'));
+    }
+    const bridge=[...scene.matchAll(/href="#volcano-sprite-bridge" x="(\d+)" y="(\d+)" width="(\d+)"/g)];
+    assert.ok(bridge.length>1);
+    let edge=0;
+    for(const [,x,y,width] of bridge){
+      assert.equal(Number(x),edge);
+      assert.equal(Number(y),WORLD.groundY);
+      edge+=Number(width);
+    }
+    assert.equal(edge,WORLD.width);
     assert.doesNotMatch(scene,/<script\b|<image\b|data:image\/|<foreignObject\b|https?:\/\//i);
-    assert.ok(scene.length>12000);
   }
   assert.notEqual(volcanoScene(0),volcanoScene(1));
   assert.throws(()=>volcanoScene(-1));
 });
 
-test('Вулкан V3: базальтовые препятствия и платформы согласованы с уровнем',()=>{
-  const map=buildLevel(grid,'0w1Max',6);
-  assert.equal(map.location,'volcano');
-  assert.ok(validateLayout(map).valid);
-  const examples={...map,obstacles:[{kind:'jungle-rock',x:444,width:34,height:27},
-    {kind:'stone-ruin',x:750,width:32,height:32},
-    {kind:'supply-crate',x:995,width:34,height:27}],
-    platforms:[{kind:'mossy-stone',x:255,width:130,y:321},
-      {kind:'metal-catwalk',x:735,width:130,y:321}]};
-  const art=levelMarkup(examples);
-  for(const kind of ['jungle-rock','stone-ruin','supply-crate','mossy-stone','metal-catwalk'])
-    assert.ok(art.includes('data-kind="'+kind+'"'));
-  assert.equal((art.match(/data-theme-detail="volcano"/g)||[]).length,5);
-  assert.match(art,/fill="#25222d"/);
-  assert.match(art,/fill="#48404e"/);
-  assert.doesNotMatch(art,/fill="#6ec349"|fill="#4c6d43"|<image\b|<script\b/i);
+test('Вулкан: генератор выбирает все спрайты, а отрисовка совпадает с игровой геометрией',()=>{
+  const obstacles=new Set(),platforms=new Set();
+  for(let seed=0;seed<1000;seed++){
+    const map=buildLevel(grid,'0w1Max',seed);
+    if(map.location!=='volcano')continue;
+    assert.ok(validateLayout(map).valid);
+    const art=levelMarkup(map);
+    const rendered=[...art.matchAll(/data-sprite="([^"]+)"><use href="#volcano-sprite-\1" x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)"/g)];
+    assert.equal(rendered.length,map.platforms.length+map.obstacles.length);
+    rendered.forEach(([,name,x,y,width,height],index)=>{
+      const platform=index<map.platforms.length;
+      const item=platform ? map.platforms[index] : map.obstacles[index-map.platforms.length];
+      assert.equal(Number(x),item.x);
+      assert.equal(Number(width),item.width);
+      assert.equal(Number(y),platform ? item.y : WORLD.groundY-item.height);
+      if(!platform)assert.equal(Number(height),item.height);
+      (platform ? platforms : obstacles).add(name);
+    });
+  }
+  assert.deepEqual([...obstacles].sort(),['basalt-boulder','furnace-vent','power-terminal','ruptured-pipe','slag-pile','steel-barricade']);
+  assert.deepEqual([...platforms].sort(),['armored-gangway','basalt-ledge','truss-catwalk']);
 });
 
-test('Вулкан V3: встроен в SVG, остальные биомы и цикл бойца не меняются',()=>{
+test('Вулкан: автономный SVG сохраняет цикл бойца и выстрелы',()=>{
   const seed=6;
   const map=buildLevel(grid,'0w1Max',seed);
   assert.equal(map.location,'volcano');
   const plan=createMission(grid,map);
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:seed});
-  assert.match(svg,/id="volcano-stage-v3"/);
-  assert.match(svg,/id="volcano-caldera"/);
-  assert.match(svg,/id="volcano-ruins"/);
-  assert.doesNotMatch(svg,/desert-end-zone|desert-victory-flag|STAGE CLEAR|volcano-stage-v2/);
+  assert.match(svg,/id="volcano-stage-v4"/);
+  assert.match(svg,/id="volcano-bridge-and-lava"/);
+  const player=svg.match(/id="blue-commando" transform="translate\(([^)]+)\)"[^>]*><animateTransform[^>]* values="([^;]+);/);
+  assert.ok(player);
+  assert.equal(player[1],player[2]);
+  assert.doesNotMatch(svg,/desert-end-zone|desert-victory-flag|STAGE CLEAR|<image\b|data:image\//);
   assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,plan.totalHp);
   assert.equal(plan.segments.at(-1).x1,plan.initial.x);
   assert.equal(plan.segments.at(-1).y1,plan.initial.footY);
   for(const another of [0,1,3,7]){
     const other=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:another});
-    assert.doesNotMatch(other,/id="volcano-stage-v3"/);
+    assert.doesNotMatch(other,/id="volcano-stage-v4"/);
   }
 });

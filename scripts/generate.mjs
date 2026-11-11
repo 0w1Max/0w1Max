@@ -256,7 +256,7 @@ function playerMarkup(mission) {
     if(face==='right')output+=`<g>${content}</g>`;
     else output+=`<g transform="translate(78 0) scale(-1 1)">${content}</g>`;
   }
-  return `<g id="blue-commando" aria-label="Боец с синей повязкой">${motion}${output}</g>`;
+  return `<g id="blue-commando" transform="translate(${startPoint})" aria-label="Боец с синей повязкой">${motion}${output}</g>`;
 }
 
 export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
@@ -284,7 +284,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
     if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#d0e4e8" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
-  const top=`<g id="contribution-overlay"><rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/><text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="#f2f7fa">${escapeXml(username)}<tspan font-weight="normal" fill="#d5e8e9"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g></g>`;
+  const scrimOpacity=level.location==='volcano' ? ' opacity=".48"' : '';
+  const top=`<g id="contribution-overlay"><rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"${scrimOpacity}/><text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="#f2f7fa">${escapeXml(username)}<tspan font-weight="normal" fill="#d5e8e9"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));

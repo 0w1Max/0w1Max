@@ -32,7 +32,7 @@ export const BIOMES = Object.freeze({
     {cloth:'#b2c6c7',vest:'#6b8494'}
   ),
   volcano: define(
-    ['jungle-rock','stone-ruin','tree-stump','supply-crate'],
+    ['jungle-rock','fallen-log','sandbags','stone-ruin','tree-stump','supply-crate'],
     ['mossy-stone','metal-catwalk','camo-platform'],
     {leaf:'#f58a37',timber:'#6b4540',stone:'#625057',metal:'#65565d',shade:'#231f2d',highlight:'#ffc14f'},
     {cloth:'#69616a',vest:'#484651'}
