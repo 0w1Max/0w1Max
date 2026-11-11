@@ -694,3 +694,33 @@ test('Вулкан: автономный SVG сохраняет цикл бой�
     assert.doesNotMatch(other,/id="volcano-stage-v4"/);
   }
 });
+
+test('Джунгли: полная сцена, стык грунта и все тематические спрайты',()=>{
+  const expectedObstacles=['army-crate','broken-log','moss-boulder','temple-block','tree-stump'];
+  const expectedPlatforms=['moss-ledge','rope-bridge','vine-ledge'];
+  const obstacles=new Set(),platforms=new Set();
+  for(let seed=0;seed<1000;seed++){
+    const level=buildLevel(grid,'0w1Max',seed);
+    if(level.location!=='jungle')continue;
+    assert.ok(validateLayout(level).valid);
+    const markup=levelMarkup(level);
+    for(const [,type,name,x,y,width,height] of markup.matchAll(
+      /id="(obstacle|platform)-\d+"[^>]+data-sprite="([^"]+)"><use href="#jungle-sprite-\2" x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)"/g)){
+      if(type==='obstacle'){
+        assert.equal(Number(y)+Number(height),WORLD.groundY);
+        obstacles.add(name);
+      }else{
+        assert.ok(level.platforms.some(p=>p.x===Number(x)&&p.y===Number(y)&&p.width===Number(width)));
+        platforms.add(name);
+      }
+    }
+  }
+  assert.deepEqual([...obstacles].sort(),expectedObstacles);
+  assert.deepEqual([...platforms].sort(),expectedPlatforms);
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:34});
+  assert.match(svg,/width="1200" height="400" viewBox="0 0 1200 481"/);
+  assert.match(svg,/id="jungle-stage"[^>]*data-ground-baseline="374"/);
+  const ground=[...svg.matchAll(/href="#jungle-sprite-ground-\d+" x="(\d+)" y="374" width="150" height="107"/g)];
+  assert.deepEqual(ground.map(([,x])=>Number(x)),[0,150,300,450,600,750,900,1050]);
+  assert.doesNotMatch(svg,/<image\b|id="contribution-shade"/);
+});

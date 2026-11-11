@@ -1,3 +1,4 @@
+import {jungleScene as jungle} from './jungle-scene.mjs';
 import {volcanoScene} from './volcano-scene.mjs';
 /** Пять детерминированных пиксельных окружений. Коллизии уровня не меняются. */
 export const LOCATION_POOL = Object.freeze(['jungle','desert','snow','volcano','industrial']);
@@ -25,14 +26,6 @@ function ground(top,dirt,edge,rocks,seed){
   }
   return rect(0,374,1200,14,top)+rect(0,388,1200,42,dirt)+rect(0,387,1200,3,edge)+details;
 }
-function palm(x,scale){
-  return group(x,374,scale,
-    shape('M-5 0h10v-60h-4v-44h-8v44h2z','#9f6b43')+
-    shape('M-4 -100h-15v-12h-24v-8h-21v11h17v7h22v15h13z','#267c56')+
-    shape('M2 -101h18v-12h24v-9h21v11H48v8H25v16H10z','#368a56')+
-    shape('M-7 -102h-11v-18h-20v-12h-12v-7h-9v9h10v10h13v18h18z','#8ad563')+
-    shape('M5 -104h14v-17h19v-12h13v-7h8v9h-9v9H36v18H18z','#72c960'));
-}
 function cactus(x,scale){
   return group(x,374,scale,
     shape('M-8 0v-72h13v72zM-8 -21h-15v-15h-8v-20h9v12h14zM5 -37h15v-15h10v24H5z','#568e6f')+
@@ -50,12 +43,6 @@ function scrub(seed,count,color){
     out+=shape('M'+x+' 374v-'+height+'h3v'+(height-4)+'h4v-7h3v'+height+'z',color);
   }
   return out;
-}
-function jungle(seed){
-  return shape('M0 342v-43l95-30 90 23 77-46 70 25 74-60 81 49 70-34 71 32 83-69 89 59 83-31 80 60 87-32 103 59v38z','#22445c')+
-    shape('M0 361v-44l107-25 88 26 97-30 91 25 86-29 83 32 80-29 95 31 88-28 102 32 96-21v60z','#123e46')+
-    palm(65,.97)+palm(1130,1.01)+palm(185,.53)+scrub(seed,36,'#3d8051')+
-    ground('#215b3b','#50392b','#a8d663',['#83583b','#a97340','#6c4d35'],seed);
 }
 function desert(seed){
   return rect(908,242,70,70,'#f0b36d')+
