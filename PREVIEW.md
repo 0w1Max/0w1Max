@@ -6,9 +6,9 @@
 
 | Seed | Платформа | Карта |
 | --- | --- | --- |
-| 49 | Светлая стальная ферма | [Открыть SVG](preview/desert-canyon-v6-49.svg?raw=1) |
-| 109 | Уступ из песчаника | [Открыть SVG](preview/desert-canyon-v6-109.svg?raw=1) |
-| 167 | Дощатый мостик | [Открыть SVG](preview/desert-canyon-v6-167.svg?raw=1) |
+| 49 | Платформа из тесаного камня | [Открыть SVG](preview/desert-canyon-v6-49.svg?raw=1) |
+| 109 | Плита слоистого песчаника | [Открыть SVG](preview/desert-canyon-v6-109.svg?raw=1) |
+| 167 | Выветренный каменный уступ | [Открыть SVG](preview/desert-canyon-v6-167.svg?raw=1) |
 
 ## Тропические джунгли
 

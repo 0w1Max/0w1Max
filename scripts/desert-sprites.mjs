@@ -10,7 +10,7 @@ export const desertObstacleSprites = Object.freeze({
 });
 
 export const desertPlatformSprites = Object.freeze({
-  'wooden-bridge': 'plank-bridge',
+  'wooden-bridge': 'eroded-stone-ledge',
   'mossy-stone': 'sandstone-shelf',
-  'camo-platform': 'rusted-gangway',
+  'camo-platform': 'ashlar-stone-platform',
 });

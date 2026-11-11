@@ -585,8 +585,8 @@ test('Каньон: независимые слои и все тематичес
     assert.equal(objects.length,level.obstacles.length+level.platforms.length);
     for(const [,name] of objects)seen.add(name);
   }
-  assert.deepEqual([...seen].sort(),['broken-pillar','desert-sandbags','dusty-crate','plank-bridge',
-    'rusted-gangway','sandstone-boulder','sandstone-shelf']);
+  assert.deepEqual([...seen].sort(),['ashlar-stone-platform','broken-pillar','desert-sandbags','dusty-crate',
+    'eroded-stone-ledge','sandstone-boulder','sandstone-shelf']);
 });
 
 test('Календарь V5: клетка 18px при шаге 20px и одинаковая физика попаданий',()=>{
