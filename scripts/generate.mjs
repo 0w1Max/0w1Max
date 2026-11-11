@@ -20,6 +20,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
+const CANYON_COLORS = ['#285672', '#145646', '#268363', '#60b880', '#f0cb6a'];
 const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
 
 const escapeXml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -73,7 +74,7 @@ export function normalizeWeeks(weeks) {
   return normalized;
 }
 
-function gridMarkup(grid,mission,emptyBorder) {
+function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacity}) {
   const impacts=new Map();
   for(const shot of mission.shots){
     if(!impacts.has(shot.key))impacts.set(shot.key,[]);
@@ -105,12 +106,12 @@ function gridMarkup(grid,mission,emptyBorder) {
       // 0.001 секунды на разрушение; 0.3 секунды на восстановление.
       child+=animationAttr('opacity',keys,opacity,mission.duration,'linear');
       const shadeKeys=[0,...hits.map(h=>h.impact),at,mission.duration];
-      const shades=[COLORS[cell.level],...hits.map(h=>h.finalHit?COLORS[1]:COLORS[Math.min(cell.level,h.hpAfter+1)]),COLORS[cell.level],COLORS[cell.level]];
+      const shades=[colors[cell.level],...hits.map(h=>h.finalHit?colors[1]:colors[Math.min(cell.level,h.hpAfter+1)]),colors[cell.level],colors[cell.level]];
       child+=animationAttr('fill',shadeKeys,shades,mission.duration);
     }
-    const fillOpacity = cell.level === 0 ? "0.22" : "1";
-    const border=cell.level===0 ? emptyBorder : '';
-    output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[cell.level]}" fill-opacity="${fillOpacity}"${border}><title>${escapeXml(title)}</title>${child}</rect>`;
+    const fillOpacity = cell.level === 0 ? emptyOpacity : "1";
+    const border=cell.level===0 ? emptyBorder : activeBorder;
+    output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${border}><title>${escapeXml(title)}</title>${child}</rect>`;
   }
   return output;
 }
@@ -267,9 +268,10 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
   const daylight = level.location === 'desert';
-  const labelFill = daylight ? '#172b45' : '#d0e4e8';
-  const titleFill = daylight ? '#172b45' : '#f2f7fa';
-  const subtitleFill = daylight ? '#233b52' : '#d5e8e9';
+  const labelFill = daylight ? '#16394f' : '#d0e4e8';
+  const titleFill = daylight ? '#102f43' : '#f2f7fa';
+  const subtitleFill = daylight ? '#204760' : '#d5e8e9';
+  const textOutline = daylight ? ' stroke="#fff1cb" stroke-width="2" stroke-opacity=".7" paint-order="stroke"' : '';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() : null;
@@ -296,13 +298,18 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   for(let col=0;col<53;col++){
     const day=grid[col].find(Boolean);if(!day)continue;
     const m=Number(day.date.slice(5,7))-1;
-    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
+    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}"${textOutline} font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
-  const emptyBorder = daylight ? ' stroke="#172b45" stroke-opacity=".30"' :
-    pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '';
-  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,emptyBorder)}</g></g>`;
+  const gridStyle = {
+    colors: daylight ? CANYON_COLORS : COLORS,
+    emptyOpacity: daylight ? '0.13' : '0.22',
+    emptyBorder: daylight ? ' stroke="#245470" stroke-opacity=".24"' :
+      pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
+    activeBorder: daylight ? ' stroke="#174656" stroke-opacity=".55"' : '',
+  };
+  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}"${textOutline}>${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));

@@ -415,7 +415,7 @@ test('Каждый вид новой платформы и препятстви�
 });
 
 test('Неактивные дни почти прозрачные, активные клетки остаются непрозрачными',()=>{
-  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:6});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells,'SVG должен содержать поле активности');
   const empty=[...cells.matchAll(/<rect\b[^>]*fill="#a8bcc4"[^>]*>/g)].map(m=>m[0]);
@@ -507,7 +507,7 @@ test('SVG содержит согласованные биом, бойца и г
   assert.ok(svg.includes('data-biome="'+level.location+'"'));
   assert.ok(svg.includes('data-location="'+level.location+'"'));
   assert.ok(svg.includes('id="blue-commando"'));
-  assert.ok(svg.includes('fill-opacity="0.22"'));
+  assert.ok(svg.includes(level.location==='desert'?'fill-opacity="0.13"':'fill-opacity="0.22"'));
 });
 
 
@@ -540,7 +540,7 @@ test('Каньон: квадратное поле интегрировано в 
   assert.match(svg,/0w1Max<tspan/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
   assert.doesNotMatch(svg,/stroke="#294c45" stroke-width="2"/);
-  assert.match(svg,/fill-opacity="0.22"/);
+  assert.match(svg,/fill-opacity="0.13"/);
   assert.match(svg,/id="blue-commando"/);
   assert.match(svg,/id="mission-complete"/);
 });
@@ -563,8 +563,13 @@ test('Пустые клетки видны на дневном фоне без �
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells);
-  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#a8bcc4"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.22"')));
-  assert.match(cells,/stroke="#172b45" stroke-opacity="\.30"/);
+  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#285672"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.13"')));
+  assert.match(cells,/stroke="#245470" stroke-opacity="\.24"/);
+  for(const color of ['#145646','#268363','#60b880','#f0cb6a']){
+    assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
+  }
+  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:145646|268363|60b880|f0cb6a)/);
+  assert.match(svg,/fill="#102f43" stroke="#fff1cb"[^>]+paint-order="stroke"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
 });
 
