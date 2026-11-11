@@ -1,0 +1,21 @@
+{
+  "stage": "Volcano V3 NES tile-art preview",
+  "source": "previous V2 preview calendar snapshot, not a fresh GitHub API read",
+  "originalSeed": 4160242934,
+  "location": "volcano",
+  "platforms": [
+    {
+      "kind": "camo-platform",
+      "x": 280,
+      "y": 324,
+      "width": 136
+    }
+  ],
+  "obstacles": [],
+  "calendarCells": 367,
+  "shots": 42,
+  "art": "volcano-stage-v3",
+  "terrain": "volcanic-platforms-and-obstacles",
+  "xmlTagsValidated": 3473,
+  "mainOrOutputUpdated": false
+}
