@@ -26,11 +26,11 @@ export function desertScene(seed) {
       groundY, tileWidth, viewHeight - groundY)).join('');
 
   return `<g id="desert-canyon-v6" data-seed="${seed}" data-ground-baseline="${groundY}" shape-rendering="crispEdges">` +
-    desertSpriteDefinitions(['west-cliff', 'distant-mesas', 'east-arch', ...groundTiles]) +
+    desertSpriteDefinitions(['west-mesa', 'distant-mesas', 'east-ridge', ...groundTiles]) +
     '<g id="desert-backdrop">' +
     `<rect width="${width}" height="${groundY}" fill="#080609"/>` +
-    desertSprite('west-cliff', 0, 0, westEdge, groundY) +
+    desertSprite('west-mesa', 0, 0, westEdge, groundY) +
     desertSprite('distant-mesas', westEdge, 0, eastEdge - westEdge, groundY) +
-    desertSprite('east-arch', eastEdge, 0, width - eastEdge, groundY) +
+    desertSprite('east-ridge', eastEdge, 0, width - eastEdge, groundY) +
     '</g><g id="desert-ground">' + floor + '</g></g>';
 }

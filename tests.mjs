@@ -570,7 +570,7 @@ test('Пустые клетки видны на тёмном фоне без т�
 
 test('Каньон: независимые слои и все тематические спрайты',()=>{
   const backdrop=renderLocation('desert',3);
-  for(const name of ['west-cliff','distant-mesas','east-arch']){
+  for(const name of ['west-mesa','distant-mesas','east-ridge']){
     assert.match(backdrop,new RegExp('href="#desert-sprite-'+name+'"'));
   }
   assert.doesNotMatch(backdrop,/<image\b|data:image|https?:\/\//);
