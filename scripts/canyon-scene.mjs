@@ -1,12 +1,12 @@
 import {WORLD} from './mission.mjs';
 import {desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
 
-const sourceHeight = 724;
-const sourceGround = 576;
+const height = 470;
+const westEdge = 410;
+const eastEdge = 850;
 const groundTiles = Array.from({length: 8}, (_, i) => `ground-${i}`);
 
 export function desertDimensions() {
-  const height = Math.round(sourceHeight * WORLD.groundY / sourceGround);
   return {displayHeight: height, viewHeight: height};
 }
 
@@ -20,9 +20,9 @@ export function desertScene(seed) {
   return `<g id="desert-canyon-v6" data-seed="${seed}" data-ground-baseline="${groundY}" shape-rendering="crispEdges">` +
     desertSpriteDefinitions(['west-mesa', 'distant-mesas', 'east-ridge', ...groundTiles]) +
     '<g id="desert-backdrop">' +
-    `<rect width="${width}" height="${groundY}" fill="#080609"/>` +
-    desertSprite('distant-mesas', 0, 0, width, groundY) +
-    desertSprite('west-mesa', 0, 0, width, groundY) +
-    desertSprite('east-ridge', 0, 0, width, groundY) +
+    `<rect width="${width}" height="${groundY}" fill="#36bcee"/>` +
+    desertSprite('distant-mesas', westEdge, 0, eastEdge - westEdge, groundY) +
+    desertSprite('west-mesa', 0, 0, westEdge, groundY) +
+    desertSprite('east-ridge', eastEdge, 0, width - eastEdge, groundY) +
     '</g><g id="desert-ground">' + floor + '</g></g>';
 }

@@ -559,12 +559,12 @@ test('Каньон: линия грунта, статичный кадр бой�
   assert.doesNotMatch(svg,/<image\b|data:image\/png/i);
 });
 
-test('Пустые клетки видны на тёмном фоне без тяжёлой рамки',()=>{
+test('Пустые клетки видны на дневном фоне без тяжёлой рамки',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells);
   assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#a8bcc4"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.22"')));
-  assert.match(cells,/stroke="#110c11" stroke-opacity="\.75"/);
+  assert.match(cells,/stroke="#172b45" stroke-opacity="\.30"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
 });
 

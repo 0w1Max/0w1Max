@@ -73,7 +73,7 @@ export function normalizeWeeks(weeks) {
   return normalized;
 }
 
-function gridMarkup(grid,mission,outline=false) {
+function gridMarkup(grid,mission,emptyBorder) {
   const impacts=new Map();
   for(const shot of mission.shots){
     if(!impacts.has(shot.key))impacts.set(shot.key,[]);
@@ -109,7 +109,7 @@ function gridMarkup(grid,mission,outline=false) {
       child+=animationAttr('fill',shadeKeys,shades,mission.duration);
     }
     const fillOpacity = cell.level === 0 ? "0.22" : "1";
-    const border=outline && cell.level===0 ? ' stroke="#110c11" stroke-opacity=".75"' : '';
+    const border=cell.level===0 ? emptyBorder : '';
     output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${COLORS[cell.level]}" fill-opacity="${fillOpacity}"${border}><title>${escapeXml(title)}</title>${child}</rect>`;
   }
   return output;
@@ -266,6 +266,10 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const grid=normalizeWeeks(weeks);
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
+  const daylight = level.location === 'desert';
+  const labelFill = daylight ? '#172b45' : '#d0e4e8';
+  const titleFill = daylight ? '#172b45' : '#f2f7fa';
+  const subtitleFill = daylight ? '#233b52' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() : null;
@@ -292,11 +296,13 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   for(let col=0;col<53;col++){
     const day=grid[col].find(Boolean);if(!day)continue;
     const m=Number(day.date.slice(5,7))-1;
-    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#d0e4e8" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
+    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
-  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="#f2f7fa">${escapeXml(username)}<tspan font-weight="normal" fill="#d5e8e9"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,Boolean(pixelViewport))}</g></g>`;
+  const emptyBorder = daylight ? ' stroke="#172b45" stroke-opacity=".30"' :
+    pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '';
+  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,emptyBorder)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
