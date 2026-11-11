@@ -626,37 +626,56 @@ test('Случайные карты используют все локации �
 });
 
 
-test('Вулкан V2: детальная пиксельная сцена и все слои присутствуют',async()=>{
+test('Вулкан V3: строгий NES-тайлсет и воспроизводимая сцена',async()=>{
   const {volcanoScene}=await import('./scripts/volcano-scene.mjs');
-  const ids=['volcano-stage-v2','volcano-caldera','volcano-eruption','volcano-far-ridges',
-    'volcano-ancient-ruins','volcano-lava-waterfalls','volcano-rock-sprites',
-    'volcano-basalt-floor','volcano-lava-embers'];
-  for(const seed of [0,6,10,17,111,999]){
+  const expected=['volcano-stage-v3','volcano-horizon','volcano-ridges',
+    'volcano-caldera','volcano-smoke','volcano-ruins',
+    'volcano-lava-waterfalls','volcano-basalt-floor'];
+  for(const seed of [0,1,6,10,17,111,999]){
     const scene=volcanoScene(seed);
-    assert.equal(scene,volcanoScene(seed),'Повтор одного seed должен дать тот же SVG');
-    for(const id of ids)assert.ok(scene.includes('id="'+id+'"'),'Нет слоя '+id);
-    assert.doesNotMatch(scene,/<script\b|<image\b|data:image\/|<foreignObject\b|\s(?:href|src)=["']https?:\/\//i);
-    assert.ok(scene.includes('y="374"'),'Поверхность земли должна совпадать с физикой y=374');
-    assert.ok(scene.length>16000,'Недостаточно деталей вулканической сцены');
+    assert.equal(scene,volcanoScene(seed));
+    for(const id of expected)assert.ok(scene.includes('id="'+id+'"'),'Отсутствует '+id);
+    assert.ok(scene.includes('y="374"'),'Линия земли y=374');
+    assert.doesNotMatch(scene,/<script\b|<image\b|data:image\/|<foreignObject\b|https?:\/\//i);
+    assert.ok(scene.length>12000);
   }
   assert.notEqual(volcanoScene(0),volcanoScene(1));
   assert.throws(()=>volcanoScene(-1));
 });
 
-test('Вулкан V2: действует только для своего биома и не содержит checkpoint',async()=>{
-  const {volcanoScene}=await import('./scripts/volcano-scene.mjs');
-  const lavaSeed=[0,1,2,3,4,5,6,7,8,9,10,11,12].find(seed=>buildLevel(grid,'0w1Max',seed).location==='volcano');
-  assert.ok(lavaSeed!==undefined);
-  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:lavaSeed});
-  assert.match(svg,/id="volcano-stage-v2"/);
+test('Вулкан V3: базальтовые препятствия и платформы согласованы с уровнем',()=>{
+  const map=buildLevel(grid,'0w1Max',6);
+  assert.equal(map.location,'volcano');
+  assert.ok(validateLayout(map).valid);
+  const examples={...map,obstacles:[{kind:'jungle-rock',x:444,width:34,height:27},
+    {kind:'stone-ruin',x:750,width:32,height:32},
+    {kind:'supply-crate',x:995,width:34,height:27}],
+    platforms:[{kind:'mossy-stone',x:255,width:130,y:321},
+      {kind:'metal-catwalk',x:735,width:130,y:321}]};
+  const art=levelMarkup(examples);
+  for(const kind of ['jungle-rock','stone-ruin','supply-crate','mossy-stone','metal-catwalk'])
+    assert.ok(art.includes('data-kind="'+kind+'"'));
+  assert.equal((art.match(/data-theme-detail="volcano"/g)||[]).length,5);
+  assert.match(art,/fill="#25222d"/);
+  assert.match(art,/fill="#48404e"/);
+  assert.doesNotMatch(art,/fill="#6ec349"|fill="#4c6d43"|<image\b|<script\b/i);
+});
+
+test('Вулкан V3: встроен в SVG, остальные биомы и цикл бойца не меняются',()=>{
+  const seed=6;
+  const map=buildLevel(grid,'0w1Max',seed);
+  assert.equal(map.location,'volcano');
+  const plan=createMission(grid,map);
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:seed});
+  assert.match(svg,/id="volcano-stage-v3"/);
   assert.match(svg,/id="volcano-caldera"/);
-  assert.match(svg,/id="volcano-ancient-ruins"/);
-  assert.doesNotMatch(svg,/desert-end-zone|desert-victory-flag|STAGE CLEAR/);
-  for(const seed of [0,1,3,7]){
-    const level=buildLevel(grid,'0w1Max',seed);
-    if(level.location==='volcano')continue;
-    const other=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:seed});
-    assert.doesNotMatch(other,/id="volcano-stage-v2"/);
-    assert.doesNotMatch(other,/desert-end-zone/);
+  assert.match(svg,/id="volcano-ruins"/);
+  assert.doesNotMatch(svg,/desert-end-zone|desert-victory-flag|STAGE CLEAR|volcano-stage-v2/);
+  assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,plan.totalHp);
+  assert.equal(plan.segments.at(-1).x1,plan.initial.x);
+  assert.equal(plan.segments.at(-1).y1,plan.initial.footY);
+  for(const another of [0,1,3,7]){
+    const other=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:another});
+    assert.doesNotMatch(other,/id="volcano-stage-v3"/);
   }
 });

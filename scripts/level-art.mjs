@@ -86,12 +86,53 @@ function platform(p,i) {
   return `<g id="platform-${i}" data-kind="${p.kind}" transform="translate(${n(p.x)} ${n(p.y)})" shape-rendering="crispEdges">${art}</g>`;
 }
 
+
+/** Volcano V3: bespoke coarse 8-bit basalt tiles matching the scene palette. */
+function volcanicObstacle(item,i){
+  const w=item.width,h=item.height;
+  const stroke='#161821',shadow='#27232f',side='#433947',ridge='#807080',glow='#e26731';
+  const base='<path d="M0 0v-'+(h-6)+'h4v-6h'+(w-12)+'v6h8V0z" fill="'+stroke+'"/>'+
+    '<path d="M4 -3v-'+(h-10)+'h5v-5h'+Math.max(4,w-18)+'v5h5v'+(h-10)+'z" fill="'+side+'"/>'+
+    '<rect x="7" y="-'+(h-8)+'" width="'+Math.max(4,w-14)+'" height="3" fill="'+ridge+'"/>'+
+    '<rect x="4" y="-4" width="'+Math.max(4,w-8)+'" height="4" fill="'+shadow+'"/>';
+  const cracks=item.kind==='stone-ruin'
+    ? '<path d="M'+Math.round(w*.43)+' -'+(h-7)+'v7h4v5h-5" fill="none" stroke="'+stroke+'" stroke-width="3"/>'
+    : item.kind==='supply-crate'
+    ? '<rect x="7" y="-'+(h-14)+'" width="'+Math.max(4,w-14)+'" height="4" fill="#58505c"/>'+
+      '<rect x="'+Math.round(w*.53)+'" y="-'+(h-8)+'" width="3" height="3" fill="'+glow+'"/>'
+    : '<path d="M9 -8h7v-5h4v6h7" stroke="'+stroke+'" stroke-width="3" fill="none"/>';
+  return '<g id="obstacle-'+i+'" data-kind="'+item.kind+'" data-theme-detail="volcano" '+
+    'transform="translate('+n(item.x)+' '+WORLD.groundY+')" shape-rendering="crispEdges">'+
+    base+cracks+'</g>';
+}
+function volcanicPlatform(item,i){
+  const w=item.width;
+  const edge=item.kind==='metal-catwalk'?'#a18c87':'#857681';
+  const joints=Array.from({length:Math.floor(w/20)},(_,j)=>
+    '<rect x="'+(j*20+7)+'" y="6" width="3" height="3" fill="'+
+    (j%3===0?'#df6e37':'#3e3945')+'"/>').join('');
+  const supports='<rect x="10" y="15" width="11" height="13" fill="#282532"/>'+
+    '<rect x="'+(w-21)+'" y="15" width="11" height="13" fill="#282532"/>'+
+    '<rect x="15" y="21" width="4" height="7" fill="#625461"/>'+
+    '<rect x="'+(w-19)+'" y="21" width="4" height="7" fill="#625461"/>';
+  const cracks='<path d="M'+Math.round(w*.43)+' 11h8v5h7" stroke="#251d2c" stroke-width="3" fill="none"/>';
+  return '<g id="platform-'+i+'" data-kind="'+item.kind+'" data-theme-detail="volcano" '+
+    'transform="translate('+n(item.x)+' '+n(item.y)+')" shape-rendering="crispEdges">'+
+    '<rect x="0" y="0" width="'+w+'" height="18" fill="#25222d"/>'+
+    '<rect x="3" y="2" width="'+(w-6)+'" height="5" fill="'+edge+'"/>'+
+    '<rect x="3" y="8" width="'+(w-6)+'" height="6" fill="#48404e"/>'+
+    '<rect x="0" y="0" width="'+w+'" height="2" fill="#c49a87"/>'+
+    joints+cracks+supports+'</g>';
+}
+
 function biomeObstacle(item,index,location) {
+  if(location==='volcano')return volcanicObstacle(item,index);
   if(!location)return obstacle(item,index);
   const base=tintTerrainArt(obstacle(item,index),location);
   return base.replace(/<\/g>$/,obstacleBiomeDetail(item,location)+'</g>');
 }
 function biomePlatform(item,index,location) {
+  if(location==='volcano')return volcanicPlatform(item,index);
   if(!location)return platform(item,index);
   const base=tintTerrainArt(platform(item,index),location);
   return base.replace(/<\/g>$/,platformBiomeDetail(item,location)+'</g>');
