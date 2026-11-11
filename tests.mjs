@@ -583,6 +583,9 @@ test('Каньон: независимые слои и все тематичес
     const art=levelMarkup(level);
     const objects=[...art.matchAll(/data-sprite="([^"]+)"><use href="#desert-sprite-\1"/g)];
     assert.equal(objects.length,level.obstacles.length+level.platforms.length);
+    const shadowMarkup=art.match(/id="desert-object-shadows"[^>]*>(.*?)<\/g>/)?.[1];
+    assert.notEqual(shadowMarkup,undefined);
+    assert.equal((shadowMarkup.match(/<path\b/g)||[]).length,objects.length);
     for(const [,name] of objects)seen.add(name);
   }
   assert.deepEqual([...seen].sort(),['ashlar-stone-platform','broken-pillar','desert-sandbags','dusty-crate',
