@@ -269,8 +269,10 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() : null;
+  const scaleMode = pixelViewport && pixelViewport.displayHeight !== pixelViewport.viewHeight
+    ? ' preserveAspectRatio="none"' : '';
   const viewport = pixelViewport
-    ? `width="${WORLD.width}" height="${pixelViewport.displayHeight}" viewBox="0 0 ${WORLD.width} ${pixelViewport.viewHeight}" preserveAspectRatio="none"`
+    ? `width="${WORLD.width}" height="${pixelViewport.displayHeight}" viewBox="0 0 ${WORLD.width} ${pixelViewport.viewHeight}"${scaleMode}`
     : `width="${WORLD.width}" height="${WORLD.height}" viewBox="0 0 ${WORLD.width} ${WORLD.height}"`;
   const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" ${viewport} role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке непредсказуемо патрулирует процедурный уровень, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
   const scene=renderLocation(level.location,level.seed);

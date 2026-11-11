@@ -1,16 +1,13 @@
 import {WORLD} from './mission.mjs';
 import {desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
 
-const sourceWidth = 2172;
 const sourceHeight = 724;
 const sourceGround = 576;
 const groundTiles = Array.from({length: 8}, (_, i) => `ground-${i}`);
 
 export function desertDimensions() {
-  return {
-    displayHeight: Math.round(sourceHeight * WORLD.width / sourceWidth),
-    viewHeight: Math.round(sourceHeight * WORLD.groundY / sourceGround)
-  };
+  const height = Math.round(sourceHeight * WORLD.groundY / sourceGround);
+  return {displayHeight: height, viewHeight: height};
 }
 
 export function desertScene(seed) {

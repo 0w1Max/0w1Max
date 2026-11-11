@@ -548,7 +548,8 @@ test('Каньон: квадратное поле интегрировано в 
 
 test('Каньон: линия грунта, статичный кадр бойца и полный размер',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
-  assert.match(svg,/width="1200" height="400" viewBox="0 0 1200 470"/);
+  assert.match(svg,/width="1200" height="470" viewBox="0 0 1200 470"/);
+  assert.doesNotMatch(svg.split('>',2)[1],/preserveAspectRatio="none"/);
   assert.match(svg,/data-ground-baseline="374"/);
   const floor=[...svg.matchAll(/href="#desert-sprite-ground-\d+" x="(\d+)" y="374" width="150" height="96"/g)];
   assert.deepEqual(floor.map(([,x])=>Number(x)),[0,150,300,450,600,750,900,1050]);
