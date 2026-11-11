@@ -680,6 +680,8 @@ test('Вулкан: автономный SVG сохраняет цикл бой�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:seed});
   assert.match(svg,/id="volcano-stage-v4"/);
   assert.match(svg,/id="volcano-bridge-and-lava"/);
+  assert.match(svg,/width="1200" height="400" viewBox="0 0 1200 485" preserveAspectRatio="none"/);
+  assert.doesNotMatch(svg,/id="contribution-shade"/);
   const player=svg.match(/id="blue-commando" transform="translate\(([^)]+)\)"[^>]*><animateTransform[^>]* values="([^;]+);/);
   assert.ok(player);
   assert.equal(player[1],player[2]);
