@@ -23,7 +23,7 @@ export const BIOMES = Object.freeze({
     ['jungle-rock','sandbags','stone-ruin','supply-crate'],
     ['wooden-bridge','mossy-stone','camo-platform'],
     {leaf:'#c2a05a',timber:'#a06b44',stone:'#c98f62',metal:'#aa8b6e',shade:'#613c2e',highlight:'#f6d08b'},
-    {cloth:'#dfa65e',vest:'#ac684b'}
+    {cloth:'#c99a64',vest:'#95634f'}
   ),
   snow: define(
     ['jungle-rock','fallen-log','sandbags','supply-crate'],

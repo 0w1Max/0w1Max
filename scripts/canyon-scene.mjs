@@ -20,7 +20,7 @@ export function desertScene(seed) {
   return `<g id="desert-canyon-v6" data-seed="${seed}" data-ground-baseline="${groundY}" shape-rendering="crispEdges">` +
     desertSpriteDefinitions(['west-mesa', 'distant-mesas', 'east-ridge', ...groundTiles]) +
     '<g id="desert-backdrop">' +
-    `<rect width="${width}" height="${groundY}" fill="#36bcee"/>` +
+    `<rect width="${width}" height="${groundY}" fill="#6197ac"/>` +
     desertSprite('distant-mesas', westEdge, 0, eastEdge - westEdge, groundY) +
     desertSprite('west-mesa', 0, 0, westEdge, groundY) +
     desertSprite('east-ridge', eastEdge, 0, width - eastEdge, groundY) +

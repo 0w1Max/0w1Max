@@ -559,17 +559,17 @@ test('Каньон: линия грунта, статичный кадр бой�
   assert.doesNotMatch(svg,/<image\b|data:image\/png/i);
 });
 
-test('Пустые клетки видны на дневном фоне без тяжёлой рамки',()=>{
+test('Пустые клетки видны на приглушённом дневном фоне без тяжёлой рамки',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells);
-  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#285672"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.13"')));
-  assert.match(cells,/stroke="#245470" stroke-opacity="\.24"/);
-  for(const color of ['#145646','#268363','#60b880','#f0cb6a']){
+  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#d9d6b8"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.13"')));
+  assert.match(cells,/stroke="#385762" stroke-opacity="\.26"/);
+  for(const color of ['#244d57','#326b70','#86b69c','#e0dcb3']){
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
-  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:145646|268363|60b880|f0cb6a)/);
-  assert.match(svg,/fill="#102f43" stroke="#fff1cb"[^>]+paint-order="stroke"/);
+  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:244d57|326b70|86b69c|e0dcb3)/);
+  assert.match(svg,/fill="#10232c"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
 });
 

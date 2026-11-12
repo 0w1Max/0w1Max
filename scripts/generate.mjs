@@ -20,7 +20,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
-const CANYON_COLORS = ['#285672', '#145646', '#268363', '#60b880', '#f0cb6a'];
+const CANYON_COLORS = ['#d9d6b8', '#244d57', '#326b70', '#86b69c', '#e0dcb3'];
 const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
 
 const escapeXml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -267,11 +267,10 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const grid=normalizeWeeks(weeks);
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
-  const daylight = level.location === 'desert';
-  const labelFill = daylight ? '#16394f' : '#d0e4e8';
-  const titleFill = daylight ? '#102f43' : '#f2f7fa';
-  const subtitleFill = daylight ? '#204760' : '#d5e8e9';
-  const textOutline = daylight ? ' stroke="#fff1cb" stroke-width="2" stroke-opacity=".7" paint-order="stroke"' : '';
+  const canyon = level.location === 'desert';
+  const labelFill = canyon ? '#152831' : '#d0e4e8';
+  const titleFill = canyon ? '#10232c' : '#f2f7fa';
+  const subtitleFill = canyon ? '#182e38' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() : null;
@@ -298,18 +297,18 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   for(let col=0;col<53;col++){
     const day=grid[col].find(Boolean);if(!day)continue;
     const m=Number(day.date.slice(5,7))-1;
-    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}"${textOutline} font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
+    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
-    colors: daylight ? CANYON_COLORS : COLORS,
-    emptyOpacity: daylight ? '0.13' : '0.22',
-    emptyBorder: daylight ? ' stroke="#245470" stroke-opacity=".24"' :
+    colors: canyon ? CANYON_COLORS : COLORS,
+    emptyOpacity: canyon ? '0.13' : '0.22',
+    emptyBorder: canyon ? ' stroke="#385762" stroke-opacity=".26"' :
       pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
-    activeBorder: daylight ? ' stroke="#174656" stroke-opacity=".55"' : '',
+    activeBorder: canyon ? ' stroke="#263f49" stroke-opacity=".50"' : '',
   };
-  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}"${textOutline}>${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
+  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
