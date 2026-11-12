@@ -21,6 +21,7 @@ const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
 const CANYON_COLORS = ['#415967', '#49384d', '#805466', '#b16d65', '#d59c6a'];
+const SNOW_COLORS = ['#7192a6', '#477d94', '#63a4b3', '#91c4c5', '#d8b580'];
 const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
 
 const escapeXml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -269,10 +270,11 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
   const canyon = level.location === 'desert';
+  const snow = level.location === 'snow';
   const labelEdge = canyon ? ' stroke="#d5a789" stroke-width="1.5" paint-order="stroke fill" stroke-linejoin="round"' : '';
-  const labelFill = canyon ? '#563947' : '#d0e4e8';
-  const titleFill = canyon ? '#4d303e' : '#f2f7fa';
-  const subtitleFill = canyon ? '#5e3d49' : '#d5e8e9';
+  const labelFill = canyon ? '#563947' : snow ? '#bdd5df' : '#d0e4e8';
+  const titleFill = canyon ? '#4d303e' : snow ? '#e0e9e9' : '#f2f7fa';
+  const subtitleFill = canyon ? '#5e3d49' : snow ? '#a9c6d6' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() : null;
@@ -302,13 +304,15 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
     if(m!==prev&&col<grid.length-3){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}"${labelEdge} font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
-  const scrim = pixelViewport ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
+  const scrim = pixelViewport || snow ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
-    colors: canyon ? CANYON_COLORS : COLORS,
+    colors: canyon ? CANYON_COLORS : snow ? SNOW_COLORS : COLORS,
     emptyOpacity: canyon ? '0.13' : '0.22',
     emptyBorder: canyon ? ' stroke="#40525e" stroke-opacity=".48"' :
+      snow ? ' stroke="#a1c4d3" stroke-opacity=".20"' :
       pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
-    activeBorder: canyon ? ' stroke="#3e2b40" stroke-opacity=".65"' : '',
+    activeBorder: canyon ? ' stroke="#3e2b40" stroke-opacity=".65"' :
+      snow ? ' stroke="#223e55" stroke-opacity=".75"' : '',
   };
   const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}"${labelEdge}>${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;

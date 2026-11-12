@@ -757,3 +757,31 @@ test('Джунгли: полная сцена, стык грунта и все �
   assert.deepEqual(ground.map(([,x])=>Number(x)),[0,150,300,450,600,750,900,1050]);
   assert.doesNotMatch(svg,/<image\b|id="contribution-shade"/);
 });
+
+
+test('Снежная база: три платформы, четыре преграды и линия снега совпадают с геометрией',()=>{
+  const props=new Set();
+  for(const seedOverride of [30,36,55]){
+    const map=buildLevel(grid,'0w1Max',seedOverride);
+    assert.equal(map.location,'snow');
+    assert.ok(validateLayout(map).valid);
+    const scene=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride});
+    assert.match(scene,/width="1200" height="430" viewBox="0 0 1200 430"/);
+    assert.match(scene,/id="snow-ground" data-ground-baseline="374"/);
+    assert.match(scene,/id="snow-watchtower"/);
+    assert.match(scene,/id="snow-bunker"/);
+    assert.match(scene,/id="snow-object-shadows"/);
+    assert.match(scene,/<rect [^>]*fill="#d8b580" fill-opacity="1"/);
+    assert.doesNotMatch(scene,/<image\b|id="contribution-shade"/);
+    for(const [,name] of scene.matchAll(/data-sprite="([^"]+)"><use href="#snow-sprite-\1"/g)){
+      props.add(name);
+    }
+    for(const {x,y,width} of map.platforms){
+      assert.match(scene,new RegExp(`href="#snow-sprite-[^"]+" x="${x}" y="${y}" width="${width}"`));
+    }
+  }
+  assert.deepEqual([...props].sort(),[
+    'arctic-cargo-crate','frosted-catwalk','frosted-sandbags','frozen-boulder',
+    'ice-covered-slab','reinforced-loading-deck','snowbound-log',
+  ]);
+});

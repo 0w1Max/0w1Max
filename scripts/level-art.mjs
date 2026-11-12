@@ -4,6 +4,7 @@ import {biomeFor,tintTerrainArt,obstacleBiomeDetail,platformBiomeDetail} from '.
 import {volcanoObstacleSprites, volcanoPlatformSprites, volcanoSprite, volcanoSpriteDefinitions} from './volcano-sprites.mjs';
 import {jungleObstacleSprites, junglePlatformSprites, jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
 import {desertObstacleSprites, desertPlatformSprites, desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
+import {snowObstacleSprites, snowPlatformSprites, snowSprite, snowSpriteDefinitions} from './snow-sprites.mjs';
 const n = value => Number(value.toFixed(3));
 
 function obstacle(o, i) {
@@ -93,10 +94,12 @@ function platform(p,i) {
 const spriteTerrain = {
   volcano: [volcanoObstacleSprites, volcanoPlatformSprites, volcanoSpriteDefinitions, volcanoSprite],
   desert: [desertObstacleSprites, desertPlatformSprites, desertSpriteDefinitions, desertSprite],
-  jungle: [jungleObstacleSprites, junglePlatformSprites, jungleSpriteDefinitions, jungleSprite]
+  jungle: [jungleObstacleSprites, junglePlatformSprites, jungleSpriteDefinitions, jungleSprite],
+  snow: [snowObstacleSprites, snowPlatformSprites, snowSpriteDefinitions, snowSprite]
 };
 
-function canyonShadows({obstacles, platforms}) {
+function terrainShadows({location, obstacles, platforms}) {
+  const color = location === 'snow' ? '#36596f' : '#683c55';
   const ground = WORLD.groundY;
   const cast = (x, width, depth, opacity) =>
     `<path d="M${x} ${ground}h${width}v2h-3v${depth-4}h-${width-9}v-2h-6z" opacity="${opacity}"/>`;
@@ -104,7 +107,7 @@ function canyonShadows({obstacles, platforms}) {
     cast(x + Math.round((ground - y) * .42), width, 8, .23));
   const obstacleShadows = obstacles.map(({x, width, height}) =>
     cast(x + 3, width + Math.round(height * .40), 8, .34));
-  return '<g id="desert-object-shadows" fill="#683c55" shape-rendering="crispEdges" aria-hidden="true">' +
+  return `<g id="${location}-object-shadows" fill="${color}" shape-rendering="crispEdges" aria-hidden="true">` +
     [...platformShadows, ...obstacleShadows].join('') + '</g>';
 }
 
@@ -116,7 +119,7 @@ function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, s
       sprite(name, item.x, y, item.width, height) + '</g>';
 
   return defineSprites([...obstacles, ...platforms]) +
-    (level.location === 'desert' ? canyonShadows(level) : '') +
+    (['desert','snow'].includes(level.location) ? terrainShadows(level) : '') +
     level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, 18)).join('') +
     level.obstacles.map((item, index) =>
       terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');

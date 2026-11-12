@@ -1,5 +1,6 @@
 import {desertScene as desert} from './canyon-scene.mjs';
 import {jungleScene as jungle} from './jungle-scene.mjs';
+import {snowScene as snow} from './snow-scene.mjs';
 import {volcanoScene} from './volcano-scene.mjs';
 /** Пять детерминированных пиксельных окружений. Коллизии уровня не меняются. */
 export const LOCATION_POOL = Object.freeze(['jungle','desert','snow','volcano','industrial']);
@@ -17,7 +18,6 @@ export function selectLocation(seed){
 }
 const rect=(x,y,w,h,c)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+c+'"/>';
 const shape=(d,c)=>'<path d="'+d+'" fill="'+c+'"/>';
-const group=(x,y,scale,art)=>'<g transform="translate('+x+' '+y+') scale('+scale+')">'+art+'</g>';
 const spot=(seed,i)=>(i*73+(seed%43))%1195;
 function ground(top,dirt,edge,rocks,seed){
   let details='';
@@ -26,19 +26,6 @@ function ground(top,dirt,edge,rocks,seed){
     details+=rect(i*25+(i%5)*2,376+(i%2)*5,6+(i%3)*3,3,edge);
   }
   return rect(0,374,1200,14,top)+rect(0,388,1200,42,dirt)+rect(0,387,1200,3,edge)+details;
-}
-function pine(x,scale){
-  return group(x,374,scale,rect(-4,-24,8,24,'#667682')+
-    shape('M0 -112l20 30h-10l18 28H15l22 27h-74l22-27h-13l18-28h-10z','#285367')+
-    shape('M-8 -93H9l7 11h-32zM-21 -58h42l8 8h-58zM-34 -32h68l4 6h-76z','#d3e9f1'));
-}
-function snow(seed){
-  return rect(857,229,48,48,'#e2f4ff')+
-    shape('M0 352v-53l96-35 70 30 65-57 71 37 84-78 77 64 72-32 90 37 76-81 78 80 85-33 89 54 83-42 104 54v55z','#51748c')+
-    shape('M222 249l9-12 71 37-38-8-22-19-9 12zM374 205l12-9 77 64-29-13-26-25-15 14zM693 195l8-11 78 80-27-17-24-34-15 14z','#e1f6ff')+
-    shape('M0 362v-32l111-27 100 26 92-30 96 33 97-27 103 28 101-32 90 27 99-29 111 30 100-24v37z','#9ebdc9')+
-    pine(60,.68)+pine(1129,.75)+pine(190,.5)+pine(1014,.44)+
-    ground('#c3e0ed','#617987','#f0faff',['#b0d0df','#7ca0b0','#d1e2e8'],seed);
 }
 function volcano(seed){
   return volcanoScene(seed);
@@ -62,7 +49,7 @@ function industrial(seed){
 const SCENE=Object.freeze({jungle,desert,snow,volcano,industrial});
 const PALETTE=Object.freeze({
   jungle:['#05111e','#0d2036','#24455a'],desert:['#35263b','#744750','#d59b7c'],
-  snow:['#071e35','#21455f','#6593a8'],volcano:['#190f21','#472232','#923d3d'],
+  snow:['#182e49','#375775','#789bad'],volcano:['#190f21','#472232','#923d3d'],
   industrial:['#0b1827','#1b3444','#466273']
 });
 export function renderLocation(location,seed=0){
