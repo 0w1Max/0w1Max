@@ -586,7 +586,7 @@ test('Пустые клетки видны на приглушённом дне�
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
   assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:704a38|9d5c3c|c77c49|e3ac68)/);
-  assert.match(svg,/<text x="72"[^>]*fill="#1d3640">/);
+  assert.match(svg,/<text x="72"[^>]*fill="#38291f">/);
   assert.doesNotMatch(svg,/<text[^>]*stroke=/);
   assert.match(svg,/<g id="fx-impact-break"[^>]*>\s*<rect[^>]*fill="#d69a65"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);

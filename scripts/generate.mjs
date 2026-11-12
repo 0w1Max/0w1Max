@@ -271,9 +271,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const mission=createMission(grid,level);
   const canyon = level.location === 'desert';
   const snow = level.location === 'snow';
-  const labelFill = canyon ? '#203c45' : snow ? '#bdd5df' : '#d0e4e8';
-  const titleFill = canyon ? '#1d3640' : snow ? '#e0e9e9' : '#f2f7fa';
-  const subtitleFill = canyon ? '#24434e' : snow ? '#a9c6d6' : '#d5e8e9';
+  const labelFill = canyon ? '#38291f' : snow ? '#bdd5df' : '#d0e4e8';
+  const titleFill = canyon ? '#38291f' : snow ? '#e0e9e9' : '#f2f7fa';
+  const subtitleFill = canyon ? '#38291f' : snow ? '#a9c6d6' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() : null;
