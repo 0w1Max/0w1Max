@@ -111,14 +111,22 @@ function terrainShadows({location, obstacles, platforms}) {
     [...platformShadows, ...obstacleShadows].join('') + '</g>';
 }
 
+const canyonPlatformShade = '<defs><filter id="canyon-platform-shade" x="-10%" y="-30%" width="120%" height="170%" color-interpolation-filters="sRGB">' +
+  '<feFlood flood-color="#3c2a25" flood-opacity=".58"/>' +
+  '<feComposite in2="SourceAlpha" operator="in"/>' +
+  '<feOffset dx="1" dy="2" result="shadow"/>' +
+  '<feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+
 function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, sprite]) {
   const obstacles = level.obstacles.map(item => obstacleSprites[item.kind]);
   const platforms = level.platforms.map(item => platformSprites[item.kind]);
+  const shadePlatforms = level.location === 'desert' && platforms.length > 0;
   const terrain = (item, index, type, name, y, height) =>
-    `<g id="${type}-${index}" data-kind="${item.kind}" data-theme-detail="${level.location}" data-sprite="${name}">` +
+    `<g id="${type}-${index}" data-kind="${item.kind}" data-theme-detail="${level.location}"${shadePlatforms && type === 'platform' ? ' filter="url(#canyon-platform-shade)"' : ''} data-sprite="${name}">` +
       sprite(name, item.x, y, item.width, height) + '</g>';
 
   return defineSprites([...obstacles, ...platforms]) +
+    (shadePlatforms ? canyonPlatformShade : '') +
     (['desert','snow'].includes(level.location) ? terrainShadows(level) : '') +
     level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, 18)).join('') +
     level.obstacles.map((item, index) =>

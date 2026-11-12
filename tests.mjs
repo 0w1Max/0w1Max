@@ -524,7 +524,7 @@ test('SVG содержит согласованные биом, бойца и г
   assert.ok(svg.includes('data-biome="'+level.location+'"'));
   assert.ok(svg.includes('data-location="'+level.location+'"'));
   assert.ok(svg.includes('id="blue-commando"'));
-  assert.ok(svg.includes(level.location==='desert'?'fill-opacity="0.13"':'fill-opacity="0.22"'));
+  assert.ok(svg.includes(level.location==='desert'?'fill-opacity="0.08"':'fill-opacity="0.22"'));
 });
 
 
@@ -557,7 +557,7 @@ test('Каньон: квадратное поле интегрировано в 
   assert.match(svg,/0w1Max<tspan/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
   assert.doesNotMatch(svg,/stroke="#294c45" stroke-width="2"/);
-  assert.match(svg,/fill-opacity="0.13"/);
+  assert.match(svg,/fill-opacity="0.08"/);
   assert.match(svg,/id="blue-commando"/);
   assert.match(svg,/id="mission-complete"/);
 });
@@ -580,13 +580,14 @@ test('Пустые клетки видны на приглушённом дне�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells);
-  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#415967"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.13"')));
-  assert.match(cells,/stroke="#40525e" stroke-opacity="\.48"/);
-  for(const color of ['#49384d','#805466','#b16d65','#d59c6a']){
+  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#2a5261"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.08"')));
+  assert.match(cells,/stroke="#254a58" stroke-opacity="\.32"/);
+  for(const color of ['#704a38','#9d5c3c','#c77c49','#e3ac68']){
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
-  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:49384d|805466|b16d65|d59c6a)/);
-  assert.match(svg,/fill="#4d303e" stroke="#d5a789"/);
+  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:704a38|9d5c3c|c77c49|e3ac68)/);
+  assert.match(svg,/<text x="72"[^>]*fill="#1d3640">/);
+  assert.doesNotMatch(svg,/<text[^>]*stroke=/);
   assert.match(svg,/<g id="fx-impact-break"[^>]*>\s*<rect[^>]*fill="#d69a65"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
 });
@@ -606,6 +607,7 @@ test('Каньон: независимые слои и все тематичес
     const art=levelMarkup(level);
     const objects=[...art.matchAll(/data-sprite="([^"]+)"><use href="#desert-sprite-\1"/g)];
     assert.equal(objects.length,level.obstacles.length+level.platforms.length);
+    assert.equal((art.match(/filter="url\(#canyon-platform-shade\)"/g)||[]).length,level.platforms.length);
     const shadowMarkup=art.match(/id="desert-object-shadows"[^>]*>(.*?)<\/g>/)?.[1];
     assert.notEqual(shadowMarkup,undefined);
     assert.equal((shadowMarkup.match(/<path\b/g)||[]).length,objects.length);
