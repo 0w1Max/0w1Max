@@ -787,3 +787,18 @@ test('Снежная база: три платформы, четыре прег�
     'ice-covered-slab','reinforced-loading-deck','snowbound-log',
   ]);
 });
+
+
+test('Завод: собственная палитра календаря, опорная линия и тени объектов',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride:0});
+  assert.match(svg,/id="factory-workshop"/);
+  assert.match(svg,/id="factory-loading-hall"/);
+  assert.match(svg,/id="factory-ground" data-ground-baseline="374"/);
+  assert.match(svg,/id="industrial-object-shadows"/);
+  assert.match(svg,/<text x="72"[^>]+fill="#e2dfc7"/);
+  const cells=svg.split('<g id="contribution-grid">')[1].split('</g>')[0];
+  for(const color of ['#7d8972','#9c9e7d','#b9ad89','#d3bf97']){
+    assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
+  }
+  assert.doesNotMatch(svg,/id="contribution-shade"/);
+});

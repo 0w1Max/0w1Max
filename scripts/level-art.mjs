@@ -99,7 +99,7 @@ const spriteTerrain = {
 };
 
 function terrainShadows({location, obstacles, platforms}) {
-  const color = location === 'snow' ? '#36596f' : '#683c55';
+  const color = location === 'snow' ? '#36596f' : location === 'industrial' ? '#213735' : '#683c55';
   const ground = WORLD.groundY;
   const cast = (x, width, depth, opacity) =>
     `<path d="M${x} ${ground}h${width}v2h-3v${depth-4}h-${width-9}v-2h-6z" opacity="${opacity}"/>`;
@@ -147,6 +147,7 @@ export function levelMarkup(level) {
   const location=level.location;
   if(location)biomeFor(location);
   const terrain = Object.hasOwn(spriteTerrain,location) ? pixelTerrain(level,spriteTerrain[location]) :
+    (location === 'industrial' ? terrainShadows(level) : '') +
     level.platforms.map((item,i)=>biomePlatform(item,i,location)).join('') +
     level.obstacles.map((item,i)=>biomeObstacle(item,i,location)).join('');
   return `<g id="procedural-level" data-biome="${location??'unstyled'}" aria-label="Препятствия и платформы">${terrain}</g>`;

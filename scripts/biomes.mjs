@@ -40,7 +40,7 @@ export const BIOMES = Object.freeze({
   industrial: define(
     ['sandbags','stone-ruin','supply-crate','fallen-log'],
     ['metal-catwalk','camo-platform','wooden-bridge'],
-    {leaf:'#bfaa55',timber:'#686e70',stone:'#79868a',metal:'#82939b',shade:'#29393f',highlight:'#f3ca57'},
+    {leaf:'#a39271',timber:'#8e7a64',stone:'#829084',metal:'#82998f',shade:'#293e3b',highlight:'#b9b49b'},
     {cloth:'#82958d',vest:'#505f69'}
   ),
 });
@@ -129,7 +129,7 @@ export function platformBiomeDetail(platform, location) {
     case 'volcano':
       return `<g data-theme-detail="volcano">${bar(4,-1,w-8,3,pal.shade)}${Array.from({length:Math.floor(w/27)},(_,i)=>bar(12+i*27,2,7,3,pal.highlight)).join('')}</g>`;
     case 'industrial':
-      return `<g data-theme-detail="industrial">${bar(3,-2,w-6,4,pal.metal)}${Array.from({length:Math.floor(w/29)},(_,i)=>bar(10+i*29,4,11,4,i%2?pal.shade:pal.highlight)).join('')}</g>`;
+      return `<g data-theme-detail="industrial">${bar(2,0,w-4,2,pal.highlight)}${bar(4,9,w-8,3,pal.shade)}</g>`;
     default:throw new Error('Неподдерживаемая локация');
   }
 }
