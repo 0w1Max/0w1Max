@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/**'
-      - 'assets/sprites.json.gz.b64'
+      - 'assets/*sprites.json.gz.b64'
       - 'fixtures/**'
       - 'tests.mjs'
       - '.github/workflows/commando-activity*.yml'
@@ -81,7 +81,7 @@ jobs:
         run: node scripts/preview-gallery.mjs
       - name: Проверить SVG галереи
         run: |
-          python3 -c "from pathlib import Path; import xml.etree.ElementTree as ET; files=[Path('preview/commando-activity.svg'),Path('preview/desert-canyon.svg'),*sorted(Path('preview/biomes').glob('*.svg'))]; assert len(files)==7, len(files); [ET.parse(p) for p in files]; print('PASS: 7 SVG')"
+          python3 -c "from pathlib import Path; import xml.etree.ElementTree as ET; files=[Path('preview/commando-activity.svg'),Path('preview/desert-canyon.svg'),*sorted(Path('preview').glob('desert-canyon-v6-*.svg')),*sorted(Path('preview/biomes').glob('*.svg'))]; assert len(files)==10, len(files); [ET.parse(p) for p in files]; print('PASS: 10 SVG')"
       - name: Опубликовать галерею SVG только в ветке Draft PR
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
@@ -103,6 +103,7 @@ jobs:
             }
             const paths = [
               'preview/commando-activity.svg', 'preview/desert-canyon.svg',
+              ...[49,109,167].map(seed => 'preview/desert-canyon-v6-'+seed+'.svg'),
               ...['industrial','jungle','desert','volcano','snow'].map(b => 'preview/biomes/'+b+'.svg'),
               'preview/biomes/manifest.json'
             ];

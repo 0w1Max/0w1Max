@@ -20,7 +20,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
-const CANYON_COLORS = ['#d9d6b8', '#244d57', '#326b70', '#86b69c', '#e0dcb3'];
+const CANYON_COLORS = ['#415967', '#49384d', '#805466', '#b16d65', '#d59c6a'];
 const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
 
 const escapeXml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -59,11 +59,10 @@ export async function fetchCalendar(username, token) {
 
 export function normalizeWeeks(weeks) {
   if (!Array.isArray(weeks) || weeks.length < 1 || weeks.length > 55) throw new Error('Неверное количество недель');
-  const normalized = Array.from({length:53},()=>Array(7).fill(null));
-  const last = weeks.slice(-53);
-  const pad = 53-last.length;
-  for (let c=0; c<last.length; c++) {
-    const week=last[c];
+  const normalized = Array.from({length:Math.max(53,weeks.length)},()=>Array(7).fill(null));
+  const pad = normalized.length-weeks.length;
+  for (let c=0; c<weeks.length; c++) {
+    const week=weeks[c];
     if (!Array.isArray(week?.contributionDays)) throw new Error('Некорректная структура недели');
     for (const d of week.contributionDays) {
       const dow=new Date(`${d.date}T12:00:00Z`).getUTCDay();
@@ -81,7 +80,7 @@ function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacit
     impacts.get(shot.key).push(shot);
   }
   let output='';
-  for(let col=0;col<53;col++)for(let row=0;row<7;row++){
+  for(let col=0;col<grid.length;col++)for(let row=0;row<7;row++){
     const cell=grid[col][row];if(!cell)continue;
     const key=`${col}:${row}`,hits=impacts.get(key)??[];
     const x=GRID_X+col*STEP,y=GRID_Y+row*STEP;
@@ -92,7 +91,7 @@ function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacit
       // происходит плавно по столбцам, пока боец возвращается к старту.
       const fade=.3;
       const range=mission.restoreEnd-mission.restoreStart-fade;
-      const share=(col+row*.04)/(52+.24);
+      const share=(col+row*.04)/(grid.length-1+.24);
       const at=round(mission.restoreStart+share*range);
       const end=round(at+fade);
       const keys=[0],opacity=['1'];
@@ -117,20 +116,22 @@ function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacit
 }
 
 /** Общие пиксельные формы, которые повторно используются каждым выстрелом. */
-function effectsDefs(){
+function effectsDefs(canyon){
+  const impactCore = canyon ? '#cf805e' : '#fff3a8';
+  const breakCore = canyon ? '#d69a65' : '#fff1a0';
   return `<g id="fx-muzzle" shape-rendering="crispEdges">
     <path d="M0 -2h5v-3h5v-3h4v5h5v6h-6v5h-4v-4H5v-2H0Z" fill="#ff9e20"/>
     <path d="M0 -1h7v-2h5v2h4v3h-5v2H7V2H0Z" fill="#fff4a8"/>
     <rect x="17" y="-1" width="4" height="2" fill="#ffd064"/>
   </g>
   <g id="fx-impact-damage" shape-rendering="crispEdges">
-    <path d="M-2 -10h4v7h7v5H2v7h-4V2h-7v-5h7z" fill="#fff3a8"/>
+    <path d="M-2 -10h4v7h7v5H2v7h-4V2h-7v-5h7z" fill="${impactCore}"/>
     <rect x="-12" y="-3" width="4" height="4" fill="#ff9b2c"/>
     <rect x="8" y="-8" width="4" height="4" fill="#ff9b2c"/>
     <rect x="5" y="8" width="3" height="3" fill="#4ae78a"/>
   </g>
   <g id="fx-impact-break" shape-rendering="crispEdges">
-    <rect x="-6" y="-6" width="12" height="12" fill="#fff1a0"/>
+    <rect x="-6" y="-6" width="12" height="12" fill="${breakCore}"/>
     <path d="M-3 -12h6v6h8v6H5v6h-10V0h-7v-6h9z" fill="#ff9b2c"/>
     <rect x="-18" y="-12" width="5" height="5" fill="#ffd75e"/>
     <rect x="13" y="-11" width="6" height="5" fill="#ffcd48"/>
@@ -268,9 +269,10 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const level=buildLevel(grid,username,seedOverride);
   const mission=createMission(grid,level);
   const canyon = level.location === 'desert';
-  const labelFill = canyon ? '#152831' : '#d0e4e8';
-  const titleFill = canyon ? '#10232c' : '#f2f7fa';
-  const subtitleFill = canyon ? '#182e38' : '#d5e8e9';
+  const labelEdge = canyon ? ' stroke="#d5a789" stroke-width="1.5" paint-order="stroke fill" stroke-linejoin="round"' : '';
+  const labelFill = canyon ? '#563947' : '#d0e4e8';
+  const titleFill = canyon ? '#4d303e' : '#f2f7fa';
+  const subtitleFill = canyon ? '#5e3d49' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() : null;
@@ -288,27 +290,27 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
       <stop offset=".88" stop-color="#071927" stop-opacity=".70"/>
       <stop offset="1" stop-color="#071927" stop-opacity="0"/>
     </linearGradient>
-    ${spriteDefs(sprites,level.location)}${effectsDefs()}
+    ${spriteDefs(sprites,level.location)}${effectsDefs(canyon)}
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
   const months=['ЯНВ','ФЕВ','МАР','АПР','МАЙ','ИЮН','ИЮЛ','АВГ','СЕН','ОКТ','НОЯ','ДЕК'];
   let monthText=''; let prev=-1;
-  for(let col=0;col<53;col++){
+  for(let col=0;col<grid.length;col++){
     const day=grid[col].find(Boolean);if(!day)continue;
     const m=Number(day.date.slice(5,7))-1;
-    if(m!==prev&&col<50){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
+    if(m!==prev&&col<grid.length-3){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}"${labelEdge} font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
     colors: canyon ? CANYON_COLORS : COLORS,
     emptyOpacity: canyon ? '0.13' : '0.22',
-    emptyBorder: canyon ? ' stroke="#385762" stroke-opacity=".26"' :
+    emptyBorder: canyon ? ' stroke="#40525e" stroke-opacity=".48"' :
       pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
-    activeBorder: canyon ? ' stroke="#263f49" stroke-opacity=".50"' : '',
+    activeBorder: canyon ? ' stroke="#3e2b40" stroke-opacity=".65"' : '',
   };
-  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
+  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}"${labelEdge}>${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));

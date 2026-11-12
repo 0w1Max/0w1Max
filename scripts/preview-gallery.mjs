@@ -41,6 +41,9 @@ async function main(){
   const variants=[
     {file:'preview/commando-activity.svg',seed,name:'Случайная карта'},
     {file:'preview/desert-canyon.svg',seed:3,name:'Эталонный каньон'},
+    ...[49,109,167].map(value=>({
+      file:'preview/desert-canyon-v6-'+value+'.svg',seed:value,name:'Каньон '+value
+    })),
     ...Object.entries(GALLERY_SEEDS).map(([name,value])=>({
       file:'preview/biomes/'+name+'.svg',seed:value,name
     }))

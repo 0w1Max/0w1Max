@@ -105,8 +105,8 @@ export function validateLayout(level) {
 }
 
 export function buildLevel(grid, username='0w1Max', seedOverride) {
-  if (!Array.isArray(grid) || grid.length!==53 || grid.some(w=>!Array.isArray(w)||w.length!==7)) {
-    throw new Error('Для карты нужен календарь 53 × 7');
+  if (!Array.isArray(grid) || grid.length<53 || grid.length>55 || grid.some(w=>!Array.isArray(w)||w.length!==7)) {
+    throw new Error('Для карты нужен календарь из 53–55 недель по 7 дней');
   }
   const seed=seedOverride ?? hash32(username+'|'+grid.flat().map(d=>d?`${d.date}:${d.count}:${d.level}`:'-').join('|'));
   const location=selectLocation(seed);
@@ -161,7 +161,7 @@ export function hpForLevel(level) {
 
 function allTargets(grid) {
   const out=[];
-  for(let col=0;col<53;col++)for(let row=0;row<7;row++){
+  for(let col=0;col<grid.length;col++)for(let row=0;row<7;row++){
     const cell=grid[col][row];
     if(!cell || cell.level===0)continue;
     out.push({
@@ -266,7 +266,7 @@ export function createMission(grid,level){
   // У каждого столбца собственная очередь: верхняя клетка открывается после
   // уничтожения всех живых клеток под ней. При этом сами столбцы НЕ сортируются
   // по рядам; следующий выстрел может быть в любом открытом столбце.
-  const columns=Array.from({length:53},()=>[]);
+  const columns=Array.from({length:grid.length},()=>[]);
   for(const target of targets) columns[target.col].push(target);
   for(const cells of columns)cells.sort((a,b)=>b.row-a.row);
   let selectionIndex=0;

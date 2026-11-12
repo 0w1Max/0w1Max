@@ -25,6 +25,23 @@ test('Календарь нормализуется в 53 × 7, исходные
   assert.equal(grid[5][1].date,fixture.weeks[5].contributionDays[1].date);
 });
 
+test('Календарь с 54 неделями сохраняет и отрисовывает обе крайние недели',()=>{
+  const weeks=Array.from({length:54},(_,i)=>({contributionDays:[{
+    date:new Date(Date.UTC(2024,11,29+i*7)).toISOString().slice(0,10),
+    contributionCount: i===0 || i===53 ? 1 : 0,
+    contributionLevel: i===0 || i===53 ? 'FIRST_QUARTILE' : 'NONE',
+  }]}));
+  const extendedGrid=normalizeWeeks(weeks);
+  assert.equal(extendedGrid.length,54);
+  const map=buildLevel(extendedGrid,'0w1Max',3);
+  const mission=createMission(extendedGrid,map);
+  assert.deepEqual(mission.shots.map(shot=>shot.key).sort(),['0:0','53:0']);
+  const svg=renderSvg({weeks,sprites,username:'0w1Max',seedOverride:3});
+  for(const week of [weeks[0],weeks.at(-1)]){
+    assert.ok(svg.includes(week.contributionDays[0].date+': 1 contributions'));
+  }
+});
+
 test('Спрайты бойца представлены отдельными игровыми кадрами',()=>{
   assert.ok(Object.keys(sprites).length>=16);
   for(const name of ['idle-a','run-a','run-b','run-c','run-d','jump','aim','shoot-stand']){
@@ -563,13 +580,14 @@ test('Пустые клетки видны на приглушённом дне�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells);
-  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#d9d6b8"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.13"')));
-  assert.match(cells,/stroke="#385762" stroke-opacity="\.26"/);
-  for(const color of ['#244d57','#326b70','#86b69c','#e0dcb3']){
+  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#415967"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.13"')));
+  assert.match(cells,/stroke="#40525e" stroke-opacity="\.48"/);
+  for(const color of ['#49384d','#805466','#b16d65','#d59c6a']){
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
-  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:244d57|326b70|86b69c|e0dcb3)/);
-  assert.match(svg,/fill="#10232c"/);
+  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:49384d|805466|b16d65|d59c6a)/);
+  assert.match(svg,/fill="#4d303e" stroke="#d5a789"/);
+  assert.match(svg,/<g id="fx-impact-break"[^>]*>\s*<rect[^>]*fill="#d69a65"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
 });
 
