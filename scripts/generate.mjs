@@ -10,6 +10,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 import { renderLocation } from './locations.mjs';
+import {factoryDimensions} from './factory-scene.mjs';
 import {desertDimensions} from './canyon-scene.mjs';
 import {jungleDimensions} from './jungle-scene.mjs';
 import {volcanoDimensions} from './volcano-scene.mjs';
@@ -278,7 +279,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride}) {
   const subtitleFill = canyon ? '#38291f' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
-    level.location === 'jungle' ? jungleDimensions() : null;
+    level.location === 'jungle' ? jungleDimensions() :
+    factory ? factoryDimensions() : null;
   const scaleMode = pixelViewport && pixelViewport.displayHeight !== pixelViewport.viewHeight
     ? ' preserveAspectRatio="none"' : '';
   const viewport = pixelViewport

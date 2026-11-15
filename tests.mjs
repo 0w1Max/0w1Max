@@ -791,6 +791,10 @@ test('Снежная база: три платформы, четыре прег�
 
 test('Завод: собственная палитра календаря, опорная линия и тени объектов',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride:0});
+  assert.match(svg,/width="1200" height="458" viewBox="0 0 1200 458"/);
+  for(let index=0;index<4;index++){
+    assert.ok(svg.includes(`href="#factory-sprite-service-deck-${index}" x="${index*300}" y="374" width="300" height="84"`));
+  }
   assert.match(svg,/id="factory-skyline"/);
   for(const layer of ["process-yard","foundry","loading-bay","service-deck-0"]){
     assert.ok(svg.includes(`href="#factory-sprite-${layer}"`));
