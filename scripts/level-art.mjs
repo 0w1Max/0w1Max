@@ -5,6 +5,7 @@ import {volcanoObstacleSprites, volcanoPlatformSprites, volcanoSprite, volcanoSp
 import {jungleObstacleSprites, junglePlatformSprites, jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
 import {desertObstacleSprites, desertPlatformSprites, desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
 import {snowObstacleSprites, snowPlatformSprites, snowSprite, snowSpriteDefinitions} from './snow-sprites.mjs';
+import {templeArt,templeObstacles,templePlatforms} from './temple-scene.mjs';
 const n = value => Number(value.toFixed(3));
 
 function obstacle(o, i) {
@@ -92,6 +93,7 @@ function platform(p,i) {
 
 
 const spriteTerrain = {
+  temple: [templeObstacles, templePlatforms, templeArt.definitions, templeArt.sprite],
   volcano: [volcanoObstacleSprites, volcanoPlatformSprites, volcanoSpriteDefinitions, volcanoSprite],
   desert: [desertObstacleSprites, desertPlatformSprites, desertSpriteDefinitions, desertSprite],
   jungle: [jungleObstacleSprites, junglePlatformSprites, jungleSpriteDefinitions, jungleSprite],
@@ -127,7 +129,7 @@ function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, s
 
   return defineSprites([...obstacles, ...platforms]) +
     (shadePlatforms ? canyonPlatformShade : '') +
-    (['desert','snow'].includes(level.location) ? terrainShadows(level) : '') +
+    (['desert','snow','temple'].includes(level.location) ? terrainShadows(level) : '') +
     level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, 18)).join('') +
     level.obstacles.map((item, index) =>
       terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');

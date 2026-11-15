@@ -497,7 +497,7 @@ test('Тематические локации: 1500 карт соответст�
     assert.ok(new Set(level.platforms.map(p=>p.width)).size<=1);
     assert.deepEqual(buildLevel(grid,'0w1Max',seed),level);
   }
-  assert.deepEqual([...seen].sort(),Object.keys(BIOMES).sort());
+  assert.deepEqual([...seen].sort(),LOCATION_POOL.slice().sort());
 });
 
 test('В каждой локации собственные платформы, препятствия и цвет формы',()=>{
@@ -805,4 +805,17 @@ test('Завод: собственная палитра календаря, оп
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
   assert.doesNotMatch(svg,/id="contribution-shade"/);
+});
+
+test('Храм доступен явно и собирается из собственных спрайтов',()=>{
+  const seedOverride=5;
+  const map=buildLevel(grid,'0w1Max',seedOverride,'temple');
+  assert.equal(map.location,'temple');
+  assert.ok(validateLayout(map).valid);
+  assert.equal(buildLevel(grid,'0w1Max',seedOverride).location,'industrial');
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride,locationOverride:'temple'});
+  assert.match(svg,/viewBox="0 0 1200 464"/);
+  assert.match(svg,/id="temple-ground" data-ground-baseline="374"/);
+  assert.match(svg,/href="#temple-sprite-temple-entrance"/);
+  assert.match(svg,/data-biome="temple"/);
 });

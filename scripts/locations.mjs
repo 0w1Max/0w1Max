@@ -1,3 +1,4 @@
+import {templeScene as temple} from './temple-scene.mjs';
 import {desertScene as desert} from './canyon-scene.mjs';
 import {jungleScene as jungle} from './jungle-scene.mjs';
 import {snowScene as snow} from './snow-scene.mjs';
@@ -7,7 +8,7 @@ import {volcanoScene} from './volcano-scene.mjs';
 export const LOCATION_POOL = Object.freeze(['jungle','desert','snow','volcano','industrial']);
 export const LOCATION_NAMES = Object.freeze({
   jungle:'Тропические джунгли',desert:'Пустынный каньон',
-  snow:'Снежная база',volcano:'Вулканическая зона',industrial:'Заброшенный завод'
+  snow:'Снежная база',volcano:'Вулканическая зона',industrial:'Заброшенный завод',temple:'Затопленный храм'
 });
 export function selectLocation(seed){
   if(!Number.isSafeInteger(seed)||seed<0)throw new Error('Некорректный seed локации');
@@ -21,11 +22,12 @@ const rect=(x,y,w,h,c)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" 
 function volcano(seed){
   return volcanoScene(seed);
 }
-const SCENE=Object.freeze({jungle,desert,snow,volcano,industrial});
+const SCENE=Object.freeze({jungle,desert,snow,volcano,industrial,temple});
 const PALETTE=Object.freeze({
   jungle:['#05111e','#0d2036','#24455a'],desert:['#35263b','#744750','#d59b7c'],
   snow:['#182e49','#375775','#789bad'],volcano:['#190f21','#472232','#923d3d'],
-  industrial:['#283e43','#435c5a','#788477']
+  industrial:['#283e43','#435c5a','#788477'],
+  temple:['#609697','#609697','#609697']
 });
 export function renderLocation(location,seed=0){
   if(!Object.hasOwn(SCENE,location))throw new Error('Неизвестная локация: '+String(location));

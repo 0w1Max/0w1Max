@@ -3,8 +3,6 @@
  * Данные не зависят от внешних PNG и не влияют на физику движения.
  * На каждой карте все платформы получают один тип и одну ширину.
  */
-import { LOCATION_POOL } from './locations.mjs';
-
 const define = (obstacles, platforms, palette, outfit) => Object.freeze({
   obstacles: Object.freeze(obstacles),
   platforms: Object.freeze(platforms),
@@ -37,6 +35,12 @@ export const BIOMES = Object.freeze({
     {leaf:'#f58a37',timber:'#6b4540',stone:'#625057',metal:'#65565d',shade:'#231f2d',highlight:'#ffc14f'},
     {cloth:'#69616a',vest:'#484651'}
   ),
+  temple: define(
+    ['jungle-rock','stone-ruin','supply-crate'],
+    ['mossy-stone','vine-ledge'],
+    {leaf:'#849158',timber:'#8a7757',stone:'#879778',metal:'#6d8880',shade:'#345a54',highlight:'#d2c38d'},
+    {cloth:'#9e9f65',vest:'#627d73'}
+  ),
   industrial: define(
     ['sandbags','stone-ruin','supply-crate','fallen-log'],
     ['metal-catwalk','camo-platform','wooden-bridge'],
@@ -46,7 +50,7 @@ export const BIOMES = Object.freeze({
 });
 
 export function biomeFor(location) {
-  if (!LOCATION_POOL.includes(location)) throw new Error('Неизвестная игровая локация: '+location);
+  if (!Object.hasOwn(BIOMES,location)) throw new Error('Неизвестная игровая локация: '+location);
   return BIOMES[location];
 }
 

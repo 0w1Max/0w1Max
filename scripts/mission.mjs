@@ -104,12 +104,12 @@ export function validateLayout(level) {
   return {valid:issues.length===0,issues};
 }
 
-export function buildLevel(grid, username='0w1Max', seedOverride) {
+export function buildLevel(grid, username='0w1Max', seedOverride, locationOverride) {
   if (!Array.isArray(grid) || grid.length<53 || grid.length>55 || grid.some(w=>!Array.isArray(w)||w.length!==7)) {
     throw new Error('Для карты нужен календарь из 53–55 недель по 7 дней');
   }
   const seed=seedOverride ?? hash32(username+'|'+grid.flat().map(d=>d?`${d.date}:${d.count}:${d.level}`:'-').join('|'));
-  const location=selectLocation(seed);
+  const location=locationOverride ?? selectLocation(seed);
   const biome=biomeFor(location);
   const rand=seededRandom(seed);
   const platformCount=randomCount(rand,2);
