@@ -435,11 +435,11 @@ test('Неактивные дни почти прозрачные, активн�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:6});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells,'SVG должен содержать поле активности');
-  const empty=[...cells.matchAll(/<rect\b[^>]*fill="#a8bcc4"[^>]*>/g)].map(m=>m[0]);
-  const active=[...cells.matchAll(/<rect\b[^>]*fill="#(?:166f43|22a857|3dd96b|b7ff63)"[^>]*>/g)].map(m=>m[0]);
+  const empty=[...cells.matchAll(/<rect\b[^>]*fill="#899d7d"[^>]*>/g)].map(m=>m[0]);
+  const active=[...cells.matchAll(/<rect\b[^>]*fill="#(?:52735a|71865d|9da274|c5b47e)"[^>]*>/g)].map(m=>m[0]);
   assert.ok(empty.length>0,'В демо должны быть пустые дни');
   assert.ok(active.length>0,'В демо должны быть активные дни');
-  assert.ok(empty.every(tag=>tag.includes('fill-opacity="0.22"')),'Пустые клетки должны быть прозрачными на 78%');
+  assert.ok(empty.every(tag=>tag.includes('fill-opacity="0.09"')),'Пустые клетки должны быть прозрачными на 91%');
   assert.ok(active.every(tag=>tag.includes('fill-opacity="1"')),'Активные клетки сохраняют непрозрачность');
 });
 
@@ -524,7 +524,7 @@ test('SVG содержит согласованные биом, бойца и г
   assert.ok(svg.includes('data-biome="'+level.location+'"'));
   assert.ok(svg.includes('data-location="'+level.location+'"'));
   assert.ok(svg.includes('id="blue-commando"'));
-  assert.ok(svg.includes(level.location==='desert'?'fill-opacity="0.08"':'fill-opacity="0.22"'));
+  assert.ok(svg.includes('fill-opacity="0.09"'));
 });
 
 
@@ -557,7 +557,7 @@ test('Каньон: квадратное поле интегрировано в 
   assert.match(svg,/0w1Max<tspan/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
   assert.doesNotMatch(svg,/stroke="#294c45" stroke-width="2"/);
-  assert.match(svg,/fill-opacity="0.08"/);
+  assert.match(svg,/fill-opacity="0.09"/);
   assert.match(svg,/id="blue-commando"/);
   assert.match(svg,/id="mission-complete"/);
 });
@@ -580,12 +580,12 @@ test('Пустые клетки видны на приглушённом дне�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
   const cells=svg.split('<g id="contribution-grid">')[1]?.split('</g>')[0];
   assert.ok(cells);
-  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#2a5261"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.08"')));
-  assert.match(cells,/stroke="#254a58" stroke-opacity="\.32"/);
-  for(const color of ['#704a38','#9d5c3c','#c77c49','#e3ac68']){
+  assert.ok([...cells.matchAll(/<rect\b[^>]*fill="#899d7d"[^>]*>/g)].every(m=>m[0].includes('fill-opacity="0.09"')));
+  assert.match(cells,/stroke="#7a8b6d" stroke-opacity="\.32"/);
+  for(const color of ['#52735a','#71865d','#9da274','#c5b47e']){
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
-  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:704a38|9d5c3c|c77c49|e3ac68)/);
+  assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:52735a|71865d|9da274|c5b47e)/);
   assert.match(svg,/<text x="72"[^>]*fill="#38291f">/);
   assert.doesNotMatch(svg,/<text[^>]*stroke=/);
   assert.match(svg,/<g id="fx-impact-break"[^>]*>\s*<rect[^>]*fill="#d69a65"/);
@@ -773,7 +773,7 @@ test('Снежная база: три платформы, четыре прег�
     assert.match(scene,/id="snow-watchtower"/);
     assert.match(scene,/id="snow-bunker"/);
     assert.match(scene,/id="snow-object-shadows"/);
-    assert.match(scene,/<rect [^>]*fill="#d8b580" fill-opacity="1"/);
+    assert.match(scene,/<rect [^>]*fill="#c5b47e" fill-opacity="1"/);
     assert.doesNotMatch(scene,/<image\b|id="contribution-shade"/);
     for(const [,name] of scene.matchAll(/data-sprite="([^"]+)"><use href="#snow-sprite-\1"/g)){
       props.add(name);
@@ -789,7 +789,7 @@ test('Снежная база: три платформы, четыре прег�
 });
 
 
-test('Завод: собственная палитра календаря, опорная линия и тени объектов',()=>{
+test('Завод: общая палитра календаря, опорная линия и тени объектов',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride:0});
   assert.match(svg,/width="1200" height="437" viewBox="0 0 1200 437"/);
   assert.equal((svg.match(/href="#factory-sprite-foundation-/g)||[]).length,4);
@@ -799,9 +799,9 @@ test('Завод: собственная палитра календаря, оп
   }
   assert.match(svg,/id="factory-ground"[^>]*data-ground-baseline="374"/);
   assert.match(svg,/id="industrial-object-shadows"/);
-  assert.match(svg,/<text x="72"[^>]+fill="#e2dfc7"/);
+  assert.match(svg,/<text x="72"[^>]+fill="#efe2bd"/);
   const cells=svg.split('<g id="contribution-grid">')[1].split('</g>')[0];
-  for(const color of ['#695544','#9c7156','#bd8b62','#dab27b']){
+  for(const color of ['#52735a','#71865d','#9da274','#c5b47e']){
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
   assert.doesNotMatch(svg,/id="contribution-shade"/);
@@ -818,7 +818,7 @@ test('Храм доступен явно и собирается из собст
   for(let index=0;index<4;index++){
     assert.ok(svg.includes(`href="#temple-sprite-causeway-${index}" x="${index*300}" y="374" width="300" height="64"`));
   }
-  for(const color of ['#4b5943','#667751','#92966a','#c8b681']){
+  for(const color of ['#52735a','#71865d','#9da274','#c5b47e']){
     assert.ok(svg.includes('fill="'+color+'" fill-opacity="1"'));
   }
   assert.match(svg,/id="temple-ground" data-ground-baseline="374"/);
@@ -827,7 +827,7 @@ test('Храм доступен явно и собирается из собст
 });
 
 
-test('Побережье: отдельные спрайты, опорная линия дамбы и собственная палитра',()=>{
+test('Побережье: отдельные спрайты, опорная линия дамбы и общая палитра',()=>{
   const seedOverride=5;
   const map=buildLevel(grid,'0w1Max',seedOverride,'coast');
   assert.ok(validateLayout(map).valid);
@@ -836,6 +836,6 @@ test('Побережье: отдельные спрайты, опорная ли
   assert.match(svg,/id="coast-ground" data-ground-baseline="374"/);
   assert.match(svg,/href="#coast-sprite-lighthouse"/);
   assert.match(svg,/data-biome="coast"/);
-  assert.match(svg,/fill="#c3bd92" fill-opacity="1"/);
+  assert.match(svg,/fill="#c5b47e" fill-opacity="1"/);
   assert.equal((svg.match(/href="#coast-sprite-levee-/g)||[]).length,4);
 });

@@ -1,5 +1,18 @@
 # Commando Activity — версия 2, предпросмотр
 
+## Единое оформление календаря
+
+Варианты с мохово-песочной шкалой джунглей. Тёплые светлые подписи используются на тёмных сценах, тёмно-коричневые — в каньоне и храме.
+
+- [Тропические джунгли](preview/common-calendar/jungle.svg?raw=1)
+- [Пустынный каньон](preview/common-calendar/canyon.svg?raw=1)
+- [Вулканическая зона](preview/common-calendar/volcano.svg?raw=1)
+- [Снежная база](preview/common-calendar/snow.svg?raw=1)
+- [Заброшенный завод](preview/common-calendar/factory.svg?raw=1)
+- [Затопленный храм](preview/common-calendar/temple.svg?raw=1)
+- [Штормовое побережье](preview/common-calendar/coast.svg?raw=1)
+
+
 ## Пустынный каньон V6.1
 
 Согласованная версия оформления от 12 ноября 2026 года. Ссылки ведут на закреплённые анимированные SVG размером 1200 × 470 со снимком публичного календаря GitHub.
