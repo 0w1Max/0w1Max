@@ -28,7 +28,7 @@ export function jungleScene(seed) {
   return `<g id="jungle-stage" data-seed="${seed}" data-ground-baseline="${groundY}" shape-rendering="crispEdges">` +
     jungleSpriteDefinitions(['tree-wall', 'canopy', 'waterfall-ruins', ...groundTiles]) +
     '<g id="jungle-backdrop">' +
-    `<rect width="${width}" height="${groundY}" fill="#203836"/>` +
+    `<rect width="${width}" height="${groundY}" fill="#040907"/>` +
     jungleSprite('tree-wall', 0, 0, treeEdge, groundY) +
     jungleSprite('canopy', treeEdge, 0, ruinEdge - treeEdge, groundY) +
     jungleSprite('waterfall-ruins', ruinEdge, 0, width - ruinEdge, groundY) +
