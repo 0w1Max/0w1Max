@@ -10,6 +10,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 import { renderLocation } from './locations.mjs';
+import {coastDimensions} from './coast-scene.mjs';
 import {templeDimensions} from './temple-scene.mjs';
 import {factoryDimensions} from './factory-scene.mjs';
 import {desertDimensions} from './canyon-scene.mjs';
@@ -24,6 +25,7 @@ const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', '
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
 const CANYON_COLORS = ['#2a5261', '#704a38', '#9d5c3c', '#c77c49', '#e3ac68'];
 const SNOW_COLORS = ['#7192a6', '#477d94', '#63a4b3', '#91c4c5', '#d8b580'];
+const COAST_COLORS = ['#96b4b7', '#2f535f', '#4a6b76', '#799b9b', '#c3bd92'];
 const TEMPLE_COLORS = ['#a0aa92', '#4b5943', '#667751', '#92966a', '#c8b681'];
 const FACTORY_COLORS = ['#90a5a1', '#695544', '#9c7156', '#bd8b62', '#dab27b'];
 const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
@@ -277,13 +279,14 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const snow = level.location === 'snow';
   const factory = level.location === 'industrial';
   const temple = level.location === 'temple';
-  const labelFill = canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
-  const titleFill = canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
-  const subtitleFill = canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
+  const coast = level.location === 'coast';
+  const labelFill = coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
+  const titleFill = coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
+  const subtitleFill = coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() :
-    factory ? factoryDimensions() : temple ? templeDimensions() : null;
+    factory ? factoryDimensions() : temple ? templeDimensions() : coast ? coastDimensions() : null;
   const scaleMode = pixelViewport && pixelViewport.displayHeight !== pixelViewport.viewHeight
     ? ' preserveAspectRatio="none"' : '';
   const viewport = pixelViewport
@@ -312,17 +315,19 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
-    colors: canyon ? CANYON_COLORS : snow ? SNOW_COLORS : factory ? FACTORY_COLORS : temple ? TEMPLE_COLORS : COLORS,
-    emptyOpacity: canyon ? '0.08' : factory || temple ? '0.09' : '0.22',
+    colors: canyon ? CANYON_COLORS : snow ? SNOW_COLORS : factory ? FACTORY_COLORS : temple ? TEMPLE_COLORS : coast ? COAST_COLORS : COLORS,
+    emptyOpacity: canyon ? '0.08' : factory || temple || coast ? '0.09' : '0.22',
     emptyBorder: canyon ? ' stroke="#254a58" stroke-opacity=".32"' :
       snow ? ' stroke="#a1c4d3" stroke-opacity=".20"' :
       factory ? ' stroke="#95a8a1" stroke-opacity=".15"' :
       temple ? ' stroke="#708b7b" stroke-opacity=".23"' :
+      coast ? ' stroke="#acc1c0" stroke-opacity=".19"' :
       pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
     activeBorder: canyon ? ' stroke="#573627" stroke-opacity=".32"' :
       snow ? ' stroke="#223e55" stroke-opacity=".75"' :
       factory ? ' stroke="#514538" stroke-opacity=".38"' :
-      temple ? ' stroke="#465943" stroke-opacity=".32"' : '',
+      temple ? ' stroke="#465943" stroke-opacity=".32"' :
+      coast ? ' stroke="#264b58" stroke-opacity=".45"' : '',
   };
   const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;

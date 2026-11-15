@@ -6,6 +6,7 @@ import {jungleObstacleSprites, junglePlatformSprites, jungleSprite, jungleSprite
 import {desertObstacleSprites, desertPlatformSprites, desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
 import {snowObstacleSprites, snowPlatformSprites, snowSprite, snowSpriteDefinitions} from './snow-sprites.mjs';
 import {templeArt,templeObstacles,templePlatforms} from './temple-scene.mjs';
+import {coastArt,coastObstacles,coastPlatforms} from './coast-scene.mjs';
 const n = value => Number(value.toFixed(3));
 
 function obstacle(o, i) {
@@ -93,6 +94,7 @@ function platform(p,i) {
 
 
 const spriteTerrain = {
+  coast: [coastObstacles, coastPlatforms, coastArt.definitions, coastArt.sprite],
   temple: [templeObstacles, templePlatforms, templeArt.definitions, templeArt.sprite],
   volcano: [volcanoObstacleSprites, volcanoPlatformSprites, volcanoSpriteDefinitions, volcanoSprite],
   desert: [desertObstacleSprites, desertPlatformSprites, desertSpriteDefinitions, desertSprite],
@@ -101,7 +103,7 @@ const spriteTerrain = {
 };
 
 function terrainShadows({location, obstacles, platforms}) {
-  const color = location === 'snow' ? '#36596f' : location === 'industrial' ? '#213735' : '#683c55';
+  const color = ['snow','coast'].includes(location) ? '#36596f' : location === 'industrial' ? '#213735' : '#683c55';
   const ground = WORLD.groundY;
   const cast = (x, width, depth, opacity) =>
     `<path d="M${x} ${ground}h${width}v2h-3v${depth-4}h-${width-9}v-2h-6z" opacity="${opacity}"/>`;
@@ -129,7 +131,7 @@ function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, s
 
   return defineSprites([...obstacles, ...platforms]) +
     (shadePlatforms ? canyonPlatformShade : '') +
-    (['desert','snow','temple'].includes(level.location) ? terrainShadows(level) : '') +
+    (['desert','snow','temple','coast'].includes(level.location) ? terrainShadows(level) : '') +
     level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, 18)).join('') +
     level.obstacles.map((item, index) =>
       terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');

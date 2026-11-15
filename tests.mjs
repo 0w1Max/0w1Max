@@ -825,3 +825,17 @@ test('Храм доступен явно и собирается из собст
   assert.match(svg,/href="#temple-sprite-temple-entrance"/);
   assert.match(svg,/data-biome="temple"/);
 });
+
+
+test('Побережье: отдельные спрайты, опорная линия дамбы и собственная палитра',()=>{
+  const seedOverride=5;
+  const map=buildLevel(grid,'0w1Max',seedOverride,'coast');
+  assert.ok(validateLayout(map).valid);
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride,locationOverride:'coast'});
+  assert.match(svg,/viewBox="0 0 1200 424"/);
+  assert.match(svg,/id="coast-ground" data-ground-baseline="374"/);
+  assert.match(svg,/href="#coast-sprite-lighthouse"/);
+  assert.match(svg,/data-biome="coast"/);
+  assert.match(svg,/fill="#c3bd92" fill-opacity="1"/);
+  assert.equal((svg.match(/href="#coast-sprite-levee-/g)||[]).length,4);
+});

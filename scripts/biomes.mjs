@@ -35,6 +35,12 @@ export const BIOMES = Object.freeze({
     {leaf:'#f58a37',timber:'#6b4540',stone:'#625057',metal:'#65565d',shade:'#231f2d',highlight:'#ffc14f'},
     {cloth:'#69616a',vest:'#484651'}
   ),
+  coast: define(
+    ['jungle-rock','fallen-log','supply-crate'],
+    ['mossy-stone','wooden-bridge'],
+    {leaf:'#7f937e',timber:'#7b7465',stone:'#718d99',metal:'#6e8a95',shade:'#294554',highlight:'#c0bf9f'},
+    {cloth:'#829592',vest:'#536c7d'}
+  ),
   temple: define(
     ['jungle-rock','stone-ruin','supply-crate'],
     ['mossy-stone','vine-ledge'],
