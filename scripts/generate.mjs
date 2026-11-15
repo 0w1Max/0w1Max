@@ -23,6 +23,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
+const JUNGLE_COLORS = ['#8fa482', '#42634b', '#667e50', '#95a26b', '#cbb77f'];
 const CANYON_COLORS = ['#2a5261', '#704a38', '#9d5c3c', '#c77c49', '#e3ac68'];
 const SNOW_COLORS = ['#7192a6', '#477d94', '#63a4b3', '#91c4c5', '#d8b580'];
 const COAST_COLORS = ['#96b4b7', '#2f535f', '#4a6b76', '#799b9b', '#c3bd92'];
@@ -276,13 +277,14 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const level=buildLevel(grid,username,seedOverride,locationOverride);
   const mission=createMission(grid,level);
   const canyon = level.location === 'desert';
+  const jungle = level.location === 'jungle';
   const snow = level.location === 'snow';
   const factory = level.location === 'industrial';
   const temple = level.location === 'temple';
   const coast = level.location === 'coast';
-  const labelFill = coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
-  const titleFill = coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
-  const subtitleFill = coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
+  const labelFill = jungle ? '#d2d3ad' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
+  const titleFill = jungle ? '#efe1b5' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
+  const subtitleFill = jungle ? '#dbd1ac' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() :
@@ -315,13 +317,14 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
-    colors: canyon ? CANYON_COLORS : snow ? SNOW_COLORS : factory ? FACTORY_COLORS : temple ? TEMPLE_COLORS : coast ? COAST_COLORS : COLORS,
-    emptyOpacity: canyon ? '0.08' : factory || temple || coast ? '0.09' : '0.22',
+    colors: canyon ? CANYON_COLORS : snow ? SNOW_COLORS : factory ? FACTORY_COLORS : temple ? TEMPLE_COLORS : coast ? COAST_COLORS : jungle ? JUNGLE_COLORS : COLORS,
+    emptyOpacity: canyon ? '0.08' : factory || temple || coast || jungle ? '0.09' : '0.22',
     emptyBorder: canyon ? ' stroke="#254a58" stroke-opacity=".32"' :
       snow ? ' stroke="#a1c4d3" stroke-opacity=".20"' :
       factory ? ' stroke="#95a8a1" stroke-opacity=".15"' :
       temple ? ' stroke="#708b7b" stroke-opacity=".23"' :
       coast ? ' stroke="#acc1c0" stroke-opacity=".19"' :
+      jungle ? ' stroke="#566f57" stroke-opacity=".32"' :
       pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
     activeBorder: canyon ? ' stroke="#573627" stroke-opacity=".32"' :
       snow ? ' stroke="#223e55" stroke-opacity=".75"' :
