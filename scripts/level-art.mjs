@@ -133,10 +133,30 @@ function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, s
       terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');
 }
 
+const factoryObstacleShade = '<defs><filter id="factory-obstacle-outline" x="-15%" y="-15%" width="130%" height="130%">' +
+  '<feMorphology in="SourceAlpha" operator="dilate" radius="1"/>' +
+  '<feComposite in2="SourceAlpha" operator="out" result="outline"/>' +
+  '<feFlood flood-color="#28323b"/><feComposite in2="outline" operator="in" result="edge"/>' +
+  '<feMerge><feMergeNode in="edge"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+
+function factoryCrate(item,index) {
+  return `<g id="obstacle-${index}" data-kind="supply-crate" data-theme-detail="industrial" transform="translate(${n(item.x)} ${WORLD.groundY})" shape-rendering="crispEdges">
+    <path d="M1 -23h3v-3h26v3h3V0H1z" fill="#28323b"/>
+    <path d="M4 -23h26v20H4z" fill="#637b82"/>
+    <path d="M4 -23h26v4H4zM4 -19h3v14H4z" fill="#c1c8ba"/>
+    <path d="M7 -17h20v10H7z" fill="#465e68"/>
+    <path d="M10 -15h14v3H10z" fill="#c3be9d"/>
+    <path d="M14 -23h6v6h-6z" fill="#b6a27a"/>
+    <path d="M5 -6h4v3H5zM25 -6h4v3h-4z" fill="#9baaa5"/>
+  </g>`;
+}
+
 function biomeObstacle(item,index,location) {
   if(!location)return obstacle(item,index);
+  if(location==='industrial' && item.kind==='supply-crate')return factoryCrate(item,index);
   const base=tintTerrainArt(obstacle(item,index),location);
-  return base.replace(/<\/g>$/,obstacleBiomeDetail(item,location)+'</g>');
+  const art=base.replace(/<\/g>$/,obstacleBiomeDetail(item,location)+'</g>');
+  return location==='industrial' ? art.replace(' shape-rendering=', ' filter="url(#factory-obstacle-outline)" shape-rendering=') : art;
 }
 function biomePlatform(item,index,location) {
   if(!location)return platform(item,index);
@@ -147,7 +167,7 @@ export function levelMarkup(level) {
   const location=level.location;
   if(location)biomeFor(location);
   const terrain = Object.hasOwn(spriteTerrain,location) ? pixelTerrain(level,spriteTerrain[location]) :
-    (location === 'industrial' ? terrainShadows(level) : '') +
+    (location === 'industrial' ? factoryObstacleShade + terrainShadows(level) : '') +
     level.platforms.map((item,i)=>biomePlatform(item,i,location)).join('') +
     level.obstacles.map((item,i)=>biomeObstacle(item,i,location)).join('');
   return `<g id="procedural-level" data-biome="${location??'unstyled'}" aria-label="Препятствия и платформы">${terrain}</g>`;

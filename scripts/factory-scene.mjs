@@ -3,7 +3,20 @@ import {loadPixelSprites} from './pixel-sprites.mjs';
 
 const {definitions,sprite} = loadPixelSprites('factory');
 const foundation = ['foundation-elbow','foundation-valve','foundation-junction'];
-const foundationDepth = 70;
+const foundationTileWidth = 360;
+const foundationDepth = 63;
+
+function factoryFoundation(width, groundY) {
+  const infillWidth = width - foundation.length * foundationTileWidth;
+  const piece = (name,x,y) => sprite(name,x,y,foundationTileWidth,foundationDepth);
+  return `<g id="factory-ground" data-ground-baseline="${groundY}">` +
+    piece(foundation[0],0,groundY) +
+    `<svg x="${foundationTileWidth}" y="${groundY}" width="${infillWidth}" height="${foundationDepth}" viewBox="0 0 ${infillWidth} ${foundationDepth}" overflow="hidden">` +
+    piece(foundation[0],0,0) + '</svg>' +
+    piece(foundation[1],foundationTileWidth+infillWidth,groundY) +
+    piece(foundation[2],2*foundationTileWidth+infillWidth,groundY) +
+    '</g>';
+}
 
 export function factoryDimensions() {
   const viewHeight = WORLD.groundY + foundationDepth;
@@ -25,7 +38,5 @@ export function factoryScene() {
     sprite('process-yard',320,groundY-134,600,134) +
     sprite('foundry',0,groundY-222,420,222) +
     sprite('loading-bay',810,groundY-184,390,184) +
-    `<g id="factory-ground" data-ground-baseline="${groundY}">` +
-    foundation.map((name,index)=>sprite(name,index*400,groundY,400,foundationDepth)).join('') +
-    '</g></g>';
+    factoryFoundation(width,groundY) + '</g>';
 }
