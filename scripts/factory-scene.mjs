@@ -1,98 +1,98 @@
 import {WORLD} from './mission.mjs';
 
+// The scenery is drawn on a half-resolution grid. One art pixel is two SVG pixels.
 const rect = (x,y,w,h,fill) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
 const path = (d,fill) => `<path d="${d}" fill="${fill}"/>`;
+const group = (x,y,art) => `<g transform="translate(${x} ${y})">${art}</g>`;
+const repeat = (count,draw) => Array.from({length:count},(_,i)=>draw(i)).join('');
 
-function windowBay(x,y,broken) {
-  const shape='M0 0h52v41H0z';
-  return `<g transform="translate(${x} ${y})">` +
-    path(shape,'#233735') + rect(3,3,46,31,'#172a29') +
-    path('M5 4h42v26H5z','#516b60') +
-    path('M6 5h13v9H6zM23 5h10v9H23zM7 18h9v9H7zM36 5h11v9H36z','#64786a') +
-    (broken ? path('M26 5h7v7h5v5h9v13H28v-5h-6v-7h4z','#233937') : '') +
-    path('M17 4h4v27h-4zM33 4h4v27h-4zM4 15h45v4H4z','#263c39') +
-    path('M0 34h52v4h3v3H-3v-3H0z','#859184') +
-    path('M3 38h46v3H3z','#586d62') + '</g>';
+function furnace(x,y) {
+  return group(x,y,
+    path('M0 69V24h3v-8h5v-5h10V0h15v11h11v5h5v8h3v45z','#3a514d') +
+    path('M4 27v-7h4v-5h10v-4h15v4h11v5h4v7z','#61746a') +
+    path('M5 28h7v37H5zM15 25h3v43h-3z','#50665c') +
+    path('M33 26h17v36H33zM3 42h46v3H3zM4 56h46v3H4z','#304743') +
+    path('M5 41h40v2H5zM4 55h42v1H4zM20 2h4v9h-4z','#718277') +
+    rect(22,33,6,7,'#324944') + rect(23,34,3,3,'#927d60'));
+}
+
+function pipe(x,y,width) {
+  return group(x,y,
+    path(`M0 0h8v10h${width}v-8h8v16H0z`,'#253b39') +
+    path(`M1 1h3v11h${width+7}v2H1z`,'#819184') +
+    rect(5,14,width+8,2,'#526b5e') +
+    repeat(Math.floor(width/23),i=>rect(18+i*23,10,3,8,'#3b534a') +
+      rect(18+i*23,10,1,5,'#9c9d83')));
 }
 
 function workshop() {
-  const shell='M0 360V260h49v-9h12v-9h12v-9h12v-9h12v-9h12v-9h9v51h11v-9h12v-9h12v-9h12v-9h12v-9h12v-9h9v54h13v-9h12v-9h12v-9h12v-9h12v-9h12v-9h9v56h25v101z';
+  const shell='M0 179V118h15v-6h8v-5h7v-6h8v-6h9v17h9v-5h8v-6h9v-6h9v18h8v-5h8v-7h8v-6h10v19h14v65z';
   return '<g id="factory-workshop">' +
-    path(shell,'#455c52') + path(shell,'url(#factory-brick)') +
-    path('M0 260h49v-9h12v-9h12v-9h12v-9h12v-9h12v-9h9v8h-7v9H99v9H87v9H75v9H63v9H51v9H0zM118 257h11v-9h12v-9h12v-9h12v-9h12v-9h12v-9h9v8h-7v9h-12v9h-12v9h-12v9h-12v9h-12v9h-13zM198 257h13v-9h12v-9h12v-9h12v-9h12v-9h12v-9h9v8h-7v9h-12v9h-12v9h-12v9h-12v9h-12v9h-15z','#7d8c78') +
-    path('M4 271h296v7H4zM0 348h305v12H0z','#2b413c') +
-    [20,89,158,227].map((x,i)=>windowBay(x,287,i%3!==1)).join('') +
-    path('M78 279h6v69h-6zM147 279h6v69h-6zM216 279h6v69h-6zM289 270h8v90h-8z','#314942') +
-    path('M79 282h2v61h-2zM148 282h2v61h-2zM217 282h2v61h-2z','#6a7b69') +
-    path('M9 331h13v3H9zM40 337h16v3H40zM103 334h18v3h-18zM181 335h17v3h-17zM240 341h12v3h-12z','#6b7767') +
+    path(shell,'#425950') + path(shell,'url(#factory-masonry)') +
+    path('M0 118h15v-6h8v-5h7v-6h8v-6h9v3h-8v6h-8v6h-7v5h-8v6H0zM47 112h9v-5h8v-6h9v-6h9v3h-8v6h-9v6h-8v5H47zM82 113h8v-5h8v-7h8v-6h10v3h-9v6h-8v7h-8v5h-9z','#8c9580') +
+    path('M0 121h129v4H0zM0 171h129v8H0zM48 126h5v47h-5zM113 126h8v47h-8z','#273f39') +
+    path('M7 133h33v24H7zM58 131h49v29H58z','#203632') +
+    path('M9 135h28v17H9zM61 134h43v21H61z','#6c8271') +
+    path('M9 135h13v6H9zM62 135h13v4H62zM80 136h10v6H80zM92 143h11v10H92z','#889788') +
+    path('M19 136h3v5h5v4h-4v7H12v-9h4v-3h3zM64 144h10v-5h7v5h8v7h6v4H64z','#2c4640') +
+    path('M24 134h2v20h-2zM9 143h28v2H9zM77 133h2v24h-2zM91 133h2v24h-2zM60 143h45v2H60z','#344e45') +
+    path('M6 155h35v3H6zM57 157h51v3H57zM49 127h2v42h-2zM115 127h2v43h-2z','#82917d') +
+    path('M121 149h9v4h-3v8h3v6h-6v7h-3zM2 161h11v3H2zM32 166h13v3H32zM96 164h15v2H96z','#687767') +
     '</g>';
 }
 
 function loadingHall() {
-  const shell='M904 361v-88h16v-13h18v-13h20v-19h212v9h18v12h12v112z';
-  const shutter=Array.from({length:7},(_,i)=>rect(1032,295+i*8,112,2,'#4f655c')).join('');
-  const warning=Array.from({length:5},(_,i)=>path(`M${1017+i*28} 278h11l-6 7h-11z`,'#aa9169')).join('');
+  const shell='M457 179v-35h8v-12h11v-11h13v-12h58v-6h23v6h30v70z';
   return '<g id="factory-loading-hall">' +
-    path(shell,'#496158') + path(shell,'url(#factory-brick)') +
-    path('M904 273h16v-13h18v-13h20v-19h212v9h18v12h12v8h-17v-12h-18v-9H965v19h-20v13h-18v13h-23z','#879382') +
-    path('M969 250h200v8H969zM911 351h289v10H911z','#304740') +
-    path('M1004 361v-72h11v-13h144v13h11v72z','#263d37') +
-    path('M1004 289h11v-13h144v13h11v72h-8v-67h-10v-9h-130v9h-10v67h-8z','#758477') +
-    rect(1024,290,128,71,'#1f3330') + rect(1032,292,112,66,'#354e46') + shutter + warning +
-    path('M1032 345h28v3h32v3h52v7h-112z','#2d453f') +
-    rect(1009,310,3,21,'#b09a73') + rect(1162,310,3,21,'#b09a73') +
-    windowBay(934,291,true) +
-    path('M978 228v-28h10v18h93v-22h12v32z','#384f49') +
-    path('M980 200h4v22h101v-26h4v30H980z','#748679') +
-    path('M993 218h6v10h-6zM1056 218h6v10h-6z','#2d463f') + '</g>';
+    path(shell,'#4c6257') + path(shell,'url(#factory-masonry)') +
+    path('M457 144h8v-12h11v-11h13v-12h58v-6h23v6h30v4h-32v-6h-19v6h-59v12h-12v11h-11v12h-10z','#899380') +
+    path('M489 118h111v4H489zM467 171h133v8H467z','#304a40') +
+    path('M501 179v-43h8v-7h75v7h8v43z','#243a35') +
+    path('M501 136h8v-7h75v7h8v43h-5v-40h-8v-6h-67v6h-7v40h-4z','#889781') +
+    rect(509,140,73,39,'#1a302a') +
+    path('M512 140h67v27h-14v2h-15v-2h-38z','#425b4f') +
+    repeat(6,i=>rect(512,142+i*4,67,1,'#6a7f6c')) +
+    path('M514 169h26v4h-26zM558 174h18v2h-18z','#2f493d') +
+    repeat(5,i=>path(`M${514+i*13} 132h7l-3 3h-7z`,'#b59a6b')) +
+    path('M502 147h3v13h-3zM587 147h3v13h-3zM475 145h13v3h-13z','#9e8a65') +
+    path('M550 103V90h5v8h32V85h5v18z','#354e47') +
+    path('M550 90h2v10h37V85h3v16h-42z','#74877a') +
+    '</g>';
 }
 
-function factoryFloor(seed) {
-  const {width,height,groundY}=WORLD;
-  let seams='', ballast='', sleepers='';
-  for(let x=0;x<width;x+=48){
-    const offset=(x/48*13+seed%17)%19;
-    seams+=path(`M${x} ${groundY+4}h3v9h4v9h-7z`,'#364c45') +
-      rect(x+offset+6,groundY+11,14,2,'#758273') +
-      rect(x+offset+18,groundY+17,10,2,'#65796a');
-    ballast+=rect(x+offset,groundY+47,12,3,'#52685d')+
-      rect(x+offset+19,groundY+50,8,2,'#293e38');
-    sleepers+=rect(x+5,groundY+30,13,20,'#233732')+
-      rect(x+5,groundY+30,13,3,'#56675a');
-  }
-  return `<g id="factory-ground" data-ground-baseline="${groundY}">` +
-    rect(0,groundY,width,height-groundY,'#3a5047') +
-    rect(0,groundY,width,24,'#52675b') + rect(0,groundY,width,3,'#989888') + seams +
-    rect(0,groundY+22,width,5,'#263c35') + sleepers +
-    rect(0,groundY+33,width,3,'#7f8978') + rect(0,groundY+36,width,2,'#2b423a') +
-    rect(0,groundY+43,width,3,'#697b6d') + ballast + '</g>';
+function floor(seed) {
+  return '<g id="factory-ground" data-ground-baseline="374">' +
+    rect(0,187,600,28,'#344b42') + rect(0,187,600,12,'#596d5f') +
+    rect(0,187,600,1,'#a0a18a') + rect(0,198,600,2,'#293e36') +
+    repeat(25,i=>{
+      const x=i*24, offset=(i*13+seed%17)%11;
+      return path(`M${x+6} 189h1v3h3v3h3v3h-2v-2h-3v-3h-3z`,'#3e574c') +
+        rect(x+offset+2,195,7,1,'#768675') +
+        rect(x+4,201,7,13,'#253b33') + rect(x+4,201,7,2,'#5a6b5d') +
+        rect(x+offset+11,212,5,1,'#617467');
+    }) +
+    path('M0 203h600v1H0zM0 209h600v1H0z','#82917d') +
+    path('M0 204h600v1H0zM0 210h600v1H0z','#253d33') + '</g>';
 }
 
 export function factoryScene(seed) {
-  return '<g id="abandoned-factory">' +
-    '<defs><pattern id="factory-brick" width="48" height="20" patternUnits="userSpaceOnUse">' +
-    path('M0 8h48v2H0zM0 18h48v2H0zM18 0h2v9h-2zM40 10h2v9h-2z','#3a5047') +
-    path('M5 3h12v2H5zM23 12h16v2H23z','#566a5c') +
+  return `<g id="abandoned-factory" transform="scale(2)" shape-rendering="crispEdges" data-width="${WORLD.width}">` +
+    '<defs><pattern id="factory-masonry" width="26" height="10" patternUnits="userSpaceOnUse">' +
+    path('M0 4h26v1H0zM0 9h26v1H0zM8 0h1v4H8zM21 5h1v4h-1z','#344c43') +
+    path('M2 2h5v1H2zM11 6h9v1h-9zM18 1h6v1h-6z','#607163') +
     '</pattern></defs>' +
     '<g id="factory-skyline">' +
-    path('M0 365v-52h33v-23h23v19h40v-17h36v-50h18v-39h12v39h19v59h36v-15h42v-18h36v29h42v-22h43v23h43v-49h62v-18h23v18h25v-30h39v46h32v17h48v-35h69v-22h38v23h49v-39h22v-40h12v40h21v68h63v-18h45v18h49v-62h17v-28h11v28h21v42h53v-31h43v23h33v73z','#405a56') +
-    path('M123 249h58v5h-58zM452 252h60v5h-60zM838 228h55v5h-55zM1051 251h58v5h-58z','#576e66') +
-    path('M320 354v-35h32v-42h24v-8h94v8h20v63h42v14zM562 354v-41h28v-56h16v-9h61v9h18v78h27v19z','#48605a') +
-    path('M357 277h128v5H357zM590 257h95v4h-95zM371 285h5v48h-5zM611 264h4v61h-4z','#5b7167') +
-    path('M350 321h139v4H350zM591 283h94v4h-94zM591 303h94v4h-94z','#3b534f') +
-    path('M697 356v-51h11v-21h22v-17h9v17h29v-28h10v28h17v-36h10v36h22v72z','#47615a') +
-    path('M689 315h143v5H689zM700 334h128v3H700zM723 290h86v4h-86z','#556f65') +
-    '</g><g id="factory-utility-pipes">' +
-    path('M235 319h59v-17h244v-41h11v51h-246v17h-68zM624 336v-45h212v-26h12v37H635v34z','#293f3f') +
-    path('M298 302h240v-41h4v46H298zM627 291h209v-26h4v31H627z','#768277') +
-    [324,444,502,668,744,810].map(x=>{
-      const y=x<600?300:289;
-      return rect(x,y,8,16,'#364e46')+rect(x,y,3,13,'#839181');
-    }).join('') +
-    path('M356 315h7v39h-7zM483 315h7v39h-7zM691 302h7v51h-7zM800 302h7v51h-7z','#354f45') +
-    path('M358 326h5v4h-5zM485 335h5v4h-5zM693 318h5v4h-5zM802 332h5v4h-5z','#728477') +
+    path('M0 180v-38h19v-12h21v7h20v-13h27v19h31v-25h27v-11h20v18h20V94h6V77h8v17h7v38h21v-12h25v13h22v-23h17v-8h18v13h28v24h26v-21h24V90h8V73h7v17h8v45h25v-14h23v-11h37v24h18v-38h7V80h8v16h6v32h26v-14h41v66z','#3b5652') +
+    path('M187 94h15v3h-15zM390 90h16v3h-16zM515 96h17v3h-17zM270 138h17v2h-17zM452 125h31v2h-31z','#526b61') +
+    path('M113 177v-36h27v-7h52v4h13v39zM334 177v-35h17v-10h24v-8h39v10h16v43z','#4a6359') +
+    path('M141 138h53v3h-53zM351 135h62v3h-62zM122 156h70v3h-70zM341 151h77v2h-77z','#5c7568') +
+    '</g><g id="factory-furnaces">' + furnace(163,109) + furnace(208,119) + furnace(304,111) +
+    path('M365 177v-26h8v-6h18v-6h44v-9h15v9h15v38z','#40594f') +
+    path('M374 149h88v4h-88zM390 161h62v3h-62z','#5b7163') + '</g>' +
+    '<g id="factory-utility-pipes">' + pipe(105,135,118) + pipe(260,148,134) +
+    path('M145 152h4v25h-4zM215 152h4v25h-4zM353 164h4v14h-4zM386 164h4v14h-4z','#304b40') +
     '</g>' + workshop() + loadingHall() +
-    path('M0 374v-19h85v4h54v-4h72v7h75v-8h72v9h81v-3h66v4h73v-6h53v5h82v-5h79v6h88v-8h79v5h60v-4h89v3h92v14z','#384e48') +
-    path('M0 374v-4h165v-3h119v3h113v-4h105v4h89v-4h96v4h138v-3h103v3h112v-4h160v8z','#67796d') +
-    factoryFloor(seed) + '</g>';
+    path('M0 187v-10h23v3h20v-2h40v1h28v-3h24v3h37v-3h38v4h53v-3h30v3h69v-4h31v3h35v-3h33v2h47v-2h52v3h40v8z','#3e574a') +
+    path('M0 185h32v-2h35v2h52v-2h24v1h19v2h27v-1h41v-2h14v2h65v-1h24v2h54v-2h50v1h57v-1h24v1h18v-2h44v2h20v2H0z','#718375') +
+    floor(seed) + '</g>';
 }
