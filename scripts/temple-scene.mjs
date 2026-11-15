@@ -13,7 +13,7 @@ export const templePlatforms = Object.freeze({
 });
 
 const causeway = Array.from({length:4},(_,index)=>`causeway-${index}`);
-const causewayDepth = 90;
+const causewayDepth = 64;
 
 export function templeDimensions() {
   const viewHeight = WORLD.groundY + causewayDepth;

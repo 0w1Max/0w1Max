@@ -814,7 +814,13 @@ test('Храм доступен явно и собирается из собст
   assert.ok(validateLayout(map).valid);
   assert.equal(buildLevel(grid,'0w1Max',seedOverride).location,'industrial');
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride,locationOverride:'temple'});
-  assert.match(svg,/viewBox="0 0 1200 464"/);
+  assert.match(svg,/viewBox="0 0 1200 438"/);
+  for(let index=0;index<4;index++){
+    assert.ok(svg.includes(`href="#temple-sprite-causeway-${index}" x="${index*300}" y="374" width="300" height="64"`));
+  }
+  for(const color of ['#4b5943','#667751','#92966a','#c8b681']){
+    assert.ok(svg.includes('fill="'+color+'" fill-opacity="1"'));
+  }
   assert.match(svg,/id="temple-ground" data-ground-baseline="374"/);
   assert.match(svg,/href="#temple-sprite-temple-entrance"/);
   assert.match(svg,/data-biome="temple"/);

@@ -24,7 +24,7 @@ const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', '
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
 const CANYON_COLORS = ['#2a5261', '#704a38', '#9d5c3c', '#c77c49', '#e3ac68'];
 const SNOW_COLORS = ['#7192a6', '#477d94', '#63a4b3', '#91c4c5', '#d8b580'];
-const TEMPLE_COLORS = ['#80a6a1', '#315c58', '#537f68', '#819870', '#cab77e'];
+const TEMPLE_COLORS = ['#a0aa92', '#4b5943', '#667751', '#92966a', '#c8b681'];
 const FACTORY_COLORS = ['#90a5a1', '#695544', '#9c7156', '#bd8b62', '#dab27b'];
 const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
 
@@ -317,12 +317,12 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     emptyBorder: canyon ? ' stroke="#254a58" stroke-opacity=".32"' :
       snow ? ' stroke="#a1c4d3" stroke-opacity=".20"' :
       factory ? ' stroke="#95a8a1" stroke-opacity=".15"' :
-      temple ? ' stroke="#3d6b67" stroke-opacity=".37"' :
+      temple ? ' stroke="#708b7b" stroke-opacity=".23"' :
       pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
     activeBorder: canyon ? ' stroke="#573627" stroke-opacity=".32"' :
       snow ? ' stroke="#223e55" stroke-opacity=".75"' :
       factory ? ' stroke="#514538" stroke-opacity=".38"' :
-      temple ? ' stroke="#2f5752" stroke-opacity=".46"' : '',
+      temple ? ' stroke="#465943" stroke-opacity=".32"' : '',
   };
   const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
