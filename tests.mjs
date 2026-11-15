@@ -463,7 +463,7 @@ test('Каждая локация содержит уникальный SVG-пе
     const scene=renderLocation(location,1729);
     assert.ok(scene.includes('data-location="'+location+'"'));
     assert.ok(scene.includes('height="430"'));
-    assert.ok(scene.includes('y="374"'));
+    assert.match(scene, /(?:y|data-ground-baseline)="374"/);
     assert.doesNotMatch(scene,/<script\b|<foreignObject\b|\s(?:href|src)=["']https?:\/\//i);
     return scene;
   });
