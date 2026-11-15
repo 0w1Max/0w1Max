@@ -15,7 +15,7 @@ export const BIOMES = Object.freeze({
     ['jungle-rock','fallen-log','stone-ruin','tree-stump','supply-crate'],
     ['wooden-bridge','mossy-stone','vine-ledge'],
     {leaf:'#65ba46',timber:'#91603b',stone:'#778a78',metal:'#637d75',shade:'#263d30',highlight:'#b2e77b'},
-    {cloth:'#848e43',vest:'#666b65'}
+    {cloth:'#8a9462',vest:'#596d60'}
   ),
   desert: define(
     ['jungle-rock','sandbags','stone-ruin','supply-crate'],
@@ -69,7 +69,6 @@ const clamp = (value,min,max) => Math.max(min,Math.min(max,value));
  * Перекрашиваются только различимые по цвету ткань и детали жилета.
  */
 export function soldierColor(original, location) {
-  if (location==='jungle') return original;
   const {outfit}=biomeFor(location);
   if (!/^#[\da-f]{6}$/i.test(original)) return original;
   const [r,g,b]=rgb(original);

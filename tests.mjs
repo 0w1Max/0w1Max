@@ -504,9 +504,9 @@ test('В каждой локации собственные платформы, 
   assert.equal(soldierColor('#1747be','desert'),'#1747be');
   assert.equal(soldierColor('#0442e8','snow'),'#0442e8');
   assert.equal(soldierColor('#f9b377','volcano'),'#f9b377');
-  assert.equal(soldierColor('#857f39','jungle'),'#857f39');
+  assert.notEqual(soldierColor('#857f39','jungle'),'#857f39');
   for(const location of Object.keys(BIOMES)){
-    if(location!=='jungle')assert.notEqual(soldierColor('#857f39',location),'#857f39');
+    assert.notEqual(soldierColor('#857f39',location),'#857f39');
     const theme=biomeFor(location);
     const sample={seed:1,location,platforms:[{kind:theme.platforms[0],x:330,y:321,width:130}],
       obstacles:[{kind:theme.obstacles[0],x:700,width:34,height:27}]};
