@@ -33,6 +33,7 @@ export function factoryScene() {
     sprite('foundry',0,groundY-222,420,222) +
     sprite('loading-bay',810,groundY-184,390,184) +
     `<g id="factory-ground" data-ground-baseline="${groundY}">` +
+    `<rect y="${groundY}" width="${width}" height="${tileHeight}" fill="#555153"/>` +
     deck.map((name,index)=>sprite(name,index*tileWidth,groundY,tileWidth,tileHeight)).join('') +
     '</g></g>';
 }
