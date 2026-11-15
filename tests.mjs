@@ -791,19 +791,17 @@ test('Снежная база: три платформы, четыре прег�
 
 test('Завод: собственная палитра календаря, опорная линия и тени объектов',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride:0});
-  assert.match(svg,/width="1200" height="458" viewBox="0 0 1200 458"/);
-  for(let index=0;index<4;index++){
-    assert.ok(svg.includes(`href="#factory-sprite-service-deck-${index}" x="${index*300}" y="374" width="300" height="84"`));
-  }
+  assert.match(svg,/width="1200" height="438" viewBox="0 0 1200 438"/);
+  assert.equal((svg.match(/data-service-trench="true"/g)||[]).length,5);
   assert.match(svg,/id="factory-skyline"/);
-  for(const layer of ["process-yard","foundry","loading-bay","service-deck-0"]){
+  for(const layer of ["process-yard","foundry","loading-bay"]){
     assert.ok(svg.includes(`href="#factory-sprite-${layer}"`));
   }
   assert.match(svg,/id="factory-ground"[^>]*data-ground-baseline="374"/);
   assert.match(svg,/id="industrial-object-shadows"/);
   assert.match(svg,/<text x="72"[^>]+fill="#e2dfc7"/);
   const cells=svg.split('<g id="contribution-grid">')[1].split('</g>')[0];
-  for(const color of ['#7d8972','#9c9e7d','#b9ad89','#d3bf97']){
+  for(const color of ['#2d4f50','#51837d','#7cad9d','#b5cfb1']){
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
   assert.doesNotMatch(svg,/id="contribution-shade"/);
