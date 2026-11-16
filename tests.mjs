@@ -755,7 +755,7 @@ test('Джунгли: полная сцена, стык грунта и все �
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:34});
   assert.match(svg,/width="1200" height="430" viewBox="0 0 1200 430"/);
   assert.match(svg,/id="jungle-stage"[^>]*data-ground-baseline="374"/);
-  const ground=[...svg.matchAll(/href="#jungle-sprite-ground-\d+" x="(\d+)" y="374" width="150" height="107"/g)];
+  const ground=[...svg.matchAll(/href="#jungle-sprite-ground-\d+" x="(\d+)" y="374" width="150" height="([0-9.]+)"/g)];
   assert.deepEqual(ground.map(([,x])=>Number(x)),[0,150,300,450,600,750,900,1050]);
   assert.ok(ground.every(([, ,height])=>Math.abs(Number(height)*41/24-150)<1e-8));
   assert.match(svg,/href="#jungle-sprite-tree-wall" x="0" y="116" width="240" height="258"/);
