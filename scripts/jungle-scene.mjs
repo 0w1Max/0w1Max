@@ -29,7 +29,7 @@ export function jungleScene(seed) {
     '<g id="jungle-backdrop">' +
     `<rect width="${width}" height="${groundY}" fill="#040907"/>` +
     canopy + `<g transform="translate(${width} 0) scale(-1 1)">${canopy}</g>` +
-    jungleSprite('tree-wall',0,groundY-foregroundHeight,80*foregroundScale,foregroundHeight) +
+    jungleSprite('tree-wall',14,groundY-foregroundHeight,92*foregroundScale,foregroundHeight) +
     jungleSprite('waterfall-ruins',width-103*foregroundScale,groundY-foregroundHeight,103*foregroundScale,foregroundHeight) +
     '</g><g id="jungle-ground">' + floor + '</g></g>';
 }
