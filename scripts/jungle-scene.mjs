@@ -2,34 +2,29 @@ import {WORLD, seededRandom} from './mission.mjs';
 import {jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
 
 const groundDepth = 46;
-const groundTiles = Array.from({length:8},(_,index)=>`ground-${index}`);
+const groundTiles = ['ground-0','ground-1','ground-2','ground-3'];
 
 export function jungleDimensions() {
-  const viewHeight=WORLD.groundY+groundDepth;
+  const viewHeight = WORLD.groundY + groundDepth;
   return {displayHeight:viewHeight,viewHeight};
 }
 
 export function jungleScene(seed) {
-  const {width,groundY}=WORLD;
-  const tileWidth=width/groundTiles.length;
-  // Keep the native 41 × 24 aspect ratio and crop below the walking surface.
-  const tileHeight=tileWidth*24/41;
-  const random=seededRandom(seed ^ 0x139a7a33);
-  const offset=Math.floor(random()*groundTiles.length);
-  const floor=groundTiles.map((_,index)=>
+  const {width,groundY} = WORLD;
+  const tileWidth = width / groundTiles.length;
+  const random = seededRandom(seed ^ 0x139a7a33);
+  const offset = Math.floor(random() * groundTiles.length);
+  const floor = groundTiles.map((_,index) =>
     jungleSprite(groundTiles[(index+offset)%groundTiles.length],index*tileWidth,
-      groundY,tileWidth,tileHeight)).join('');
+      groundY,tileWidth,groundDepth)).join('');
 
-  const canopyWidth=groundY*144/86;
-  const canopy=jungleSprite('canopy',width/2-canopyWidth,0,canopyWidth,groundY);
-  const foregroundScale=2.75;
-  const foregroundHeight=86*foregroundScale;
   return `<g id="jungle-stage" data-seed="${seed}" data-ground-baseline="${groundY}" shape-rendering="crispEdges">` +
-    jungleSpriteDefinitions(['tree-wall','canopy','waterfall-ruins',...groundTiles]) +
+    jungleSpriteDefinitions(['ridge','grove','palm-bank','dry-gate',...groundTiles]) +
     '<g id="jungle-backdrop">' +
-    `<rect width="${width}" height="${groundY}" fill="#040907"/>` +
-    canopy + `<g transform="translate(${width} 0) scale(-1 1)">${canopy}</g>` +
-    jungleSprite('tree-wall',14,groundY-foregroundHeight,92*foregroundScale,foregroundHeight) +
-    jungleSprite('waterfall-ruins',width-103*foregroundScale,groundY-foregroundHeight,103*foregroundScale,foregroundHeight) +
+    `<rect width="${width}" height="${groundY}" fill="#8da386"/>` +
+    jungleSprite('ridge',0,groundY-224,width,224) +
+    jungleSprite('grove',0,groundY-144,width,144) +
+    jungleSprite('palm-bank',12,groundY-250,364,250) +
+    jungleSprite('dry-gate',width-356,groundY-214,348,214) +
     '</g><g id="jungle-ground">' + floor + '</g></g>';
 }

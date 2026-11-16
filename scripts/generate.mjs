@@ -282,10 +282,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const factory = level.location === 'industrial';
   const temple = level.location === 'temple';
   const coast = level.location === 'coast';
-  const jungleTextEdge = jungle ? ' stroke="#101e1a" stroke-width="1.4" stroke-opacity=".82" paint-order="stroke fill" stroke-linejoin="round"' : '';
-  const labelFill = jungle ? '#c5cabb' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
-  const titleFill = jungle ? '#eceee1' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
-  const subtitleFill = jungle ? '#d6dbcb' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
+  const labelFill = jungle ? '#273728' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
+  const titleFill = jungle ? '#283629' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
+  const subtitleFill = jungle ? '#354334' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() :
@@ -313,7 +312,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   for(let col=0;col<grid.length;col++){
     const day=grid[col].find(Boolean);if(!day)continue;
     const m=Number(day.date.slice(5,7))-1;
-    if(m!==prev&&col<grid.length-3){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}"${jungleTextEdge} font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
+    if(m!==prev&&col<grid.length-3){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="${labelFill}" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
@@ -333,7 +332,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       temple ? ' stroke="#465943" stroke-opacity=".32"' :
       coast ? ' stroke="#264b58" stroke-opacity=".45"' : '',
   };
-  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}"${jungleTextEdge}>${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
+  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
