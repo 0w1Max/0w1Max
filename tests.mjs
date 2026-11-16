@@ -753,13 +753,13 @@ test('Джунгли: полная сцена, стык грунта и все �
   assert.deepEqual([...obstacles].sort(),expectedObstacles);
   assert.deepEqual([...platforms].sort(),expectedPlatforms);
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:34});
-  assert.match(svg,/width="1200" height="430" viewBox="0 0 1200 430"/);
+  assert.match(svg,/width="1200" height="420" viewBox="0 0 1200 420"/);
   assert.match(svg,/id="jungle-stage"[^>]*data-ground-baseline="374"/);
   const ground=[...svg.matchAll(/href="#jungle-sprite-ground-\d+" x="(\d+)" y="374" width="150" height="([0-9.]+)"/g)];
   assert.deepEqual(ground.map(([,x])=>Number(x)),[0,150,300,450,600,750,900,1050]);
   assert.ok(ground.every(([, ,height])=>Math.abs(Number(height)*41/24-150)<1e-8));
-  assert.match(svg,/href="#jungle-sprite-tree-wall" x="0" y="116" width="240" height="258"/);
-  assert.match(svg,/href="#jungle-sprite-waterfall-ruins" x="891" y="116" width="309" height="258"/);
+  assert.match(svg,/href="#jungle-sprite-tree-wall" x="0" y="137.5" width="220" height="236.5"/);
+  assert.match(svg,/href="#jungle-sprite-waterfall-ruins" x="916.75" y="137.5" width="283.25" height="236.5"/);
   assert.doesNotMatch(svg,/<image\b|id="contribution-shade"/);
 });
 

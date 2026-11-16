@@ -1,7 +1,7 @@
 import {WORLD, seededRandom} from './mission.mjs';
 import {jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
 
-const groundDepth = 56;
+const groundDepth = 46;
 const groundTiles = Array.from({length:8},(_,index)=>`ground-${index}`);
 
 export function jungleDimensions() {
@@ -22,7 +22,7 @@ export function jungleScene(seed) {
 
   const canopyWidth=groundY*144/86;
   const canopy=jungleSprite('canopy',width/2-canopyWidth,0,canopyWidth,groundY);
-  const foregroundScale=3;
+  const foregroundScale=2.75;
   const foregroundHeight=86*foregroundScale;
   return `<g id="jungle-stage" data-seed="${seed}" data-ground-baseline="${groundY}" shape-rendering="crispEdges">` +
     jungleSpriteDefinitions(['tree-wall','canopy','waterfall-ruins',...groundTiles]) +
