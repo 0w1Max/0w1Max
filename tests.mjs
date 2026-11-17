@@ -755,10 +755,18 @@ test('Джунгли: полная сцена, стык грунта и все �
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:34});
   assert.match(svg,/width="1200" height="420" viewBox="0 0 1200 420"/);
   assert.match(svg,/id="jungle-stage"[^>]*data-ground-baseline="374"/);
-  const ground=[...svg.matchAll(/href="#jungle-sprite-ground-\d+" x="(\d+)" y="374" width="300" height="46"/g)];
+  const ground=[...svg.matchAll(/href="#jungle-sprite-ground-strip" x="(\d+)" y="374" width="300" height="([0-9.]+)"/g)];
   assert.deepEqual(ground.map(([,x])=>Number(x)),[0,300,600,900]);
-  assert.match(svg,/href="#jungle-sprite-palm-bank" x="12" y="124" width="364" height="250"/);
-  assert.match(svg,/href="#jungle-sprite-dry-gate" x="844" y="160" width="348" height="214"/);
+  for(const name of ['palm-bank','dry-gate','ridge','grove','ground-strip']){
+    const bounds=svg.match(new RegExp('<symbol id="jungle-sprite-'+name+'" viewBox="0 0 ([0-9.]+) ([0-9.]+)"'));
+    const use=svg.match(new RegExp('<use href="#jungle-sprite-'+name+'" x="([0-9.]+)" y="([0-9.]+)" width="([0-9.]+)" height="([0-9.]+)"'));
+    assert.ok(bounds && use, name);
+    assert.ok(Math.abs(Number(use[3])/Number(use[4])-Number(bounds[1])/Number(bounds[2]))<1e-8, name);
+    if(name==='palm-bank'||name==='dry-gate'){
+      assert.equal(Number(use[2])+Number(use[4]),WORLD.groundY);
+      assert.ok(Number(use[1])>0 && Number(use[1])+Number(use[3])<WORLD.width);
+    }
+  }
   assert.doesNotMatch(svg,/waterfall|tree-wall/);
   assert.doesNotMatch(svg,/<image\b|id="contribution-shade"/);
 });

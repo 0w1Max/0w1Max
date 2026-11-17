@@ -1,8 +1,9 @@
-import {WORLD, seededRandom} from './mission.mjs';
+import {WORLD} from './mission.mjs';
 import {jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
 
 const groundDepth = 46;
-const groundTiles = ['ground-0','ground-1','ground-2','ground-3'];
+const groundTileWidth = 300;
+const groundTileHeight = groundTileWidth * 31 / 193;
 
 export function jungleDimensions() {
   const viewHeight = WORLD.groundY + groundDepth;
@@ -11,20 +12,19 @@ export function jungleDimensions() {
 
 export function jungleScene(seed) {
   const {width,groundY} = WORLD;
-  const tileWidth = width / groundTiles.length;
-  const random = seededRandom(seed ^ 0x139a7a33);
-  const offset = Math.floor(random() * groundTiles.length);
-  const floor = groundTiles.map((_,index) =>
-    jungleSprite(groundTiles[(index+offset)%groundTiles.length],index*tileWidth,
-      groundY,tileWidth,groundDepth)).join('');
+  const floor = Array.from({length:4},(_,index) =>
+    jungleSprite('ground-strip',index*groundTileWidth,groundY,
+      groundTileWidth,groundTileHeight)).join('');
 
   return `<g id="jungle-stage" data-seed="${seed}" data-ground-baseline="${groundY}" shape-rendering="crispEdges">` +
-    jungleSpriteDefinitions(['ridge','grove','palm-bank','dry-gate',...groundTiles]) +
+    jungleSpriteDefinitions(['ridge','grove','palm-bank','dry-gate','ground-strip']) +
     '<g id="jungle-backdrop">' +
-    `<rect width="${width}" height="${groundY}" fill="#8da386"/>` +
-    jungleSprite('ridge',0,groundY-224,width,224) +
-    jungleSprite('grove',0,groundY-144,width,144) +
-    jungleSprite('palm-bank',12,groundY-250,364,250) +
-    jungleSprite('dry-gate',width-356,groundY-214,348,214) +
-    '</g><g id="jungle-ground">' + floor + '</g></g>';
+    `<rect width="${width}" height="${groundY}" fill="#8ea59a"/>` +
+    jungleSprite('ridge',0,211,width,width*44/379) +
+    jungleSprite('grove',0,groundY-width*48/379,width,width*48/379) +
+    jungleSprite('palm-bank',8,groundY-235,440,235) +
+    jungleSprite('dry-gate',699.5,groundY-225,492.5,225) +
+    '</g><g id="jungle-ground">' +
+    `<rect y="${groundY}" width="${width}" height="${groundDepth}" fill="#786447"/>` +
+    floor + '</g></g>';
 }
