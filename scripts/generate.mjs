@@ -23,7 +23,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
-const JUNGLE_COLORS = ['#73a48c', '#285b45', '#3f7c51', '#76a75a', '#b9ce7d'];
+const JUNGLE_COLORS = ['#8daba0', '#4c735c', '#688b63', '#91aa71', '#c2c58c'];
 const CANYON_COLORS = ['#2a5261', '#704a38', '#9d5c3c', '#c77c49', '#e3ac68'];
 const SNOW_COLORS = ['#7192a6', '#477d94', '#63a4b3', '#91c4c5', '#d8b580'];
 const COAST_COLORS = ['#96b4b7', '#2f535f', '#4a6b76', '#799b9b', '#c3bd92'];
@@ -282,9 +282,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const factory = level.location === 'industrial';
   const temple = level.location === 'temple';
   const coast = level.location === 'coast';
-  const labelFill = jungle ? '#273728' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
-  const titleFill = jungle ? '#283629' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
-  const subtitleFill = jungle ? '#354334' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
+  const labelFill = jungle ? '#c2cead' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
+  const titleFill = jungle ? '#dde0be' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
+  const subtitleFill = jungle ? '#b3c4af' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() :
@@ -324,13 +324,14 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       factory ? ' stroke="#95a8a1" stroke-opacity=".15"' :
       temple ? ' stroke="#708b7b" stroke-opacity=".23"' :
       coast ? ' stroke="#acc1c0" stroke-opacity=".19"' :
-      jungle ? ' stroke="#697567" stroke-opacity=".32"' :
+      jungle ? ' stroke="#9eb4a2" stroke-opacity=".24"' :
       pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
     activeBorder: canyon ? ' stroke="#573627" stroke-opacity=".32"' :
       snow ? ' stroke="#223e55" stroke-opacity=".75"' :
       factory ? ' stroke="#514538" stroke-opacity=".38"' :
       temple ? ' stroke="#465943" stroke-opacity=".32"' :
-      coast ? ' stroke="#264b58" stroke-opacity=".45"' : '',
+      coast ? ' stroke="#264b58" stroke-opacity=".45"' :
+      jungle ? ' stroke="#182f2b" stroke-opacity=".7"' : '',
   };
   const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
