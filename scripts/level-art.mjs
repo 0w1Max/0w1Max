@@ -124,6 +124,7 @@ const canyonPlatformShade = '<defs><filter id="canyon-platform-shade" x="-10%" y
 function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, sprite]) {
   const obstacles = level.obstacles.map(item => obstacleSprites[item.kind]);
   const platforms = level.platforms.map(item => platformSprites[item.kind]);
+  const platformHeight = level.location === 'jungle' ? 32 : 18;
   const shadePlatforms = level.location === 'desert' && platforms.length > 0;
   const terrain = (item, index, type, name, y, height) =>
     `<g id="${type}-${index}" data-kind="${item.kind}" data-theme-detail="${level.location}"${shadePlatforms && type === 'platform' ? ' filter="url(#canyon-platform-shade)"' : ''} data-sprite="${name}">` +
@@ -132,7 +133,7 @@ function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, s
   return defineSprites([...obstacles, ...platforms]) +
     (shadePlatforms ? canyonPlatformShade : '') +
     (['desert','snow','temple','coast'].includes(level.location) ? terrainShadows(level) : '') +
-    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, 18)).join('') +
+    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, platformHeight)).join('') +
     level.obstacles.map((item, index) =>
       terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');
 }

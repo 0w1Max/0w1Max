@@ -745,6 +745,7 @@ test('Джунгли: полная сцена, стык грунта и все �
         assert.equal(Number(y)+Number(height),WORLD.groundY);
         obstacles.add(name);
       }else{
+        assert.equal(Number(height),32);
         assert.ok(level.platforms.some(p=>p.x===Number(x)&&p.y===Number(y)&&p.width===Number(width)));
         platforms.add(name);
       }
