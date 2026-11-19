@@ -757,12 +757,12 @@ test('Джунгли: полная сцена, стык грунта и все �
   assert.match(svg,/id="jungle-stage"[^>]*data-ground-baseline="374"/);
   const ground=[...svg.matchAll(/href="#jungle-sprite-ground-strip" x="(\d+)" y="374" width="300" height="([0-9.]+)"/g)];
   assert.deepEqual(ground.map(([,x])=>Number(x)),[0,300,600,900]);
-  for(const name of ['palm-bank','dry-gate','ridge','grove','ground-strip']){
+  for(const name of ['palm-bank','root-escarpment','ridge','grove','ground-strip']){
     const bounds=svg.match(new RegExp('<symbol id="jungle-sprite-'+name+'" viewBox="0 0 ([0-9.]+) ([0-9.]+)"'));
     const use=svg.match(new RegExp('<use href="#jungle-sprite-'+name+'" x="([0-9.]+)" y="([0-9.]+)" width="([0-9.]+)" height="([0-9.]+)"'));
     assert.ok(bounds && use, name);
     assert.ok(Math.abs(Number(use[3])/Number(use[4])-Number(bounds[1])/Number(bounds[2]))<1e-8, name);
-    if(name==='palm-bank'||name==='dry-gate'){
+    if(name==='palm-bank'||name==='root-escarpment'){
       assert.equal(Number(use[2])+Number(use[4]),WORLD.groundY);
       assert.ok(Number(use[1])>0 && Number(use[1])+Number(use[3])<WORLD.width);
     }

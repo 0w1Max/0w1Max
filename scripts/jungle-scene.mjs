@@ -17,13 +17,13 @@ export function jungleScene(seed) {
       groundTileWidth,groundTileHeight)).join('');
 
   return `<g id="jungle-stage" data-seed="${seed}" data-ground-baseline="${groundY}" shape-rendering="crispEdges">` +
-    jungleSpriteDefinitions(['ridge','grove','palm-bank','dry-gate','ground-strip']) +
+    jungleSpriteDefinitions(['ridge','grove','palm-bank','root-escarpment','ground-strip']) +
     '<g id="jungle-backdrop">' +
-    `<rect width="${width}" height="${groundY}" fill="#8ea59a"/>` +
+    `<rect width="${width}" height="${groundY}" fill="#7fa999"/>` +
     jungleSprite('ridge',0,211,width,width*44/379) +
     jungleSprite('grove',0,groundY-width*48/379,width,width*48/379) +
     jungleSprite('palm-bank',8,groundY-235,440,235) +
-    jungleSprite('dry-gate',699.5,groundY-225,492.5,225) +
+    jungleSprite('root-escarpment',699.5,groundY-225,492.5,225) +
     '</g><g id="jungle-ground">' +
     `<rect y="${groundY}" width="${width}" height="${groundDepth}" fill="#786447"/>` +
     floor + '</g></g>';
