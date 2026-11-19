@@ -32,11 +32,12 @@ jobs:
       - name: Проверить генератор и механику игры
         run: node --test tests.mjs
 
-      - name: Пересобрать каньон из календаря GitHub
+      - name: Пересобрать Storm Coast из календаря GitHub
         env:
           GH_TOKEN: ${{ secrets.COMMANDO_READ_USER_TOKEN }}
           GITHUB_USER: 0w1Max
-          COMMANDO_MAP_SEED: '3'
+          COMMANDO_MAP_SEED: '5'
+          COMMANDO_LOCATION: coast
         run: node scripts/generate.mjs --output generated/commando-activity.svg
 
       - name: Проверить готовый SVG
