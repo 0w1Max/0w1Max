@@ -592,3 +592,44 @@ test('Календарь V5: клетка 18px при шаге 20px и один�
   assert.match(svg,/font-size="18" font-weight="bold"/);
   assert.match(svg,/font-size="13">/);
 });
+
+
+test('Storm Coast V2: профильный биом и морской Mission Complete',()=>{
+  const map=buildLevel(grid,'0w1Max',5,'coast');
+  assert.equal(map.location,'coast');
+  assert.ok(validateLayout(map).valid);
+  const plan=createMission(grid,map);
+  const coastSvg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:5,locationOverride:'coast'});
+  assert.match(coastSvg,/height="438" viewBox="0 0 1200 438"/);
+  assert.match(coastSvg,/id="storm-coast-profile-scale" data-scale="1\.075"/);
+  assert.match(coastSvg,/id="storm-coast-victory"/);
+  assert.match(coastSvg,/id="coast-ground"/);
+  assert.match(coastSvg,/width="18\.4" height="18\.4" rx="3\.6"/);
+  assert.match(coastSvg,/MISSION COMPLETE/);
+  assert.match(coastSvg,/STORM COAST/);
+  assert.equal((coastSvg.match(/id="shot-\d+"/g)||[]).length,plan.totalHp);
+  assert.doesNotMatch(coastSvg,/<script\b|<image\b|<foreignObject\b|desert-end-zone/);
+  assert.equal(plan.segments.at(-1).x1,plan.initial.x);
+  assert.equal(plan.segments.at(-1).y1,plan.initial.footY);
+  const old=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
+  assert.doesNotMatch(old,/storm-coast-profile-scale|storm-coast-victory/);
+});
+
+test('Storm Coast V2: полные 54- и 55-недельные календари и крайние клетки',()=>{
+  for(const [weekCount,scale] of [[54,1.06],[55,1.045]]){
+    const weeks=Array.from({length:weekCount},(_,i)=>({contributionDays:[{
+      date:new Date(Date.UTC(2024,11,29+i*7)).toISOString().slice(0,10),
+      contributionCount:i===0||i===weekCount-1?1:0,
+      contributionLevel:i===0||i===weekCount-1?'FIRST_QUARTILE':'NONE'
+    }]}));
+    const normalized=normalizeWeeks(weeks);
+    assert.equal(normalized.length,weekCount);
+    const svg=renderSvg({weeks,sprites,username:'0w1Max',seedOverride:5,locationOverride:'coast'});
+    assert.match(svg,new RegExp('data-scale="'+String(scale).replace('.','\\.')+'"'));
+    for(const week of [weeks[0],weeks.at(-1)])
+      assert.ok(svg.includes(week.contributionDays[0].date+': 1 contributions'));
+    const right=(72+(weekCount-1)*20-.2+18.4)*scale+(1200*(1-scale)/2);
+    assert.ok(right<=1200,'Обрезана крайняя неделя: '+weekCount);
+    assert.match(svg,/id="storm-coast-victory"/);
+  }
+});
