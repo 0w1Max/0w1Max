@@ -16,8 +16,10 @@ const levee=Array.from({length:4},(_,index)=>`levee-${index}`);
 const leveeDepth=50;
 
 export function coastDimensions() {
-  const viewHeight=WORLD.groundY+leveeDepth;
-  return {displayHeight:viewHeight,viewHeight};
+  const originalHeight=WORLD.groundY+leveeDepth;
+  // Slightly taller canvas retains the complete basalt/levee at coast zoom.
+  const viewHeight=originalHeight+14;
+  return {displayHeight:viewHeight,viewHeight,originalHeight};
 }
 
 export function coastScene() {

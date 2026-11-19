@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 import { renderLocation } from './locations.mjs';
 import {coastDimensions} from './coast-scene.mjs';
+import {stormCoastVictory} from './coast-ui.mjs';
 import {templeDimensions} from './temple-scene.mjs';
 import {factoryDimensions} from './factory-scene.mjs';
 import {desertDimensions} from './canyon-scene.mjs';
@@ -81,7 +82,7 @@ export function normalizeWeeks(weeks) {
   return normalized;
 }
 
-function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacity}) {
+function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacity, radius='2', cellGrow=0}) {
   const impacts=new Map();
   for(const shot of mission.shots){
     if(!impacts.has(shot.key))impacts.set(shot.key,[]);
@@ -118,7 +119,10 @@ function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacit
     }
     const fillOpacity = cell.level === 0 ? emptyOpacity : "1";
     const border=cell.level===0 ? emptyBorder : activeBorder;
-    output+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${border}><title>${escapeXml(title)}</title>${child}</rect>`;
+    // Coast-only: larger rounded cells with explicit visible gaps, without
+    // changing collision and bullet coordinates (the whole scene is scaled).
+    const inset=cellGrow/2, visualSize=CELL+cellGrow;
+    output+=`<rect x="${fmt(x-inset)}" y="${fmt(y-inset)}" width="${fmt(visualSize)}" height="${fmt(visualSize)}" rx="${radius}" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${border}><title>${escapeXml(title)}</title>${child}</rect>`;
   }
   return output;
 }
@@ -282,6 +286,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const factory = level.location === 'industrial';
   const temple = level.location === 'temple';
   const coast = level.location === 'coast';
+  // Profiles are rendered as a single <img>. Zoom all game geometry together
+  // so bullets remain aligned with their targets, including 54/55-week years.
+  const coastScale=coast ? (grid.length>=55 ? 1.045 : grid.length===54 ? 1.06 : 1.075) : 1;
   const labelFill = jungle ? '#c2cead' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
   const titleFill = jungle ? '#dde0be' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
   const subtitleFill = jungle ? '#b3c4af' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
@@ -318,7 +325,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
     colors: canyon ? CANYON_COLORS : snow ? SNOW_COLORS : factory ? FACTORY_COLORS : temple ? TEMPLE_COLORS : coast ? COAST_COLORS : jungle ? JUNGLE_COLORS : COLORS,
-    emptyOpacity: canyon ? '0.08' : factory || temple || coast || jungle ? '0.09' : '0.22',
+    emptyOpacity: canyon ? '0.08' : coast ? '0.12' : factory || temple || jungle ? '0.09' : '0.22',
+    radius: coast ? '3.6' : '2',
+    cellGrow: coast ? .4 : 0,
     emptyBorder: canyon ? ' stroke="#254a58" stroke-opacity=".32"' :
       snow ? ' stroke="#a1c4d3" stroke-opacity=".20"' :
       factory ? ' stroke="#95a8a1" stroke-opacity=".15"' :
@@ -333,16 +342,22 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       coast ? ' stroke="#264b58" stroke-opacity=".45"' :
       jungle ? ' stroke="#182f2b" stroke-opacity=".7"' : '',
   };
-  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="23" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
+  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="${coast?38:23}" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
   const fadeEnd=round(Math.min(fadeBegin+.55,missionEnd-.10));
   const missionComplete=animationAttr('opacity',
     [0,round(finishedAt-.001),finishedAt,fadeBegin,fadeEnd,missionEnd],['0','0','1','1','0','0'],missionEnd,'linear');
-  const done=`<g id="mission-complete" opacity="0">${missionComplete}<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text></g>`;
+  const defaultVictory=`<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text>`;
+  const victoryArt=coast ? stormCoastVictory({duration:missionEnd,finishedAt,fadeBegin}) : defaultVictory;
+  const done=`<g id="mission-complete" opacity="0">${missionComplete}${victoryArt}</g>`;
   const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
-  return `${header}${scene}${defs}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}</svg>\n`;
+  const gameBody=`${scene}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}`;
+  const scaled=coast
+    ? `<g id="storm-coast-profile-scale" data-scale="${fmt(coastScale)}" transform="translate(${fmt(WORLD.width*(1-coastScale)/2)} ${fmt(pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale)}) scale(${fmt(coastScale)})">${gameBody}</g>`
+    : gameBody;
+  return `${header}${defs}${scaled}</svg>\n`;
 }
 
 async function main() {
