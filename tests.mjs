@@ -480,7 +480,8 @@ test('Тематические локации: 1500 карт соответст�
     assert.ok(new Set(level.platforms.map(p=>p.width)).size<=1);
     assert.deepEqual(buildLevel(grid,'0w1Max',seed),level);
   }
-  assert.deepEqual([...seen].sort(),Object.keys(BIOMES).sort());
+  // Coast is an explicitly selected profile landscape, not part of the random pool.
+  assert.deepEqual([...seen].sort(),[...LOCATION_POOL].sort());
 });
 
 test('В каждой локации собственные платформы, препятствия и цвет формы',()=>{
