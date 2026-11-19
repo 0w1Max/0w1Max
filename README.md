@@ -1,86 +1,42 @@
-<h1 align="center">Maxim · Frontend / Web Developer</h1>
+# Maxim
 
-<p align="center">
-  Разрабатываю сайты, веб-приложения и собственные цифровые продукты — от интерфейса до API и развёртывания.
-</p>
+**Web Developer · Frontend / веб-приложения**
 
-<p align="center">
-  <strong>JavaScript · TypeScript · React · Next.js · Node.js · Python</strong>
-</p>
-
----
-
-### 🎮 Commando Activity
+Более 10 созданных и сопровождаемых сайтов, в том числе коммерческие проекты и интернет-магазины. Сейчас сосредоточен на разработке интерфейсов на React/TypeScript и собственных веб-продуктов.
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg">
-    <img src="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg" alt="Commando Activity — анимированная 8-битная игра по календарю GitHub-активности" width="100%">
+    <img src="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg" alt="Commando Activity — интерактивная 8-битная анимация GitHub-активности" width="100%">
   </a>
 </p>
 
-<p align="center">
-  <sub>Пустынный каньон · фиксированная 8-bit локация · календарь и цели обновляются автоматически дважды в сутки</sub>
-</p>
+### Проекты
 
-Авторская SVG-игра на основе реальной активности GitHub: боец бегает, прыгает и стреляет по клеткам календаря. **Новые учитываемые вклады меняют игровое поле**, а выбранная локация остаётся постоянной.
+**01 / [Сайт психолога](https://olgakuzhbatherapy.ru/)**  
+Коммерческий сайт частного специалиста с адаптивным интерфейсом.  
+`Next.js` · `React` · `TypeScript` · `Tailwind CSS` · [Сайт](https://olgakuzhbatherapy.ru/) · *Код закрыт*
 
-**Технологии:** `JavaScript` · `SVG` · `GitHub Actions` · [Код генератора](https://github.com/0w1Max/0w1Max/tree/main/scripts)
+**02 / [WordFlow](https://github.com/0w1Max/WordFlow)**  
+Приложение для изучения слов: интервальные повторения, авторизация, серверная логика и хранение данных.  
+`JavaScript` · `Node.js` · `Express` · `Turso / SQLite` · [Демо](https://word-flow-nine.vercel.app/) · [Код](https://github.com/0w1Max/WordFlow)
 
----
+**03 / Voqelis**  
+Собственный продукт для обработки голосовых сообщений и автоматизации: локальное распознавание речи, Telegram, заметки и задачи, веб-интерфейс.  
+`Python` · `FastAPI` · `React / TypeScript` · `SQLite` · `ASR` · *В разработке, код закрыт*
 
-### Обо мне
+### С чем работаю
 
-Занимаюсь веб-разработкой: создаю интерфейсы, сайты для бизнеса, веб-сервисы и инструменты автоматизации. За плечами **более 10 сайтов и веб-проектов**, включая коммерческие заказы, интернет-магазины и дальнейшее сопровождение проектов.
+**Frontend:** HTML · CSS · JavaScript · TypeScript · React · Next.js · Tailwind CSS  
+**Backend и API:** Node.js · Express · Python · FastAPI · REST  
+**Базы данных:** SQLite · Turso  
+**Инструменты:** Git · GitHub Actions · Docker · Linux · Vercel  
+**CMS:** Joomla · OpenCart  
+**AI в разработке:** ChatGPT · Codex · Claude
 
-Работал с **Joomla и OpenCart**; сейчас основной интерес — **Frontend на JavaScript/TypeScript и React**, разработка полнофункциональных веб-приложений и интеграция сервисов.
+### Опыт
 
-### Технологии и инструменты
+Создание и поддержка коммерческих сайтов, интернет-магазинов и веб-сервисов; работа с CMS, доработка существующих проектов и разработка собственных приложений. Здесь представлены избранные работы, без трудовой хронологии.
 
-| Направление | С чем работаю |
-| :-- | :-- |
-| **Frontend** | HTML5, CSS3, JavaScript, TypeScript, React, Next.js, Tailwind CSS |
-| **Backend и API** | Node.js, Express, Python, FastAPI, REST API |
-| **Данные** | SQLite, SQL, Turso |
-| **CMS и коммерческие сайты** | Joomla, OpenCart, поддержка и доработка сайтов |
-| **Разработка и развёртывание** | Git, GitHub Actions, Docker, Linux, Vercel |
-| **AI-инструменты** | ChatGPT, Codex, Claude — для разработки, анализа и проверки решений |
+### Контакты
 
-**Основные направления:** адаптивные веб-интерфейсы · веб-приложения и API · автоматизация · Telegram Mini Apps · интеграция AI-функциональности.
-
----
-
-### Избранные проекты
-
-#### 01 · [Сайт психолога](https://olgakuzhbatherapy.ru/)
-
-Коммерческий сайт для частного специалиста. Проект веб-разработки с акцентом на удобный интерфейс и адаптацию под разные экраны.
-
-**Стек:** `Next.js` · `React` · `TypeScript` · `Tailwind CSS`  
-[Открыть сайт](https://olgakuzhbatherapy.ru/) · *Исходный код приватный*
-
-#### 02 · [WordFlow](https://github.com/0w1Max/WordFlow)
-
-Веб-приложение для изучения и запоминания слов с интервальными повторениями. Работа с пользовательскими данными, авторизация и серверная логика.
-
-**Стек:** `JavaScript` · `Node.js` · `Express` · `Turso / SQLite`  
-[Открыть приложение](https://word-flow-nine.vercel.app/) · [Исходный код](https://github.com/0w1Max/WordFlow)
-
-#### 03 · Voqelis
-
-Собственная платформа для обработки речи и автоматизации: Telegram-бот, локальное распознавание голосовых сообщений, работа с текстом, заметками и задачами. Развиваю также веб-интерфейс в формате Telegram Mini App.
-
-**Стек:** `Python` · `FastAPI` · `React / TypeScript` · `SQLite` · `Telegram` · `ASR`  
-*Активная разработка · исходный код приватный*
-
----
-
-### Подход к разработке
-
-Стараюсь разбирать задачу от требований до работающего результата: продумываю структуру проекта, пишу и проверяю код, тестирую изменения и занимаюсь развёртыванием. Использую AI-инструменты как часть рабочего процесса, но уделяю отдельное внимание проверке полученного результата.
-
-### Связаться со мной
-
-**Telegram:** [@Ow1Max](https://t.me/Ow1Max)  
-**GitHub:** [github.com/0w1Max](https://github.com/0w1Max)
-
-<sub>Здесь — избранные работы и технологии без полной хронологии трудоустройства. Подробное резюме можно предоставить отдельно.</sub>
+**[Telegram](https://t.me/Ow1Max)** · **[GitHub](https://github.com/0w1Max)**
