@@ -1,0 +1,13 @@
+{
+  "name": "Storm Coast V2 mobile preview",
+  "source": "previous real GitHub calendar snapshot (not new live API read)",
+  "seed": 5,
+  "cells": 369,
+  "shots": 108,
+  "sceneScale": 1.075,
+  "cellWidth": 18.4,
+  "radius": 3.6,
+  "size": "1200x438",
+  "xmlTagsValidated": 5205,
+  "ciPassed": false
+}
