@@ -884,3 +884,23 @@ test('Storm Coast banner: морская палитра, пиксельная р
   assert.doesNotMatch(art,/<image\b|<script\b|<foreignObject\b|https?:\/\//i);
   assert.throws(()=>stormCoastVictory({duration:0,finishedAt:1,fadeBegin:2}));
 });
+
+
+test('Storm Coast V2: 54- и 55-недельные календари не теряют крайние дни',()=>{
+  for(const [weekCount,scale] of [[54,'1.06'],[55,'1.045']]){
+    const weeks=Array.from({length:weekCount},(_,i)=>({contributionDays:[{
+      date:new Date(Date.UTC(2024,11,29+i*7)).toISOString().slice(0,10),
+      contributionCount:i===0||i===weekCount-1?1:0,
+      contributionLevel:i===0||i===weekCount-1?'FIRST_QUARTILE':'NONE'
+    }]}));
+    const svg=renderSvg({weeks,sprites,username:'0w1Max',seedOverride:5,locationOverride:'coast'});
+    assert.match(svg,new RegExp('id="storm-coast-profile-scale" data-scale="'+scale.replace('.','\\.')+'"'));
+    assert.match(svg,/id="storm-coast-victory"/);
+    assert.match(svg,/height="438" viewBox="0 0 1200 438"/);
+    assert.match(svg,/width="18\.4" height="18\.4" rx="3\.6"/);
+    for(const week of [weeks[0],weeks.at(-1)])
+      assert.ok(svg.includes(week.contributionDays[0].date+': 1 contributions'));
+    const rightEdge=(72+(weekCount-1)*20-.2+18.4)*Number(scale)+(1200*(1-Number(scale)))/2;
+    assert.ok(rightEdge<=1200,'Последняя неделя обрезана: '+weekCount);
+  }
+});
