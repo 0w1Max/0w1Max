@@ -1,6 +1,13 @@
 name: Commando Activity · обновление календаря
 
 on:
+  # Один запуск при выпуске/обновлении генератора в main.
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'assets/coast-sprites.json.gz.b64'
+      - '.github/workflows/commando-activity.yml'
   workflow_dispatch:
   schedule:
     # Два обновления в сутки, по UTC. Запускается только на default branch.
