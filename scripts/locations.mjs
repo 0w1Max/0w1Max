@@ -1,8 +1,9 @@
+import {coastScene} from './coast-scene.mjs';
 /** Пять детерминированных пиксельных окружений. Коллизии уровня не меняются. */
 export const LOCATION_POOL = Object.freeze(['jungle','desert','snow','volcano','industrial']);
 export const LOCATION_NAMES = Object.freeze({
   jungle:'Тропические джунгли',desert:'Пустынный каньон',
-  snow:'Снежная база',volcano:'Вулканическая зона',industrial:'Заброшенный завод'
+  snow:'Снежная база',volcano:'Вулканическая зона',industrial:'Заброшенный завод',coast:'Штормовое побережье'
 });
 export function selectLocation(seed){
   if(!Number.isSafeInteger(seed)||seed<0)throw new Error('Некорректный seed локации');
@@ -97,11 +98,11 @@ function industrial(seed){
     shape('M0 360v-50l107-25 94 15 89-30 88 25 97-25 100 38 84-30 108 28 81-24 105 35 92-22 105 32v33z','#223947')+
     city+ground('#53666c','#303d46','#93acb0',['#4f6570','#798c90','#aa9262'],seed);
 }
-const SCENE=Object.freeze({jungle,desert,snow,volcano,industrial});
+const SCENE=Object.freeze({jungle,desert,snow,volcano,industrial,coast:coastScene});
 const PALETTE=Object.freeze({
   jungle:['#05111e','#0d2036','#24455a'],desert:['#35263b','#744750','#d59b7c'],
   snow:['#071e35','#21455f','#6593a8'],volcano:['#190f21','#472232','#923d3d'],
-  industrial:['#0b1827','#1b3444','#466273']
+  industrial:['#0b1827','#1b3444','#466273'],coast:['#527c89','#527c89','#527c89']
 });
 export function renderLocation(location,seed=0){
   if(!Object.hasOwn(SCENE,location))throw new Error('Неизвестная локация: '+String(location));

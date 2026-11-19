@@ -104,12 +104,12 @@ export function validateLayout(level) {
   return {valid:issues.length===0,issues};
 }
 
-export function buildLevel(grid, username='0w1Max', seedOverride) {
-  if (!Array.isArray(grid) || grid.length!==53 || grid.some(w=>!Array.isArray(w)||w.length!==7)) {
+export function buildLevel(grid, username='0w1Max', seedOverride, locationOverride) {
+  if (!Array.isArray(grid) || (grid.length<53 || grid.length>55) || grid.some(w=>!Array.isArray(w)||w.length!==7)) {
     throw new Error('Для карты нужен календарь 53 × 7');
   }
   const seed=seedOverride ?? hash32(username+'|'+grid.flat().map(d=>d?`${d.date}:${d.count}:${d.level}`:'-').join('|'));
-  const location=selectLocation(seed);
+  const location=locationOverride ?? selectLocation(seed);
   const biome=biomeFor(location);
   const rand=seededRandom(seed);
   const platformCount=randomCount(rand,2);

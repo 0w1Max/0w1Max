@@ -1,6 +1,7 @@
 /** Векторные 8-bit тайлы окружения; нет внешних PNG и файловой подгрузки. */
 import { WORLD } from './mission.mjs';
 import {biomeFor,tintTerrainArt,obstacleBiomeDetail,platformBiomeDetail} from './biomes.mjs';
+import {coastArt,coastObstacles,coastPlatforms} from './coast-scene.mjs';
 const n = value => Number(value.toFixed(3));
 
 function obstacle(o, i) {
@@ -96,8 +97,20 @@ function biomePlatform(item,index,location) {
   const base=tintTerrainArt(platform(item,index),location);
   return base.replace(/<\/g>$/,platformBiomeDetail(item,location)+'</g>');
 }
+
+function coastTerrain(level) {
+  const obstacles=level.obstacles.map(o=>coastObstacles[o.kind]);
+  const platforms=level.platforms.map(p=>coastPlatforms[p.kind]);
+  if(obstacles.some(x=>!x)||platforms.some(x=>!x))throw new Error('Недопустимые объекты побережья');
+  const draw=(o,i,type,name,y,h)=>'<g id="'+type+'-'+i+'" data-kind="'+o.kind+
+    '" data-theme-detail="coast" data-sprite="'+name+'">'+coastArt.sprite(name,o.x,y,o.width,h)+'</g>';
+  return coastArt.definitions([...obstacles,...platforms])+
+    level.platforms.map((p,i)=>draw(p,i,'platform',platforms[i],p.y,18)).join('')+
+    level.obstacles.map((o,i)=>draw(o,i,'obstacle',obstacles[i],WORLD.groundY-o.height,o.height)).join('');
+}
 export function levelMarkup(level) {
   const location=level.location;
   if(location)biomeFor(location);
+  if(location==='coast')return `<g id="procedural-level" data-biome="coast" aria-label="Препятствия и платформы">${coastTerrain(level)}</g>`;
   return `<g id="procedural-level" data-biome="${location??'unstyled'}" aria-label="Препятствия и платформы">${level.platforms.map((item,i)=>biomePlatform(item,i,location)).join('')}${level.obstacles.map((item,i)=>biomeObstacle(item,i,location)).join('')}</g>`;
 }
