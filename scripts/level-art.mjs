@@ -111,6 +111,6 @@ function coastTerrain(level) {
 export function levelMarkup(level) {
   const location=level.location;
   if(location)biomeFor(location);
-  if(location==='coast')return `<g id="procedural-level" data-biome="coast" aria-label="Препятствия и платформы">${coastTerrain(level)}</g>`;
-  return `<g id="procedural-level" data-biome="${location??'unstyled'}" aria-label="Препятствия и платформы">${level.platforms.map((item,i)=>biomePlatform(item,i,location)).join('')}${level.obstacles.map((item,i)=>biomeObstacle(item,i,location)).join('')}</g>`;
+  if(location==='coast')return `<g id="procedural-level" data-biome="coast" aria-label="Obstacles and platforms">${coastTerrain(level)}</g>`;
+  return `<g id="procedural-level" data-biome="${location??'unstyled'}" aria-label="Obstacles and platforms">${level.platforms.map((item,i)=>biomePlatform(item,i,location)).join('')}${level.obstacles.map((item,i)=>biomeObstacle(item,i,location)).join('')}</g>`;
 }

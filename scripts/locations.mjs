@@ -3,7 +3,7 @@ import {coastScene} from './coast-scene.mjs';
 export const LOCATION_POOL = Object.freeze(['jungle','desert','snow','volcano','industrial']);
 export const LOCATION_NAMES = Object.freeze({
   jungle:'Тропические джунгли',desert:'Пустынный каньон',
-  snow:'Снежная база',volcano:'Вулканическая зона',industrial:'Заброшенный завод',coast:'Штормовое побережье'
+  snow:'Снежная база',volcano:'Вулканическая зона',industrial:'Заброшенный завод',coast:'Storm Coast'
 });
 export function selectLocation(seed){
   if(!Number.isSafeInteger(seed)||seed<0)throw new Error('Некорректный seed локации');

@@ -115,8 +115,8 @@ function gridMarkup(grid,mission,coast=false) {
       child+=animationAttr('fill',shadeKeys,shades,mission.duration);
     }
     const fillOpacity=cell.level===0?(coast?'0.12':'0.22'):'1';
-    const cx=fmt(x-(coast?.2:0)),cy=fmt(y-(coast?.2:0));
-    output+=`<rect x="${cx}" y="${cy}" width="${coast?'18.4':CELL}" height="${coast?'18.4':CELL}" rx="${coast?'3.6':'2'}" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${coast?' stroke="#acc1c0" stroke-opacity=".19"':''}><title>${escapeXml(title)}</title>${child}</rect>`;
+    const cx=fmt(x+(coast?.5:0)),cy=fmt(y+(coast?.5:0));
+    output+=`<rect x="${cx}" y="${cy}" width="${coast?'17':CELL}" height="${coast?'17':CELL}" rx="${coast?'3':'2'}" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${coast?' stroke="#acc1c0" stroke-opacity=".19"':''}><title>${escapeXml(title)}</title>${child}</rect>`;
   }
   return output;
 }
@@ -171,7 +171,7 @@ function bulletMarkup(mission){
     const scaleAnimation=`<animateTransform attributeName="transform" type="scale" calcMode="linear"
       keyTimes="${stages.map(t=>keyPct(t,duration)).join(';')}"
       values="${scales.join(';')}" dur="${fmt(duration)}s" repeatCount="indefinite"/>`;
-    return `<g id="shot-${i+1}" aria-label="Прицельный выстрел ${i+1}">
+    return `<g id="shot-${i+1}" aria-label="Aimed shot ${i+1}">
       <g id="shot-${i+1}-muzzle" transform="translate(${fmt(s.origin.x)} ${fmt(s.origin.y)}) rotate(${fmt(angle)})">
         <g class="muzzle-flash" opacity="0">${flash}<use href="#fx-muzzle"/></g>
         <g class="bullet" opacity="0">${opacity}
@@ -265,7 +265,7 @@ function playerMarkup(mission) {
     if(face==='right')output+=`<g>${content}</g>`;
     else output+=`<g transform="translate(78 0) scale(-1 1)">${content}</g>`;
   }
-  return `<g id="blue-commando" aria-label="Боец с синей повязкой">${motion}${output}</g>`;
+  return `<g id="blue-commando" aria-label="Soldier with a blue headband">${motion}${output}</g>`;
 }
 
 export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,locationOverride}) {
@@ -276,7 +276,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const coastViewport=coast?coastDimensions():null;
   const displayHeight=coast?coastViewport.displayHeight:WORLD.height;
   const scale=coast?(grid.length===55?1.045:grid.length===54?1.06:1.075):1;
-  const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${displayHeight}" viewBox="0 0 1200 ${displayHeight}" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">Боец в синей повязке непредсказуемо патрулирует процедурный уровень, перепрыгивает препятствия, запрыгивает на платформы и стреляет в клетки календаря активности GitHub. ${fixture?'Демонстрационные данные.':'Календарь получен через API GitHub.'}</desc>`;
+  const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${displayHeight}" viewBox="0 0 1200 ${displayHeight}" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">A blue-bandana soldier patrols a procedurally generated 8-bit level, jumps over obstacles, climbs platforms, and shoots GitHub contribution cells. ${fixture?'Demo calendar data.':'GitHub calendar fetched from the GitHub API.'}</desc>`;
   const scene=level.location==='desert' ? desertScene() : renderLocation(level.location,level.seed);
   const defs=`<defs>
     <linearGradient id="contribution-scrim" x1="0" y1="0" x2="0" y2="1">
@@ -289,7 +289,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
-  const months=['ЯНВ','ФЕВ','МАР','АПР','МАЙ','ИЮН','ИЮЛ','АВГ','СЕН','ОКТ','НОЯ','ДЕК'];
+  const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   let monthText=''; let prev=-1;
   for(let col=0;col<grid.length;col++){
     const day=grid[col].find(Boolean);if(!day)continue;
@@ -297,7 +297,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     if(m!==prev&&col<grid.length-3){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#d0e4e8" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
   }
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
-  const top=`<g id="contribution-overlay">${coast?'':'<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>'}<text x="72" y="${coast?38:23}" font-family="monospace" font-size="18" font-weight="bold" fill="${coast?'#f1e7c7':'#f2f7fa'}">${escapeXml(username)}<tspan font-weight="normal" fill="${coast?'#dce0d3':'#d5e8e9'}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,coast)}</g></g>`;
+  const top=`<g id="contribution-overlay">${coast?'':'<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>'}<text x="72" y="${coast?38:23}" font-family="monospace" font-size="18" font-weight="bold" fill="${coast?'#f1e7c7':'#f2f7fa'}">${escapeXml(username)}<tspan font-weight="normal" fill="${coast?'#dce0d3':'#d5e8e9'}">${coast?' /':' / GITHUB CONTRIBUTIONS'}</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,coast)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
