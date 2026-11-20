@@ -82,7 +82,7 @@ A vocabulary-learning web application with spaced repetition, authentication, se
 
 **03 / Voqelis**  
 An actively developed voice-processing and productivity platform featuring local speech recognition, Telegram integrations, notes, tasks, and a web interface.  
-`React / TypeScript` · `Python` · `FastAPI` · `SQLite` · `ASR` · *In development · Private source code*
+`TypeScript` · `React` · `Python` · `FastAPI` · `SQLite` · `ASR` · *In development · Private source code*
 
 ## Experience
 
