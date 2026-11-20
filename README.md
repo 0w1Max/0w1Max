@@ -12,61 +12,61 @@
 ### Frontend
 
 <p>
-<code>HTML</code>&nbsp;<img src="https://cdn.simpleicons.org/html5/E34F26" alt="HTML logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>CSS</code>&nbsp;<img src="https://cdn.simpleicons.org/css/663399" alt="CSS logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>JavaScript</code>&nbsp;<img src="https://cdn.simpleicons.org/javascript/D9B000" alt="JavaScript logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>TypeScript</code>&nbsp;<img src="https://cdn.simpleicons.org/typescript/3178C6" alt="TypeScript logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>React</code>&nbsp;<img src="https://cdn.simpleicons.org/react/41A9C9" alt="React logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
+<code>HTML</code>&nbsp;<img src="https://cdn.simpleicons.org/html5/E34F26" alt="HTML logo" width="20" height="20" />
+<code>CSS</code>&nbsp;<img src="https://cdn.simpleicons.org/css/663399" alt="CSS logo" width="20" height="20" />
+<code>JavaScript</code>&nbsp;<img src="https://cdn.simpleicons.org/javascript/D9B000" alt="JavaScript logo" width="20" height="20" />
+<code>TypeScript</code>&nbsp;<img src="https://cdn.simpleicons.org/typescript/3178C6" alt="TypeScript logo" width="20" height="20" />
+<code>React</code>&nbsp;<img src="https://cdn.simpleicons.org/react/41A9C9" alt="React logo" width="20" height="20" />
 <code>Next.js</code>&nbsp;<img src="https://cdn.simpleicons.org/nextdotjs/6B7280" alt="Next.js logo" width="20" height="20" />
 </p>
 
 ### Backend
 
 <p>
-<code>Node.js</code>&nbsp;<img src="https://cdn.simpleicons.org/nodedotjs/339933" alt="Node.js logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>Next.js</code>&nbsp;<img src="https://cdn.simpleicons.org/nextdotjs/6B7280" alt="Next.js logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>Express</code>&nbsp;<img src="https://cdn.simpleicons.org/express/64748B" alt="Express logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
+<code>Node.js</code>&nbsp;<img src="https://cdn.simpleicons.org/nodedotjs/339933" alt="Node.js logo" width="20" height="20" />
+<code>Next.js</code>&nbsp;<img src="https://cdn.simpleicons.org/nextdotjs/6B7280" alt="Next.js logo" width="20" height="20" />
+<code>Express</code>&nbsp;<img src="https://cdn.simpleicons.org/express/64748B" alt="Express logo" width="20" height="20" />
 <code>Python</code>&nbsp;<img src="https://cdn.simpleicons.org/python/3776AB" alt="Python logo" width="20" height="20" />
 </p>
 
 ### APIs
 
 <p>
-<code>REST API</code>&nbsp;<img src="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/profile-icons/rest-api.svg" alt="REST API logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
+<code>REST API</code>&nbsp;<img src="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/profile-icons/rest-api.svg" alt="REST API logo" width="20" height="20" />
 <code>Telegram Bot API</code>&nbsp;<img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram Bot API logo" width="20" height="20" />
 </p>
 
 ### Databases
 
 <p>
-<code>SQL</code>&nbsp;<img src="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/profile-icons/sql.svg" alt="SQL logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>SQLite</code>&nbsp;<img src="https://cdn.simpleicons.org/sqlite/4B8BBE" alt="SQLite logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>PostgreSQL</code>&nbsp;<img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
+<code>SQL</code>&nbsp;<img src="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/profile-icons/sql.svg" alt="SQL logo" width="20" height="20" />
+<code>SQLite</code>&nbsp;<img src="https://cdn.simpleicons.org/sqlite/4B8BBE" alt="SQLite logo" width="20" height="20" />
+<code>PostgreSQL</code>&nbsp;<img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL logo" width="20" height="20" />
 <code>Turso</code>&nbsp;<img src="https://cdn.simpleicons.org/turso/4FF8D2" alt="Turso logo" width="20" height="20" />
 </p>
 
 ### Tools
 
 <p>
-<code>Git</code>&nbsp;<img src="https://cdn.simpleicons.org/git/F05032" alt="Git logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>GitHub</code>&nbsp;<img src="https://cdn.simpleicons.org/github/64748B" alt="GitHub logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>Docker</code>&nbsp;<img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
+<code>Git</code>&nbsp;<img src="https://cdn.simpleicons.org/git/F05032" alt="Git logo" width="20" height="20" />
+<code>GitHub</code>&nbsp;<img src="https://cdn.simpleicons.org/github/64748B" alt="GitHub logo" width="20" height="20" />
+<code>Docker</code>&nbsp;<img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker logo" width="20" height="20" />
 <code>Vercel</code>&nbsp;<img src="https://cdn.simpleicons.org/vercel/64748B" alt="Vercel logo" width="20" height="20" />
 </p>
 
 ### CMS / Commerce
 
 <p>
-<code>Joomla</code>&nbsp;<img src="https://cdn.simpleicons.org/joomla/5091CD" alt="Joomla logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>OpenCart</code>&nbsp;<img src="https://github.com/opencart.png?size=40" alt="OpenCart logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
+<code>Joomla</code>&nbsp;<img src="https://cdn.simpleicons.org/joomla/5091CD" alt="Joomla logo" width="20" height="20" />
+<code>OpenCart</code>&nbsp;<img src="https://github.com/opencart.png?size=40" alt="OpenCart logo" width="20" height="20" />
 <code>WordPress</code>&nbsp;<img src="https://cdn.simpleicons.org/wordpress/21759B" alt="WordPress logo" width="20" height="20" />
 </p>
 
 ### AI Development
 
 <p>
-<code>ChatGPT</code>&nbsp;<img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons@main/svg/chatgpt.svg" alt="ChatGPT logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
-<code>Codex</code>&nbsp;<img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons@main/svg/codex.svg" alt="Codex logo" width="20" height="20" /> &nbsp;&nbsp;&nbsp;
+<code>ChatGPT</code>&nbsp;<img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons@main/svg/chatgpt.svg" alt="ChatGPT logo" width="20" height="20" /> &nbsp;
+<code>Codex</code>&nbsp;<img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons@main/svg/codex.svg" alt="Codex logo" width="20" height="20" /> &nbsp;
 <code>Claude</code>&nbsp;<img src="https://cdn.simpleicons.org/claude/D97757" alt="Claude logo" width="20" height="20" />
 </p>
 
