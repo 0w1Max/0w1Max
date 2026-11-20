@@ -147,7 +147,7 @@ test('Недопустимое число недель блокируется',(
 
 test('SVG включает карты, преграды, прицельные пули и финальную зачистку',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
-  for(const token of ['blue-commando','soldier-shoot-stand','repeatCount="indefinite"','GITHUB CONTRIBUTIONS','DEMO / TEST DATA','Прицельный выстрел 1','procedural-level','mission-complete']){
+  for(const token of ['blue-commando','soldier-shoot-stand','repeatCount="indefinite"','GITHUB CONTRIBUTIONS','DEMO / TEST DATA','Aimed shot 1','procedural-level','mission-complete']){
     assert.ok(svg.includes(token),`Не найден SVG-маркер ${token}`);
   }
   assert.equal((svg.match(/id="shot-\d+"/g)||[]).length,totalHp);
@@ -164,7 +164,7 @@ test('SVG не содержит внешних адресов, скриптов,
 test('Настоящий режим не маскирует тестовые данные под реальные',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:false});
   assert.doesNotMatch(svg,/DEMO \/ TEST DATA/);
-  assert.match(svg,/Календарь получен через API GitHub/);
+  assert.match(svg,/GitHub calendar fetched from the GitHub API\./);
 });
 
 
@@ -605,7 +605,7 @@ test('Storm Coast V2: профильный биом и морской Mission Co
   assert.match(coastSvg,/id="storm-coast-profile-scale" data-scale="1\.075"/);
   assert.match(coastSvg,/id="storm-coast-victory"/);
   assert.match(coastSvg,/id="coast-ground"/);
-  assert.match(coastSvg,/width="18\.4" height="18\.4" rx="3\.6"/);
+  assert.match(coastSvg,/width="17" height="17" rx="3"/);
   assert.match(coastSvg,/MISSION COMPLETE/);
   assert.match(coastSvg,/STORM COAST/);
   assert.equal((coastSvg.match(/id="shot-\d+"/g)||[]).length,plan.totalHp);
@@ -629,8 +629,30 @@ test('Storm Coast V2: полные 54- и 55-недельные календар
     assert.match(svg,new RegExp('data-scale="'+String(scale).replace('.','\\.')+'"'));
     for(const week of [weeks[0],weeks.at(-1)])
       assert.ok(svg.includes(week.contributionDays[0].date+': 1 contributions'));
-    const right=(72+(weekCount-1)*20-.2+18.4)*scale+(1200*(1-scale)/2);
+    const right=(72+(weekCount-1)*20+.5+17)*scale+(1200*(1-scale)/2);
     assert.ok(right<=1200,'Обрезана крайняя неделя: '+weekCount);
     assert.match(svg,/id="storm-coast-victory"/);
   }
+});
+
+
+test('Storm Coast: English HUD, original GitHub-style spacing, accurate grid centers',()=>{
+  const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',
+    fixture:false,seedOverride:5,locationOverride:'coast'});
+  const gridSvg=svg.slice(svg.indexOf('<g id="contribution-grid">'),
+    svg.indexOf('</g>',svg.indexOf('<g id="contribution-grid">')));
+  assert.match(svg,/>0w1Max<tspan[^>]+> \/<\/tspan>/);
+  assert.doesNotMatch(svg,/GITHUB CONTRIBUTIONS|[А-Яа-яЁё]/);
+  for(const month of ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV'])
+    assert.ok(svg.includes('>'+month+'</text>'),'Missing month: '+month);
+  const rects=[...gridSvg.matchAll(/<rect x="([0-9.]+)" y="([0-9.]+)" width="17" height="17" rx="3"/g)];
+  assert.equal(rects.length,grid.flat().filter(Boolean).length);
+  for(const m of rects){
+    const x=Number(m[1]),y=Number(m[2]);
+    assert.equal((x-.5-72)%20,0,'X spacing broken');
+    assert.equal((y-.5-76)%20,0,'Y spacing broken');
+  }
+  const x1=Number(rects[0][1]),x2=Number(rects[7][1]);
+  assert.equal(x2-x1-17,3,'Horizontal gap differs from 3 px');
+  assert.equal(Number(rects[1][2])-Number(rects[0][2])-17,3,'Vertical gap differs from 3 px');
 });
