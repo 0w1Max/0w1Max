@@ -13,6 +13,6 @@ for (const seed of [25,31,34]) {
   const mission = createMission(normalizeWeeks(weeks),level);
   const svg = renderSvg({weeks,sprites,username:'0w1Max',seedOverride:seed,locationOverride:'jungle'})
     .replace('Календарь получен через API GitHub.', 'Сохранённый снимок API GitHub, не свежая выгрузка.');
-  await writeFile(new URL(`preview/jungle-combat-${seed}.svg`,root),svg);
+  await writeFile(new URL(`preview/jungle-relay-${seed}.svg`,root),svg);
   console.log(JSON.stringify({seed,bytes:Buffer.byteLength(svg),platforms:level.platforms.length,obstacles:level.obstacles.length,shots:mission.shots.length,source}));
 }
