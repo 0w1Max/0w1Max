@@ -12,6 +12,15 @@ from pathlib import Path
 
 from PIL import Image
 
+# A small shared palette prevents photographic shading and gray-green wash.
+PALETTE = [
+    '061a23', '0c2b32', '103e3c', '145344', '1d693e',
+    '3f8e32', '71b52e', 'a3ca54', '172a40', '2a4560',
+    '47647a', '82908c', 'c0b49a', '3d2a27', '6a3f2c',
+    '985d37', 'bd8b58', '153c4b', '23596a', '357480',
+]
+RGB_PALETTE = [(name, tuple(bytes.fromhex(name))) for name in PALETTE]
+
 # Half-open source bounds in the approved 1536 x 1024 atlas.
 BOUNDS = {
     'palm-bank': (76, 0, 716, 480),
@@ -42,8 +51,8 @@ def compile_atlas(source, destination):
             for x in range(width):
                 r, g, b, alpha = image.getpixel((left+x*4+2, top+y*4+2))
                 # Discard soft alpha fringe; foreground remains opaque pixel art.
-                color = tuple(min(255, (v//12)*12+6) for v in (r, g, b))
-                row.append(''.join(f'{v:02x}' for v in color) if alpha >= 210 else None)
+                color = min(RGB_PALETTE, key=lambda p: sum((a-b)**2 for a, b in zip((r,g,b),p[1])))[0]
+                row.append(color if alpha >= 210 else None)
             start = 0
             while start < width:
                 end = start+1
@@ -54,15 +63,15 @@ def compile_atlas(source, destination):
                 start = end
         # Align the visible landing surface with the physics baseline, y=0.
         if name in ('ground-strip', 'moss-ledge', 'vine-ledge', 'rope-bridge'):
-            paths['889365'].append(f'M0 0h{width}v1H0z')
+            paths['bd8b58' if name == 'rope-bridge' else 'a3ca54'].append(f'M0 0h{width}v1H0z')
         atlas[name] = [width, height, [[color, ''.join(data)] for color, data in sorted(paths.items())]]
     # A separate modular stump; it must not duplicate the timber barricade.
     atlas['tree-stump'] = [12, 12, [
-        ['25372e', 'M1 12V9h2V3h6v6h2v3z'],
-        ['65584a', 'M3 3h6v8H3zM1 10h2v2H1zM9 10h2v2H9z'],
-        ['9a8c68', 'M3 2h6v3H3z'],
-        ['514b3c', 'M5 3h3v1H5zM4 6h1v4H4zM7 6h1v5H7z'],
-        ['65724b', 'M0 11h4v1H0zM8 11h4v1H8z'],
+        ['061a23', 'M1 12V9h2V3h6v6h2v3z'],
+        ['6a3f2c', 'M3 3h6v8H3zM1 10h2v2H1zM9 10h2v2H9z'],
+        ['bd8b58', 'M3 2h6v3H3z'],
+        ['3d2a27', 'M5 3h3v1H5zM4 6h1v4H4zM7 6h1v5H7z'],
+        ['3f8e32', 'M0 11h4v1H0zM8 11h4v1H8z'],
     ]]
     encoded = base64.b64encode(gzip.compress(json.dumps(atlas, separators=(',', ':')).encode(), mtime=0))
     Path(destination).write_bytes(encoded+b'\n')

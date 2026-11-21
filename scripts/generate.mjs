@@ -24,7 +24,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
-const JUNGLE_COLORS = ['#8daba0', '#4c735c', '#688b63', '#91aa71', '#c2c58c'];
+const JUNGLE_COLORS = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'];
 const CANYON_COLORS = ['#2a5261', '#704a38', '#9d5c3c', '#c77c49', '#e3ac68'];
 const SNOW_COLORS = ['#7192a6', '#477d94', '#63a4b3', '#91c4c5', '#d8b580'];
 const COAST_COLORS = ['#96b4b7', '#2f535f', '#4a6b76', '#799b9b', '#c3bd92'];
@@ -325,7 +325,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
     colors: canyon ? CANYON_COLORS : snow ? SNOW_COLORS : factory ? FACTORY_COLORS : temple ? TEMPLE_COLORS : coast ? COAST_COLORS : jungle ? JUNGLE_COLORS : COLORS,
-    emptyOpacity: canyon ? '0.08' : coast ? '0.12' : factory || temple || jungle ? '0.09' : '0.22',
+    emptyOpacity: jungle ? '1' : canyon ? '0.08' : coast ? '0.12' : factory || temple ? '0.09' : '0.22',
     radius: coast ? '3.6' : '2',
     cellGrow: coast ? .4 : 0,
     emptyBorder: canyon ? ' stroke="#254a58" stroke-opacity=".32"' :
@@ -333,14 +333,14 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       factory ? ' stroke="#95a8a1" stroke-opacity=".15"' :
       temple ? ' stroke="#708b7b" stroke-opacity=".23"' :
       coast ? ' stroke="#acc1c0" stroke-opacity=".19"' :
-      jungle ? ' stroke="#9eb4a2" stroke-opacity=".24"' :
+      jungle ? ' stroke="#30363d" stroke-opacity=".65"' :
       pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
     activeBorder: canyon ? ' stroke="#573627" stroke-opacity=".32"' :
       snow ? ' stroke="#223e55" stroke-opacity=".75"' :
       factory ? ' stroke="#514538" stroke-opacity=".38"' :
       temple ? ' stroke="#465943" stroke-opacity=".32"' :
       coast ? ' stroke="#264b58" stroke-opacity=".45"' :
-      jungle ? ' stroke="#182f2b" stroke-opacity=".7"' : '',
+      jungle ? ' stroke="#0b1720" stroke-opacity=".45"' : '',
   };
   const top=`<g id="contribution-overlay">${scrim}<text x="72" y="${coast?38:23}" font-family="monospace" font-size="18" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="normal" fill="${subtitleFill}"> / GITHUB CONTRIBUTIONS</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;

@@ -8,6 +8,8 @@ import {buildLevel,createMission,WORLD,hpForLevel,firstLiveIntersection,aimGeome
 import {levelMarkup} from './scripts/level-art.mjs';
 import {BIOMES,biomeFor,soldierColor} from './scripts/biomes.mjs';
 
+
+
 async function loadCompressedJson(path){
   return JSON.parse(gunzipSync(Buffer.from((await readFile(path,'utf8')).trim(),'base64')).toString('utf8'));
 }
@@ -903,4 +905,24 @@ test('Storm Coast V2: 54- и 55-недельные календари не те�
     const rightEdge=(72+(weekCount-1)*20-.2+18.4)*Number(scale)+(1200*(1-Number(scale)))/2;
     assert.ok(rightEdge<=1200,'Последняя неделя обрезана: '+weekCount);
   }
+});
+
+test('Джунгли: опубликованный календарь сохраняет все даты, числа и уровни зелёного', async()=>{
+  const {weeks}=JSON.parse(await readFile('fixtures/jungle-preview-calendar.json','utf8'));
+  const expected=weeks.flatMap(week=>week.contributionDays);
+  const palette=['#161b22','#0e4429','#006d32','#26a641','#39d353'];
+  const levels=['NONE','FIRST_QUARTILE','SECOND_QUARTILE','THIRD_QUARTILE','FOURTH_QUARTILE'];
+  const svg=renderSvg({weeks,sprites,username:'0w1Max',seedOverride:31,locationOverride:'jungle'});
+  const actual=[...svg.matchAll(/<rect x="[0-9.]+" y="[0-9.]+" width="18" height="18"[^>]*fill="(#[0-9a-f]+)"[^>]*><title>(\d{4}-\d{2}-\d{2}): (\d+) contributions<\/title>/g)];
+  assert.equal(actual.length,expected.length,'Дата не должна потеряться при смене локации');
+  const byDate=new Map(expected.map(day=>[day.date,day]));
+  for(const [,color,date,count] of actual){
+    const day=byDate.get(date);
+    assert.ok(day,'Лишняя дата '+date);
+    assert.equal(Number(count),day.contributionCount,date);
+    assert.equal(color,palette[levels.indexOf(day.contributionLevel)],date);
+    byDate.delete(date);
+  }
+  assert.equal(byDate.size,0,'Все опубликованные даты должны попасть в SVG');
+  assert.doesNotMatch(svg,/<image\b|<script\b|<foreignObject\b/);
 });
