@@ -733,8 +733,8 @@ test('Вулкан: автономный SVG сохраняет цикл бой�
 });
 
 test('Джунгли: полная сцена, стык грунта и все тематические спрайты',()=>{
-  const expectedObstacles=['bamboo-barricade','broken-post','concrete-rubble','relay-boulder','relay-crate'];
-  const expectedPlatforms=['bamboo-bridge','concrete-ledge','relay-catwalk'];
+  const expectedObstacles=['wild-broken-log','wild-moss-boulder','wild-rock-pile','wild-root-bundle','wild-stump'];
+  const expectedPlatforms=['wild-log-platform','wild-root-platform','wild-stone-ledge'];
   const obstacles=new Set(),platforms=new Set();
   for(let seed=0;seed<1000;seed++){
     const level=buildLevel(grid,'0w1Max',seed);
@@ -758,21 +758,21 @@ test('Джунгли: полная сцена, стык грунта и все �
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:34});
   assert.match(svg,/width="1200" height="420" viewBox="0 0 1200 420"/);
   assert.match(svg,/id="jungle-stage"[^>]*data-ground-baseline="374"/);
-  assert.match(svg,/data-art-direction="radio-relay"/);
+  assert.match(svg,/data-art-direction="wild-gorge"/);
   assert.doesNotMatch(svg,/jungle-sprite-(?:palm-bank|root-escarpment|moss-ledge|rope-bridge)\b/);
   const ground=[...svg.matchAll(/href="#jungle-sprite-ground-strip" x="(\d+)" y="374" width="300" height="([0-9.]+)"/g)];
   assert.deepEqual(ground.map(([,x])=>Number(x)),[0,300,600,900]);
-  for(const name of ['relay-bank','relay-bunker','relay-horizon','relay-undergrowth','ground-strip']){
+  for(const name of ['wild-waterfall-cliff','wild-fallen-trunk','wild-distant-forest','wild-undergrowth','ground-strip']){
     const bounds=svg.match(new RegExp('<symbol id="jungle-sprite-'+name+'" viewBox="0 0 ([0-9.]+) ([0-9.]+)"'));
     const use=svg.match(new RegExp('<use href="#jungle-sprite-'+name+'" x="([0-9.]+)" y="([0-9.]+)" width="([0-9.]+)" height="([0-9.]+)"'));
     assert.ok(bounds && use, name);
     assert.ok(Math.abs(Number(use[3])/Number(use[4])-Number(bounds[1])/Number(bounds[2]))<1e-8, name);
-    if(name==='relay-bank'||name==='relay-bunker'){
+    if(name==='wild-waterfall-cliff'||name==='wild-fallen-trunk'){
       assert.equal(Number(use[2])+Number(use[4]),WORLD.groundY);
       assert.ok(Number(use[1])>0 && Number(use[1])+Number(use[3])<WORLD.width);
     }
   }
-  assert.doesNotMatch(svg,/waterfall|tree-wall/);
+  assert.doesNotMatch(svg,/jungle-sprite-(?:relay-|concrete-|bamboo-)|data-art-direction="radio-relay"/);
   assert.doesNotMatch(svg,/<image\b|id="contribution-shade"/);
 });
 
