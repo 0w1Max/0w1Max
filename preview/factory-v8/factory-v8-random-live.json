@@ -1,0 +1,60 @@
+{
+  "version": "8.0-draft",
+  "fixture": false,
+  "calendarSource": {
+    "repository": "0w1Max/0w1Max",
+    "svgBlob": "127d6f3f92eea99af3c9dc91c81fc5e10fca1e0d",
+    "stateBlob": "c83630fed62a92e5650dd33afb5d95af4979481d",
+    "publishedDate": "2026-11-23",
+    "fixture": false
+  },
+  "lastDate": "2026-11-23",
+  "calendarDays": 366,
+  "totalContributions": 620,
+  "seed": 914102602,
+  "level": {
+    "seed": 914102602,
+    "location": "industrial",
+    "obstacles": [
+      {
+        "kind": "stone-ruin",
+        "x": 386,
+        "width": 32,
+        "height": 32
+      },
+      {
+        "kind": "sandbags",
+        "x": 1004,
+        "width": 45,
+        "height": 25
+      },
+      {
+        "kind": "fallen-log",
+        "x": 596,
+        "width": 44,
+        "height": 19
+      }
+    ],
+    "platforms": [
+      {
+        "kind": "metal-catwalk",
+        "x": 787,
+        "width": 121,
+        "y": 324
+      }
+    ]
+  },
+  "obstacleSprites": [
+    "electric-motor",
+    "pipe-bundle",
+    "cable-reel"
+  ],
+  "platformSprite": "steel-catwalk",
+  "mission": {
+    "duration": 101.5628,
+    "targets": 102,
+    "shots": 115,
+    "jumps": 39
+  },
+  "svgSha256": "e47fd1f3fe8d353988f2d1514189e55f8068ae5758bc9d85fa8acb0878a0b3fc"
+}
