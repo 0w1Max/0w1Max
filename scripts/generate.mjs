@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 import { renderLocation } from './locations.mjs';
 import {coastDimensions} from './coast-scene.mjs';
-import {stormCoastVictory} from './coast-ui.mjs';
+import {renderGameOver} from './game-over-ui.mjs';
 import {templeDimensions} from './temple-scene.mjs';
 import {factoryDimensions} from './factory-scene.mjs';
 import {desertDimensions} from './canyon-scene.mjs';
@@ -350,7 +350,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const missionComplete=animationAttr('opacity',
     [0,round(finishedAt-.001),finishedAt,fadeBegin,fadeEnd,missionEnd],['0','0','1','1','0','0'],missionEnd,'linear');
   const defaultVictory=`<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text>`;
-  const victoryArt=coast ? stormCoastVictory({duration:missionEnd,finishedAt,fadeBegin}) : defaultVictory;
+  const victoryArt=['desert','industrial','temple','coast'].includes(level.location)
+    ? renderGameOver(level.location,{duration:missionEnd,finishedAt,fadeBegin}) : defaultVictory;
   const done=`<g id="mission-complete" opacity="0">${missionComplete}${victoryArt}</g>`;
   const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
   const gameBody=`${scene}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}`;

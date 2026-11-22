@@ -7,6 +7,7 @@ on:
       - 'assets/*sprites.json.gz.b64'
       - 'fixtures/**'
       - 'tests.mjs'
+      - 'tests-game-over.mjs'
       - '.github/workflows/commando-activity*.yml'
   workflow_dispatch:
 
@@ -25,7 +26,7 @@ jobs:
         with:
           node-version: '22'
       - name: Запустить тесты
-        run: node --test tests.mjs
+        run: node --test tests.mjs tests-game-over.mjs
       - name: Создать SVG на тестовом календаре
         run: node scripts/generate.mjs --demo --output generated/demo.svg
       - name: Проверить XML и маркировку тестовых данных

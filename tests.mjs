@@ -871,7 +871,7 @@ test('Storm Coast V2: мобильное увеличение не смещае�
   assert.equal((coastSvg.match(/id="shot-\d+"/g)||[]).length,plan.totalHp);
   assert.match(coastSvg,/id="storm-coast-victory"/);
   assert.match(coastSvg,/STORM COAST/);
-  assert.match(coastSvg,/MISSION COMPLETE/);
+  assert.match(coastSvg,/GAME OVER/);
   assert.doesNotMatch(coastSvg,/desert-end-zone|<image\b|<script\b/);
   assert.equal(plan.segments.at(-1).x1,plan.initial.x);
   assert.equal(plan.segments.at(-1).y1,plan.initial.footY);
@@ -882,7 +882,7 @@ test('Storm Coast V2: мобильное увеличение не смещае�
 test('Storm Coast banner: морская палитра, пиксельная рамка и бесшовный timing',async()=>{
   const {stormCoastVictory}=await import('./scripts/coast-ui.mjs');
   const art=stormCoastVictory({duration:109,finishedAt:75,fadeBegin:81});
-  for(const marker of ['storm-coast-victory','MISSION COMPLETE','STORM COAST',
+  for(const marker of ['storm-coast-victory','GAME OVER','STORM COAST',
     '#102836','#8db7bd','#f0eee2'])assert.ok(art.includes(marker),marker);
   assert.match(art,/animateTransform attributeName="transform"/);
   assert.doesNotMatch(art,/<image\b|<script\b|<foreignObject\b|https?:\/\//i);
