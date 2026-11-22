@@ -1,6 +1,6 @@
 {
   "project": "Commando Activity",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "approved_on": "2026-11-22",
   "status": "official-catalog-approved",
   "publication": "unchanged",
@@ -9,37 +9,53 @@
       "id": "desert",
       "name": "Пустынный каньон",
       "version": "6.1",
-      "path": "preview/desert-canyon-v6-49.svg",
-      "source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
-      "git_blob_sha": "47e2fd7d748ef8a91d590729c37b647258b0a08e",
-      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/344d026ed7a20401cb97f78f8827c9eed3df04ef/preview/desert-canyon-v6-49.svg"
+      "path": "preview/official-v2.5.0/desert.svg",
+      "source_commit": "c83b3f0fbaf31495b6aaf07367aa6877e666608b",
+      "git_blob_sha": "78dfe53a6f50837fbe3a0b263e678750b9d2e81d",
+      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/desert.svg",
+      "scene_source_path": "preview/desert-canyon-v6-49.svg",
+      "scene_source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
+      "scene_source_git_blob_sha": "47e2fd7d748ef8a91d590729c37b647258b0a08e",
+      "end_screen": "themed-game-over-v1"
     },
     {
       "id": "industrial",
       "name": "Заброшенный завод",
       "version": "7.4",
-      "path": "preview/factory-v7-4.svg",
-      "source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
-      "git_blob_sha": "3bd58c8943ded52ab944dfa642a8375770323c87",
-      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/344d026ed7a20401cb97f78f8827c9eed3df04ef/preview/factory-v7-4.svg"
+      "path": "preview/official-v2.5.0/industrial.svg",
+      "source_commit": "c83b3f0fbaf31495b6aaf07367aa6877e666608b",
+      "git_blob_sha": "2f02876a74bfced4a78db1ad7a4bf62c2e5c1b3d",
+      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/industrial.svg",
+      "scene_source_path": "preview/factory-v7-4.svg",
+      "scene_source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
+      "scene_source_git_blob_sha": "3bd58c8943ded52ab944dfa642a8375770323c87",
+      "end_screen": "themed-game-over-v1"
     },
     {
       "id": "temple",
       "name": "Затопленный храм",
       "version": "2",
-      "path": "preview/temple-v2.svg",
-      "source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
-      "git_blob_sha": "ce69cd1a86b2746c889c156698cb4a83818e4070",
-      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/344d026ed7a20401cb97f78f8827c9eed3df04ef/preview/temple-v2.svg"
+      "path": "preview/official-v2.5.0/temple.svg",
+      "source_commit": "c83b3f0fbaf31495b6aaf07367aa6877e666608b",
+      "git_blob_sha": "7227f12eb3ecdee0149847f3f941a45b587225b9",
+      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/temple.svg",
+      "scene_source_path": "preview/temple-v2.svg",
+      "scene_source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
+      "scene_source_git_blob_sha": "ce69cd1a86b2746c889c156698cb4a83818e4070",
+      "end_screen": "themed-game-over-v1"
     },
     {
       "id": "coast",
       "name": "Штормовое побережье",
       "version": "2",
-      "path": "preview/storm-coast-v2.svg",
-      "source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
-      "git_blob_sha": "b37efaefc214a193afd4d93e0bdaa0f31d1c2e92",
-      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/344d026ed7a20401cb97f78f8827c9eed3df04ef/preview/storm-coast-v2.svg"
+      "path": "preview/official-v2.5.0/coast.svg",
+      "source_commit": "c83b3f0fbaf31495b6aaf07367aa6877e666608b",
+      "git_blob_sha": "96d580674bb2b8e18f55c793f5974a27f97d4b72",
+      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/coast.svg",
+      "scene_source_path": "preview/storm-coast-v2.svg",
+      "scene_source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
+      "scene_source_git_blob_sha": "b37efaefc214a193afd4d93e0bdaa0f31d1c2e92",
+      "end_screen": "themed-game-over-v1"
     }
   ],
   "experimental_locations": [
@@ -49,8 +65,13 @@
     "jungle-relay"
   ],
   "notes": [
-    "Version 2.4.0 continues the recorded v2.3 project numbering. Location versions are independent.",
-    "Only these four exact previews belong to the approved official catalog.",
-    "Approval of the catalog does not publish a release, update main/output, enable random rotation, or update the public profile."
-  ]
+    "Project v2.5.0 adds four location-specific GAME OVER panels to the approved v2.4.0 catalog. Base scene versions remain unchanged.",
+    "Each new preview changes only end-screen art. Calendar, scene layout, character motion, shots and final alpha timing retain their original bytes.",
+    "Only these four exact previews belong to the official catalog. Main/output, the public profile and the publication schedule are unchanged."
+  ],
+  "previous_version": "2.4.0",
+  "end_screen_version": "1.0",
+  "end_screen_text": "GAME OVER",
+  "end_screen_review": "preview",
+  "gallery_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/game-over-panels.svg"
 }

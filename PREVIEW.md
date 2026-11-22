@@ -1,3 +1,20 @@
+# Commando Activity v2.5.0 · тематические финалы GAME OVER
+
+[Посмотреть четыре таблички рядом](https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/game-over-panels.svg)
+
+| Локация | Версия оформления локации | Финальная табличка |
+| --- | --- | --- |
+| [Пустынный каньон](https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/desert.svg) | V6.1 | GAME OVER · UI 1.0 |
+| [Заброшенный завод](https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/industrial.svg) | V7.4 | GAME OVER · UI 1.0 |
+| [Затопленный храм](https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/temple.svg) | V2 | GAME OVER · UI 1.0 |
+| [Штормовое побережье](https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/coast.svg) | V2 | GAME OVER · UI 1.0 |
+
+У каждой локации собственная рамка, палитра и английская подпись. Основная надпись GAME OVER — пиксельные SVG-фигуры. Изменено только оформление финальной таблички; утверждённые сцены, календарь и механика сохранены. Проверено локально 66/66 тестов. Публикация профиля не обновлялась.
+
+[Текущая версия](CURRENT_VERSION.md) · [Каталог точных снимков](commando-release.json). Материалы ниже — история предыдущих версий и экспериментов.
+
+---
+
 # Официальная версия проекта: Commando Activity v2.4.0
 
 Утверждено 22.11.2026. Официальный состав — только четыре закреплённые локации:
