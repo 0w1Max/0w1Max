@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "version": "2.6.0",
+  "date": "2026-11-23",
+  "location": "industrial",
+  "seed": 5,
+  "previousDate": null,
+  "previousLocation": "coast",
+  "fixture": false,
+  "calendarDays": 366,
+  "calendarLastDate": "2026-11-23",
+  "svgSha256": "274f7de07f7794622c30d8f99219cf6c98a7b7b8cfba00f7bbb58c19a24c14a4"
+}
