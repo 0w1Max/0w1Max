@@ -221,7 +221,7 @@ function playerMarkup(mission) {
       for(let i=1;i<=12;i++) {
         const u=i/12;
         const x=s.x0+(s.x1-s.x0)*u;
-        const y=s.y0+(s.y1-s.y0)*u-Math.sin(u*Math.PI)*57;
+        const y=s.y0+(s.y1-s.y0)*u-Math.sin(u*Math.PI)*(s.arc??57);
         add(s.start+(s.end-s.start)*u,x,y);
       }
     } else add(s.end,s.x1,s.y1);

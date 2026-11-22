@@ -1,5 +1,5 @@
 {
-  "version": "8.0-draft",
+  "version": "8.1-draft",
   "fixture": false,
   "calendarSource": {
     "repository": "0w1Max/0w1Max",
@@ -18,29 +18,29 @@
     "obstacles": [
       {
         "kind": "stone-ruin",
-        "x": 386,
-        "width": 32,
-        "height": 32
+        "x": 383,
+        "width": 76,
+        "height": 53
       },
       {
         "kind": "sandbags",
-        "x": 1004,
-        "width": 45,
-        "height": 25
+        "x": 1019,
+        "width": 80,
+        "height": 43
       },
       {
         "kind": "fallen-log",
-        "x": 596,
-        "width": 44,
-        "height": 19
+        "x": 586,
+        "width": 76,
+        "height": 53
       }
     ],
     "platforms": [
       {
         "kind": "metal-catwalk",
         "x": 787,
-        "width": 121,
-        "y": 324
+        "width": 177,
+        "y": 313
       }
     ]
   },
@@ -51,10 +51,10 @@
   ],
   "platformSprite": "steel-catwalk",
   "mission": {
-    "duration": 101.5628,
+    "duration": 102.6988,
     "targets": 102,
     "shots": 115,
-    "jumps": 39
+    "jumps": 32
   },
-  "svgSha256": "e47fd1f3fe8d353988f2d1514189e55f8068ae5758bc9d85fa8acb0878a0b3fc"
+  "svgSha256": "a2cbd0fb681649c498160ea69c8e017010378ed6c41d4aed8b2033b2db2724d0"
 }

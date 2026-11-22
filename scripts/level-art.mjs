@@ -1,6 +1,6 @@
 /** Векторные 8-bit тайлы окружения; нет внешних PNG и файловой подгрузки. */
 import { WORLD } from './mission.mjs';
-import {factoryObstacles,factoryPlatforms,factorySpriteDefinitions,factorySprite} from './factory-sprites.mjs';
+import {factoryObstacles,factoryPlatforms,factorySpriteDefinitions,factorySprite,factoryPlatformHeight} from './factory-sprites.mjs';
 import {biomeFor,tintTerrainArt,obstacleBiomeDetail,platformBiomeDetail} from './biomes.mjs';
 import {volcanoObstacleSprites, volcanoPlatformSprites, volcanoSprite, volcanoSpriteDefinitions} from './volcano-sprites.mjs';
 import {jungleObstacleSprites, junglePlatformSprites, jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
@@ -135,7 +135,7 @@ function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, s
   return defineSprites([...obstacles, ...platforms]) +
     (shadePlatforms ? canyonPlatformShade : '') +
     (['desert','snow','temple','coast','jungle','industrial'].includes(level.location) ? terrainShadows(level) : '') +
-    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, platformHeight)).join('') +
+    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, level.location==='industrial'?factoryPlatformHeight(item.kind,item.width):platformHeight)).join('') +
     level.obstacles.map((item, index) =>
       terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');
 }
