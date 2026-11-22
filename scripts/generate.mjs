@@ -10,17 +10,27 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLevel, createMission, WORLD, aimGeometry } from './mission.mjs';
 import { renderLocation } from './locations.mjs';
-import {desertScene} from './canyon-scene.mjs';
 import {coastDimensions} from './coast-scene.mjs';
-import {stormCoastVictory} from './coast-ui.mjs';
+import {renderGameOver} from './game-over-ui.mjs';
+import {templeDimensions} from './temple-scene.mjs';
+import {factoryDimensions} from './factory-scene.mjs';
+import {desertDimensions} from './canyon-scene.mjs';
+import {jungleDimensions} from './jungle-scene.mjs';
+import {volcanoDimensions} from './volcano-scene.mjs';
 import { levelMarkup } from './level-art.mjs';
 import {soldierColor} from './biomes.mjs';
+import {HUD,monthLabels} from './profile-hud.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
 const LEVELS = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const COLORS = ['#a8bcc4', '#166f43', '#22a857', '#3dd96b', '#b7ff63'];
-const COAST_COLORS=['#96b4b7','#2f535f','#4a6b76','#799b9b','#c3bd92'];
+const JUNGLE_COLORS = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'];
+const CANYON_COLORS = ['#2a5261', '#704a38', '#9d5c3c', '#c77c49', '#e3ac68'];
+const SNOW_COLORS = ['#7192a6', '#477d94', '#63a4b3', '#91c4c5', '#d8b580'];
+const COAST_COLORS = ['#96b4b7', '#2f535f', '#4a6b76', '#799b9b', '#c3bd92'];
+const TEMPLE_COLORS = ['#a0aa92', '#4b5943', '#667751', '#92966a', '#c8b681'];
+const FACTORY_COLORS = ['#90a5a1', '#695544', '#9c7156', '#bd8b62', '#dab27b'];
 const {gridX:GRID_X,gridY:GRID_Y,step:STEP,cell:CELL}=WORLD;
 
 const escapeXml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -35,7 +45,7 @@ function timeline(times,values,duration){
   return {times,values};
 }
 
-async function fetchCalendar(username, token) {
+export async function fetchCalendar(username, token) {
   if (!/^[A-Za-z\d-]{1,39}$/.test(username)) throw new Error('Некорректное имя GitHub пользователя');
   if (!token) throw new Error('Для настоящего календаря нужен GITHUB_TOKEN (или GH_TOKEN)');
   const query = `query($login:String!){ viewer { login } user(login:$login){ contributionsCollection { contributionCalendar { weeks { contributionDays { date contributionCount contributionLevel } } } } } }`;
@@ -62,12 +72,10 @@ async function fetchCalendar(username, token) {
 
 export function normalizeWeeks(weeks) {
   if (!Array.isArray(weeks) || weeks.length < 1 || weeks.length > 55) throw new Error('Неверное количество недель');
-  const width=Math.max(53,weeks.length);
-  const normalized = Array.from({length:width},()=>Array(7).fill(null));
-  const last = weeks.slice(-width);
-  const pad = width-last.length;
-  for (let c=0; c<last.length; c++) {
-    const week=last[c];
+  const normalized = Array.from({length:Math.max(53,weeks.length)},()=>Array(7).fill(null));
+  const pad = normalized.length-weeks.length;
+  for (let c=0; c<weeks.length; c++) {
+    const week=weeks[c];
     if (!Array.isArray(week?.contributionDays)) throw new Error('Некорректная структура недели');
     for (const d of week.contributionDays) {
       const dow=new Date(`${d.date}T12:00:00Z`).getUTCDay();
@@ -78,8 +86,7 @@ export function normalizeWeeks(weeks) {
   return normalized;
 }
 
-function gridMarkup(grid,mission,coast=false) {
-  const colors=coast?COAST_COLORS:COLORS;
+function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacity, radius='2', cellGrow=0}) {
   const impacts=new Map();
   for(const shot of mission.shots){
     if(!impacts.has(shot.key))impacts.set(shot.key,[]);
@@ -114,28 +121,33 @@ function gridMarkup(grid,mission,coast=false) {
       const shades=[colors[cell.level],...hits.map(h=>h.finalHit?colors[1]:colors[Math.min(cell.level,h.hpAfter+1)]),colors[cell.level],colors[cell.level]];
       child+=animationAttr('fill',shadeKeys,shades,mission.duration);
     }
-    const fillOpacity=cell.level===0?(coast?'0.12':'0.22'):'1';
-    const cx=fmt(x+(coast?.5:0)),cy=fmt(y+(coast?.5:0));
-    output+=`<rect x="${cx}" y="${cy}" width="${coast?'17':CELL}" height="${coast?'17':CELL}" rx="${coast?'3':'2'}" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${coast?' stroke="#acc1c0" stroke-opacity=".19"':''}><title>${escapeXml(title)}</title>${child}</rect>`;
+    const fillOpacity = cell.level === 0 ? emptyOpacity : "1";
+    const border=cell.level===0 ? emptyBorder : activeBorder;
+    // Coast-only: larger rounded cells with explicit visible gaps, without
+    // changing collision and bullet coordinates (the whole scene is scaled).
+    const inset=cellGrow/2, visualSize=CELL+cellGrow;
+    output+=`<rect x="${fmt(x-inset)}" y="${fmt(y-inset)}" width="${fmt(visualSize)}" height="${fmt(visualSize)}" rx="${radius}" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${border}><title>${escapeXml(title)}</title>${child}</rect>`;
   }
   return output;
 }
 
 /** Общие пиксельные формы, которые повторно используются каждым выстрелом. */
-function effectsDefs(){
+function effectsDefs(canyon){
+  const impactCore = canyon ? '#cf805e' : '#fff3a8';
+  const breakCore = canyon ? '#d69a65' : '#fff1a0';
   return `<g id="fx-muzzle" shape-rendering="crispEdges">
     <path d="M0 -2h5v-3h5v-3h4v5h5v6h-6v5h-4v-4H5v-2H0Z" fill="#ff9e20"/>
     <path d="M0 -1h7v-2h5v2h4v3h-5v2H7V2H0Z" fill="#fff4a8"/>
     <rect x="17" y="-1" width="4" height="2" fill="#ffd064"/>
   </g>
   <g id="fx-impact-damage" shape-rendering="crispEdges">
-    <path d="M-2 -10h4v7h7v5H2v7h-4V2h-7v-5h7z" fill="#fff3a8"/>
+    <path d="M-2 -10h4v7h7v5H2v7h-4V2h-7v-5h7z" fill="${impactCore}"/>
     <rect x="-12" y="-3" width="4" height="4" fill="#ff9b2c"/>
     <rect x="8" y="-8" width="4" height="4" fill="#ff9b2c"/>
     <rect x="5" y="8" width="3" height="3" fill="#4ae78a"/>
   </g>
   <g id="fx-impact-break" shape-rendering="crispEdges">
-    <rect x="-6" y="-6" width="12" height="12" fill="#fff1a0"/>
+    <rect x="-6" y="-6" width="12" height="12" fill="${breakCore}"/>
     <path d="M-3 -12h6v6h8v6H5v6h-10V0h-7v-6h9z" fill="#ff9b2c"/>
     <rect x="-18" y="-12" width="5" height="5" fill="#ffd75e"/>
     <rect x="13" y="-11" width="6" height="5" fill="#ffcd48"/>
@@ -265,19 +277,36 @@ function playerMarkup(mission) {
     if(face==='right')output+=`<g>${content}</g>`;
     else output+=`<g transform="translate(78 0) scale(-1 1)">${content}</g>`;
   }
-  return `<g id="blue-commando" aria-label="Soldier with a blue headband">${motion}${output}</g>`;
+  return `<g id="blue-commando" transform="translate(${startPoint})" aria-label="Blue-bandana soldier">${motion}${output}</g>`;
 }
 
 export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,locationOverride}) {
   const grid=normalizeWeeks(weeks);
   const level=buildLevel(grid,username,seedOverride,locationOverride);
   const mission=createMission(grid,level);
-  const coast=level.location==='coast';
-  const coastViewport=coast?coastDimensions():null;
-  const displayHeight=coast?coastViewport.displayHeight:WORLD.height;
-  const scale=coast?(grid.length===55?1.045:grid.length===54?1.06:1.075):1;
-  const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${displayHeight}" viewBox="0 0 1200 ${displayHeight}" role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">A blue-bandana soldier patrols a procedurally generated 8-bit level, jumps over obstacles, climbs platforms, and shoots GitHub contribution cells. ${fixture?'Demo calendar data.':'GitHub calendar fetched from the GitHub API.'}</desc>`;
-  const scene=level.location==='desert' ? desertScene() : renderLocation(level.location,level.seed);
+  const canyon = level.location === 'desert';
+  const jungle = level.location === 'jungle';
+  const snow = level.location === 'snow';
+  const factory = level.location === 'industrial';
+  const temple = level.location === 'temple';
+  const coast = level.location === 'coast';
+  // Profiles are rendered as a single <img>. Zoom all game geometry together
+  // so bullets remain aligned with their targets, including 54/55-week years.
+  const coastScale=coast ? (grid.length>=55 ? 1.045 : grid.length===54 ? 1.06 : 1.075) : 1;
+  const labelFill = jungle ? '#c2cead' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
+  const titleFill = jungle ? '#dde0be' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
+  const subtitleFill = jungle ? '#b3c4af' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
+  const pixelViewport = level.location === 'desert' ? desertDimensions() :
+    level.location === 'volcano' ? volcanoDimensions() :
+    level.location === 'jungle' ? jungleDimensions() :
+    factory ? factoryDimensions() : temple ? templeDimensions() : coast ? coastDimensions() : null;
+  const scaleMode = pixelViewport && pixelViewport.displayHeight !== pixelViewport.viewHeight
+    ? ' preserveAspectRatio="none"' : '';
+  const viewport = pixelViewport
+    ? `width="${WORLD.width}" height="${pixelViewport.displayHeight}" viewBox="0 0 ${WORLD.width} ${pixelViewport.viewHeight}"${scaleMode}`
+    : `width="${WORLD.width}" height="${WORLD.height}" viewBox="0 0 ${WORLD.width} ${WORLD.height}"`;
+  const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" ${viewport} role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">An animated 8-bit soldier patrols the level, jumps over obstacles and shoots GitHub contribution cells. ${fixture?'Demo calendar data.':'GitHub calendar fetched from the GitHub API.'}</desc>`;
+  const scene=renderLocation(level.location,level.seed);
   const defs=`<defs>
     <linearGradient id="contribution-scrim" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#05111e" stop-opacity=".93"/>
@@ -285,19 +314,33 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       <stop offset=".88" stop-color="#071927" stop-opacity=".70"/>
       <stop offset="1" stop-color="#071927" stop-opacity="0"/>
     </linearGradient>
-    ${spriteDefs(sprites,level.location)}${effectsDefs()}
+    ${spriteDefs(sprites,level.location)}${effectsDefs(canyon)}
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
-  const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  let monthText=''; let prev=-1;
-  for(let col=0;col<grid.length;col++){
-    const day=grid[col].find(Boolean);if(!day)continue;
-    const m=Number(day.date.slice(5,7))-1;
-    if(m!==prev&&col<grid.length-3){monthText+=`<text x="${GRID_X+col*STEP}" y="${GRID_Y-10}" fill="#d0e4e8" font-family="monospace" font-size="13">${months[m]}</text>`;prev=m;}
-  }
+  const monthText=monthLabels(grid).map(label=>`<text data-month="${label.month}" x="${fmt(label.x)}" y="64" fill="${labelFill}" font-family="monospace" font-size="${HUD.monthSize}" font-weight="bold">${label.text}</text>`).join('');
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
-  const top=`<g id="contribution-overlay">${coast?'':'<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>'}<text x="72" y="${coast?38:23}" font-family="monospace" font-size="18" font-weight="bold" fill="${coast?'#f1e7c7':'#f2f7fa'}">${escapeXml(username)}<tspan font-weight="normal" fill="${coast?'#dce0d3':'#d5e8e9'}">${coast?' /':' / GITHUB CONTRIBUTIONS'}</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,coast)}</g></g>`;
+  const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
+  const gridStyle = {
+    colors: canyon ? CANYON_COLORS : snow ? SNOW_COLORS : factory ? FACTORY_COLORS : temple ? TEMPLE_COLORS : coast ? COAST_COLORS : jungle ? JUNGLE_COLORS : COLORS,
+    emptyOpacity: jungle ? '1' : canyon ? '0.08' : coast ? '0.12' : factory || temple ? '0.09' : '0.22',
+    radius: String(HUD.radius),
+    cellGrow: 0,
+    emptyBorder: canyon ? ' stroke="#254a58" stroke-opacity=".32"' :
+      snow ? ' stroke="#a1c4d3" stroke-opacity=".20"' :
+      factory ? ' stroke="#95a8a1" stroke-opacity=".15"' :
+      temple ? ' stroke="#708b7b" stroke-opacity=".23"' :
+      coast ? ' stroke="#acc1c0" stroke-opacity=".19"' :
+      jungle ? ' stroke="#30363d" stroke-opacity=".65"' :
+      pixelViewport ? ' stroke="#110c11" stroke-opacity=".75"' : '',
+    activeBorder: canyon ? ' stroke="#573627" stroke-opacity=".32"' :
+      snow ? ' stroke="#223e55" stroke-opacity=".75"' :
+      factory ? ' stroke="#514538" stroke-opacity=".38"' :
+      temple ? ' stroke="#465943" stroke-opacity=".32"' :
+      coast ? ' stroke="#264b58" stroke-opacity=".45"' :
+      jungle ? ' stroke="#0b1720" stroke-opacity=".45"' : '',
+  };
+  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="${coast?42:32}" font-family="monospace" font-size="${HUD.titleSize}" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="bold" fill="${subtitleFill}"> /</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
@@ -305,12 +348,15 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const missionComplete=animationAttr('opacity',
     [0,round(finishedAt-.001),finishedAt,fadeBegin,fadeEnd,missionEnd],['0','0','1','1','0','0'],missionEnd,'linear');
   const defaultVictory=`<rect x="410" y="230" width="380" height="60" rx="4" fill="#06151f" fill-opacity=".9" stroke="#86efac" stroke-width="2"/><text x="600" y="268" fill="#b5ff97" font-family="monospace" font-size="24" font-weight="bold" text-anchor="middle">MISSION COMPLETE</text>`;
-  const victory=coast?stormCoastVictory({duration:missionEnd,finishedAt,fadeBegin}):defaultVictory;
-  const done=`<g id="mission-complete" opacity="0">${missionComplete}${victory}</g>`;
+  const victoryArt=['desert','industrial','temple','coast'].includes(level.location)
+    ? renderGameOver(level.location,{duration:missionEnd,finishedAt,fadeBegin}) : defaultVictory;
+  const done=`<g id="mission-complete" opacity="0">${missionComplete}${victoryArt}</g>`;
   const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
-  const body=`${scene}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}`;
-  const zoomed=coast?`<g id="storm-coast-profile-scale" data-scale="${fmt(scale)}" transform="translate(${fmt(WORLD.width*(1-scale)/2)} ${fmt(displayHeight-coastViewport.originalHeight*scale)}) scale(${fmt(scale)})">${body}</g>`:body;
-  return `${header}${defs}${zoomed}</svg>\n`;
+  const gameBody=`${scene}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}`;
+  const scaled=coast
+    ? `<g id="storm-coast-profile-scale" data-scale="${fmt(coastScale)}" transform="translate(${fmt(WORLD.width*(1-coastScale)/2)} ${fmt(pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale)}) scale(${fmt(coastScale)})">${gameBody}</g>`
+    : gameBody;
+  return `${header}${defs}${scaled}</svg>\n`;
 }
 
 async function main() {

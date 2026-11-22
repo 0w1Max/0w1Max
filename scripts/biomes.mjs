@@ -3,8 +3,6 @@
  * Данные не зависят от внешних PNG и не влияют на физику движения.
  * На каждой карте все платформы получают один тип и одну ширину.
  */
-import { LOCATION_POOL } from './locations.mjs';
-
 const define = (obstacles, platforms, palette, outfit) => Object.freeze({
   obstacles: Object.freeze(obstacles),
   platforms: Object.freeze(platforms),
@@ -23,7 +21,7 @@ export const BIOMES = Object.freeze({
     ['jungle-rock','sandbags','stone-ruin','supply-crate'],
     ['wooden-bridge','mossy-stone','camo-platform'],
     {leaf:'#c2a05a',timber:'#a06b44',stone:'#c98f62',metal:'#aa8b6e',shade:'#613c2e',highlight:'#f6d08b'},
-    {cloth:'#c1a16c',vest:'#9f8264'}
+    {cloth:'#c99a64',vest:'#95634f'}
   ),
   snow: define(
     ['jungle-rock','fallen-log','sandbags','supply-crate'],
@@ -32,7 +30,7 @@ export const BIOMES = Object.freeze({
     {cloth:'#b2c6c7',vest:'#6b8494'}
   ),
   volcano: define(
-    ['jungle-rock','stone-ruin','tree-stump','supply-crate'],
+    ['jungle-rock','fallen-log','sandbags','stone-ruin','tree-stump','supply-crate'],
     ['mossy-stone','metal-catwalk','camo-platform'],
     {leaf:'#f58a37',timber:'#6b4540',stone:'#625057',metal:'#65565d',shade:'#231f2d',highlight:'#ffc14f'},
     {cloth:'#69616a',vest:'#484651'}
@@ -43,10 +41,16 @@ export const BIOMES = Object.freeze({
     {leaf:'#7f937e',timber:'#7b7465',stone:'#718d99',metal:'#6e8a95',shade:'#294554',highlight:'#c0bf9f'},
     {cloth:'#829592',vest:'#536c7d'}
   ),
+  temple: define(
+    ['jungle-rock','stone-ruin','supply-crate'],
+    ['mossy-stone','vine-ledge'],
+    {leaf:'#849158',timber:'#8a7757',stone:'#879778',metal:'#6d8880',shade:'#345a54',highlight:'#d2c38d'},
+    {cloth:'#9e9f65',vest:'#627d73'}
+  ),
   industrial: define(
     ['sandbags','stone-ruin','supply-crate','fallen-log'],
     ['metal-catwalk','camo-platform','wooden-bridge'],
-    {leaf:'#bfaa55',timber:'#686e70',stone:'#79868a',metal:'#82939b',shade:'#29393f',highlight:'#f3ca57'},
+    {leaf:'#a39271',timber:'#8e7a64',stone:'#829084',metal:'#82998f',shade:'#293e3b',highlight:'#b9b49b'},
     {cloth:'#82958d',vest:'#505f69'}
   ),
 });
@@ -135,7 +139,7 @@ export function platformBiomeDetail(platform, location) {
     case 'volcano':
       return `<g data-theme-detail="volcano">${bar(4,-1,w-8,3,pal.shade)}${Array.from({length:Math.floor(w/27)},(_,i)=>bar(12+i*27,2,7,3,pal.highlight)).join('')}</g>`;
     case 'industrial':
-      return `<g data-theme-detail="industrial">${bar(3,-2,w-6,4,pal.metal)}${Array.from({length:Math.floor(w/29)},(_,i)=>bar(10+i*29,4,11,4,i%2?pal.shade:pal.highlight)).join('')}</g>`;
+      return `<g data-theme-detail="industrial">${bar(2,0,w-4,2,pal.highlight)}${bar(4,9,w-8,3,pal.shade)}</g>`;
     default:throw new Error('Неподдерживаемая локация');
   }
 }

@@ -1,6 +1,11 @@
 /** Векторные 8-bit тайлы окружения; нет внешних PNG и файловой подгрузки. */
 import { WORLD } from './mission.mjs';
 import {biomeFor,tintTerrainArt,obstacleBiomeDetail,platformBiomeDetail} from './biomes.mjs';
+import {volcanoObstacleSprites, volcanoPlatformSprites, volcanoSprite, volcanoSpriteDefinitions} from './volcano-sprites.mjs';
+import {jungleObstacleSprites, junglePlatformSprites, jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
+import {desertObstacleSprites, desertPlatformSprites, desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
+import {snowObstacleSprites, snowPlatformSprites, snowSprite, snowSpriteDefinitions} from './snow-sprites.mjs';
+import {templeArt,templeObstacles,templePlatforms} from './temple-scene.mjs';
 import {coastArt,coastObstacles,coastPlatforms} from './coast-scene.mjs';
 const n = value => Number(value.toFixed(3));
 
@@ -87,30 +92,88 @@ function platform(p,i) {
   return `<g id="platform-${i}" data-kind="${p.kind}" transform="translate(${n(p.x)} ${n(p.y)})" shape-rendering="crispEdges">${art}</g>`;
 }
 
+
+const spriteTerrain = {
+  coast: [coastObstacles, coastPlatforms, coastArt.definitions, coastArt.sprite],
+  temple: [templeObstacles, templePlatforms, templeArt.definitions, templeArt.sprite],
+  volcano: [volcanoObstacleSprites, volcanoPlatformSprites, volcanoSpriteDefinitions, volcanoSprite],
+  desert: [desertObstacleSprites, desertPlatformSprites, desertSpriteDefinitions, desertSprite],
+  jungle: [jungleObstacleSprites, junglePlatformSprites, jungleSpriteDefinitions, jungleSprite],
+  snow: [snowObstacleSprites, snowPlatformSprites, snowSpriteDefinitions, snowSprite]
+};
+
+function terrainShadows({location, obstacles, platforms}) {
+  const color = ['snow','coast'].includes(location) ? '#36596f' : location === 'jungle' ? '#132c29' : location === 'industrial' ? '#213735' : '#683c55';
+  const ground = WORLD.groundY;
+  const cast = (x, width, depth, opacity) =>
+    `<path d="M${x} ${ground}h${width}v2h-3v${depth-4}h-${width-9}v-2h-6z" opacity="${opacity}"/>`;
+  const platformShadows = platforms.map(({x, y, width}) =>
+    cast(x + Math.round((ground - y) * .42), width, 8, .23));
+  const obstacleShadows = obstacles.map(({x, width, height}) =>
+    cast(x + 3, width + Math.round(height * .40), 8, .34));
+  return `<g id="${location}-object-shadows" fill="${color}" shape-rendering="crispEdges" aria-hidden="true">` +
+    [...platformShadows, ...obstacleShadows].join('') + '</g>';
+}
+
+const canyonPlatformShade = '<defs><filter id="canyon-platform-shade" x="-10%" y="-30%" width="120%" height="170%" color-interpolation-filters="sRGB">' +
+  '<feFlood flood-color="#3c2a25" flood-opacity=".58"/>' +
+  '<feComposite in2="SourceAlpha" operator="in"/>' +
+  '<feOffset dx="1" dy="2" result="shadow"/>' +
+  '<feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+
+function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, sprite]) {
+  const obstacles = level.obstacles.map(item => obstacleSprites[item.kind]);
+  const platforms = level.platforms.map(item => platformSprites[item.kind]);
+  const platformHeight = level.location === 'jungle' ? 32 : 18;
+  const shadePlatforms = level.location === 'desert' && platforms.length > 0;
+  const terrain = (item, index, type, name, y, height) =>
+    `<g id="${type}-${index}" data-kind="${item.kind}" data-theme-detail="${level.location}"${shadePlatforms && type === 'platform' ? ' filter="url(#canyon-platform-shade)"' : ''} data-sprite="${name}">` +
+      sprite(name, item.x, y, item.width, height) + '</g>';
+
+  return defineSprites([...obstacles, ...platforms]) +
+    (shadePlatforms ? canyonPlatformShade : '') +
+    (['desert','snow','temple','coast','jungle'].includes(level.location) ? terrainShadows(level) : '') +
+    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, platformHeight)).join('') +
+    level.obstacles.map((item, index) =>
+      terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');
+}
+
+const factoryObstacleShade = '<defs><filter id="factory-obstacle-outline" x="-15%" y="-15%" width="130%" height="130%">' +
+  '<feMorphology in="SourceAlpha" operator="dilate" radius="1"/>' +
+  '<feComposite in2="SourceAlpha" operator="out" result="outline"/>' +
+  '<feFlood flood-color="#28323b"/><feComposite in2="outline" operator="in" result="edge"/>' +
+  '<feMerge><feMergeNode in="edge"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+
+function factoryCrate(item,index) {
+  return `<g id="obstacle-${index}" data-kind="supply-crate" data-theme-detail="industrial" transform="translate(${n(item.x)} ${WORLD.groundY})" shape-rendering="crispEdges">
+    <path d="M1 -23h3v-3h26v3h3V0H1z" fill="#28323b"/>
+    <path d="M4 -23h26v20H4z" fill="#637b82"/>
+    <path d="M4 -23h26v4H4zM4 -19h3v14H4z" fill="#c1c8ba"/>
+    <path d="M7 -17h20v10H7z" fill="#465e68"/>
+    <path d="M10 -15h14v3H10z" fill="#c3be9d"/>
+    <path d="M14 -23h6v6h-6z" fill="#b6a27a"/>
+    <path d="M5 -6h4v3H5zM25 -6h4v3h-4z" fill="#9baaa5"/>
+  </g>`;
+}
+
 function biomeObstacle(item,index,location) {
   if(!location)return obstacle(item,index);
+  if(location==='industrial' && item.kind==='supply-crate')return factoryCrate(item,index);
   const base=tintTerrainArt(obstacle(item,index),location);
-  return base.replace(/<\/g>$/,obstacleBiomeDetail(item,location)+'</g>');
+  const art=base.replace(/<\/g>$/,obstacleBiomeDetail(item,location)+'</g>');
+  return location==='industrial' ? art.replace(' shape-rendering=', ' filter="url(#factory-obstacle-outline)" shape-rendering=') : art;
 }
 function biomePlatform(item,index,location) {
   if(!location)return platform(item,index);
   const base=tintTerrainArt(platform(item,index),location);
   return base.replace(/<\/g>$/,platformBiomeDetail(item,location)+'</g>');
 }
-
-function coastTerrain(level) {
-  const obstacles=level.obstacles.map(o=>coastObstacles[o.kind]);
-  const platforms=level.platforms.map(p=>coastPlatforms[p.kind]);
-  if(obstacles.some(x=>!x)||platforms.some(x=>!x))throw new Error('Недопустимые объекты побережья');
-  const draw=(o,i,type,name,y,h)=>'<g id="'+type+'-'+i+'" data-kind="'+o.kind+
-    '" data-theme-detail="coast" data-sprite="'+name+'">'+coastArt.sprite(name,o.x,y,o.width,h)+'</g>';
-  return coastArt.definitions([...obstacles,...platforms])+
-    level.platforms.map((p,i)=>draw(p,i,'platform',platforms[i],p.y,18)).join('')+
-    level.obstacles.map((o,i)=>draw(o,i,'obstacle',obstacles[i],WORLD.groundY-o.height,o.height)).join('');
-}
 export function levelMarkup(level) {
   const location=level.location;
   if(location)biomeFor(location);
-  if(location==='coast')return `<g id="procedural-level" data-biome="coast" aria-label="Obstacles and platforms">${coastTerrain(level)}</g>`;
-  return `<g id="procedural-level" data-biome="${location??'unstyled'}" aria-label="Obstacles and platforms">${level.platforms.map((item,i)=>biomePlatform(item,i,location)).join('')}${level.obstacles.map((item,i)=>biomeObstacle(item,i,location)).join('')}</g>`;
+  const terrain = Object.hasOwn(spriteTerrain,location) ? pixelTerrain(level,spriteTerrain[location]) :
+    (location === 'industrial' ? factoryObstacleShade + terrainShadows(level) : '') +
+    level.platforms.map((item,i)=>biomePlatform(item,i,location)).join('') +
+    level.obstacles.map((item,i)=>biomeObstacle(item,i,location)).join('');
+  return `<g id="procedural-level" data-biome="${location??'unstyled'}" aria-label="Obstacles and platforms">${terrain}</g>`;
 }
