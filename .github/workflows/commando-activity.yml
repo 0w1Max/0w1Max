@@ -2,7 +2,7 @@ name: Commando Activity · ежедневные официальные лока�
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
     paths:
       - 'scripts/**'
       - 'assets/*-sprites.json.gz.b64'
@@ -23,11 +23,11 @@ concurrency:
 
 jobs:
   build:
-    if: github.repository == '0w1Max/0w1Max' && github.ref == 'refs/heads/main'
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
-      - name: Получить код из main
+      - name: Получить код из default branch
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
@@ -38,40 +38,25 @@ jobs:
           node-version: '22'
 
       - name: Проверить генератор, интерфейс и ежедневную ротацию
-        run: node --test tests.mjs tests-game-over.mjs tests-profile.mjs
+        run: node --test tests*.mjs
 
       - name: Прочитать последнее опубликованное состояние
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const fs=require('fs');
-            const crypto=require('crypto');
+            const {pathToFileURL}=require('url');
+            const {readOutput}=await import(pathToFileURL(process.cwd()+'/scripts/output-store.mjs'));
             const {owner,repo}=context.repo;
+            const saved=await readOutput({github,owner,repo});
             fs.mkdirSync('generated',{recursive:true});
-            const startRef=await github.rest.git.getRef({owner,repo,ref:'heads/output'});
-            const snapshot=startRef.data.object.sha;
-            const old=await github.rest.repos.getContent({owner,repo,path:'commando-activity.svg',ref:snapshot});
-            const blob=await github.rest.git.getBlob({owner,repo,file_sha:old.data.sha});
-            const bytes=Buffer.from(blob.data.content,'base64');
-            let state;
-            try {
-              const saved=await github.rest.repos.getContent({owner,repo,path:'commando-state.json',ref:snapshot});
-              state=JSON.parse(Buffer.from(saved.data.content,'base64').toString('utf8'));
-              const digest=crypto.createHash('sha256').update(bytes).digest('hex');
-              if(state.svgSha256!==digest)throw new Error('Published SVG/state mismatch');
-            } catch(error) {
-              if(error.status!==404)throw error;
-              const location=/data-location="([^"]+)"/.exec(bytes.toString('utf8'))?.[1];
-              if(!['desert','industrial','temple','coast'].includes(location))throw new Error('Cannot bootstrap the last published location');
-              state={date:null,location,bootstrap:true};
-            }
-            fs.writeFileSync('generated/previous-state.json',JSON.stringify(state));
-            fs.writeFileSync('generated/previous-ref.json',JSON.stringify({sha:snapshot}));
+            fs.writeFileSync('generated/previous-state.json',JSON.stringify(saved.previous));
+            fs.writeFileSync('generated/previous-ref.json',JSON.stringify({sha:saved.snapshot}));
 
       - name: Сгенерировать сегодняшнюю локацию и свежий календарь GitHub
         env:
           GH_TOKEN: ${{ secrets.COMMANDO_READ_USER_TOKEN }}
-          GITHUB_USER: 0w1Max
+          GITHUB_USER: ${{ github.repository_owner }}
         run: node scripts/publish-daily.mjs --previous-state generated/previous-state.json
 
       - name: Проверить SVG и состояние перед публикацией
@@ -82,20 +67,12 @@ jobs:
         with:
           script: |
             const fs=require('fs');
+            const {pathToFileURL}=require('url');
+            const {publishOutput}=await import(pathToFileURL(process.cwd()+'/scripts/output-store.mjs'));
             const {owner,repo}=context.repo;
-            if(owner!=='0w1Max'||repo!=='0w1Max'||context.ref!=='refs/heads/main')throw new Error('Unexpected publication target');
-            const ref=await github.rest.git.getRef({owner,repo,ref:'heads/output'});
-            const expected=JSON.parse(fs.readFileSync('generated/previous-ref.json','utf8')).sha;
-            if(ref.data.object.sha!==expected)throw new Error('Output changed during generation; retry without overwriting');
-            const parent=await github.rest.git.getCommit({owner,repo,commit_sha:expected});
-            const entries=[];
-            for(const path of ['commando-activity.svg','commando-state.json']){
-              const blob=await github.rest.git.createBlob({owner,repo,content:fs.readFileSync('generated/'+path).toString('base64'),encoding:'base64'});
-              entries.push({path,mode:'100644',type:'blob',sha:blob.data.sha});
-            }
-            const tree=await github.rest.git.createTree({owner,repo,base_tree:parent.data.tree.sha,tree:entries});
-            if(tree.data.sha===parent.data.tree.sha){core.info('Publication is already current');return;}
+            if(context.ref!==`refs/heads/${context.payload.repository.default_branch}`)throw new Error('Unexpected publication branch');
+            const snapshot=JSON.parse(fs.readFileSync('generated/previous-ref.json','utf8')).sha;
             const state=JSON.parse(fs.readFileSync('generated/commando-state.json','utf8'));
-            const commit=await github.rest.git.createCommit({owner,repo,message:`chore(profile): ${state.date} ${state.location}`,tree:tree.data.sha,parents:[parent.data.sha]});
-            await github.rest.git.updateRef({owner,repo,ref:'heads/output',sha:commit.data.sha,force:false});
-            core.info(`Published ${state.date}: ${state.location}; SVG and state in one commit`);
+            const result=await publishOutput({github,owner,repo,snapshot,sourceSha:context.sha,
+              svg:fs.readFileSync('generated/commando-activity.svg','utf8'),state});
+            core.info(`Published v${state.version}: ${state.date} ${state.location}; ${result.sha}`);
