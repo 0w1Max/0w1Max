@@ -1,12 +1,12 @@
 {
   "status": "draft",
-  "locationVersion": "8.1",
+  "locationVersion": "8.2",
   "baseRelease": "2.6.0",
   "obstacles": {
-    "sandbags": "pipe-bundle",
-    "stone-ruin": "electric-motor",
+    "sandbags": "maintenance-barrier",
+    "stone-ruin": "concrete-rubble",
     "supply-crate": "cargo-crate",
-    "fallen-log": "cable-reel"
+    "fallen-log": "toolbox"
   },
   "platforms": {
     "metal-catwalk": "steel-catwalk",

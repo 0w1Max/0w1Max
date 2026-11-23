@@ -1,5 +1,5 @@
 {
-  "version": "8.1-draft",
+  "version": "8.2-draft",
   "fixture": false,
   "calendarSource": {
     "repository": "0w1Max/0w1Max",
@@ -11,50 +11,50 @@
   "lastDate": "2026-11-23",
   "calendarDays": 366,
   "totalContributions": 620,
-  "seed": 914102602,
+  "seed": 1165146435,
   "level": {
-    "seed": 914102602,
+    "seed": 1165146435,
     "location": "industrial",
     "obstacles": [
       {
-        "kind": "stone-ruin",
-        "x": 383,
-        "width": 76,
-        "height": 53
-      },
-      {
         "kind": "sandbags",
-        "x": 1019,
-        "width": 80,
-        "height": 43
+        "x": 1018,
+        "width": 36,
+        "height": 26
       },
       {
         "kind": "fallen-log",
-        "x": 586,
-        "width": 76,
-        "height": 53
+        "x": 633,
+        "width": 26,
+        "height": 18
+      },
+      {
+        "kind": "supply-crate",
+        "x": 821,
+        "width": 40,
+        "height": 34
       }
     ],
     "platforms": [
       {
-        "kind": "metal-catwalk",
-        "x": 787,
-        "width": 177,
+        "kind": "wooden-bridge",
+        "x": 309,
+        "width": 180,
         "y": 313
       }
     ]
   },
   "obstacleSprites": [
-    "electric-motor",
-    "pipe-bundle",
-    "cable-reel"
+    "maintenance-barrier",
+    "toolbox",
+    "cargo-crate"
   ],
-  "platformSprite": "steel-catwalk",
+  "platformSprite": "service-deck",
   "mission": {
-    "duration": 102.6988,
+    "duration": 107.7304,
     "targets": 102,
     "shots": 115,
-    "jumps": 32
+    "jumps": 37
   },
-  "svgSha256": "a2cbd0fb681649c498160ea69c8e017010378ed6c41d4aed8b2033b2db2724d0"
+  "svgSha256": "db969a07e519abb56aa5fc8cb4f7f07398f73e06fda6bd187d5dda4c4a10d328"
 }

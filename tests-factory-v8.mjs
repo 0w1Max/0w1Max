@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {factoryObstacles,factoryPlatforms,factorySpriteDefinitions,factoryPlatformHeight} from './scripts/factory-sprites.mjs';
+import {factoryObstacles,factoryPlatforms,factorySpriteDefinitions,factoryPlatformHeight,factoryObstacleSizes} from './scripts/factory-sprites.mjs';
 import {levelMarkup} from './scripts/level-art.mjs';
 import {buildLevel,validateLayout,createMission,WORLD} from './scripts/mission.mjs';
 import {readFileSync} from 'node:fs';
@@ -27,7 +27,7 @@ test('Factory concept retains detailed vector silhouettes and correctly scaled s
   assert.ok(colors.length>=60,name);
   assert.ok(colors.reduce((sum,[,path])=>sum+(path.match(/M/g)||[]).length,0)>2000,name);
  }
- for(const seed of [5,111,116,104,914102602]){
+ for(const seed of [5,111,116,104,914102602,1165146435]){
   for(const platform of buildLevel(grid,'0w1Max',seed,'industrial').platforms)
    assert.ok(platform.y+factoryPlatformHeight(platform.kind,platform.width)<=WORLD.groundY+2,'Supports must fit above the ground');
  }
@@ -35,7 +35,7 @@ test('Factory concept retains detailed vector silhouettes and correctly scaled s
 test('Factory enlarged obstacles are cleared along the actual twelve-keyframe jump curve',()=>{
  const calendar=JSON.parse(readFileSync('preview/factory-v8/live-calendar.json','utf8'));
  const actualGrid=normalizeWeeks(calendar.weeks);
- for(const seed of [5,111,116,104,914102602]){
+ for(const seed of [5,111,116,104,914102602,1165146435]){
   const level=buildLevel(actualGrid,'0w1Max',seed,'industrial'),mission=createMission(actualGrid,level);
   assert.ok(Math.max(...mission.jumps.map(s=>s.arc??57))<=250,'Jump arc must remain on screen');
   for(const s of mission.segments)for(let i=0;i<=120;i++){
@@ -49,6 +49,18 @@ test('Factory enlarged obstacles are cleared along the actual twelve-keyframe ju
    assert.ok(!level.obstacles.some(o=>x+54>o.x&&x+24<o.x+o.width&&footY>WORLD.groundY-o.height+.1),`seed=${seed}, t=${s.start}, kind=${s.kind}`);
   }
  }
+});
+test('Factory compact obstacles have fixed distinct sizes and crate is strictly largest',()=>{
+ assert.deepEqual(factoryObstacleSizes,{'supply-crate':[40,34],'fallen-log':[26,18],sandbags:[36,26],'stone-ruin':[32,20]});
+ const [crateW,crateH]=factoryObstacleSizes['supply-crate'];
+ for(const [kind,[w,h]] of Object.entries(factoryObstacleSizes))if(kind!=='supply-crate'){
+  assert.ok(w<crateW&&h<crateH,kind);
+ }
+ for(let seed=0;seed<1000;seed++)for(const obstacle of buildLevel(grid,'0w1Max',seed,'industrial').obstacles)
+  assert.deepEqual([obstacle.width,obstacle.height],factoryObstacleSizes[obstacle.kind]);
+ const art=factorySpriteDefinitions(Object.values(factoryObstacles));
+ assert.doesNotMatch(art,/preserveAspectRatio="none"|factory-v8-(?:electric-motor|pipe-bundle|cable-reel)/);
+ assert.equal((art.match(/preserveAspectRatio="xMidYMax meet"/g)||[]).length,4);
 });
 test('Factory V8 seeded previews cover the whole kit while retaining valid jump layouts',()=>{
  const objects=new Set(),platforms=new Set();

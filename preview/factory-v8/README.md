@@ -1,32 +1,41 @@
-# Abandoned Factory V8.1 — faithful concept implementation
+# Abandoned Factory V8.2 — consistent obstacle scale
 
-This review replaces the simplified V8.0 draft with detailed artwork based on the approved concept. Production v2.6.0 is unchanged.
+Draft only. Production v2.6.0 and the other locations remain unchanged.
 
-The seven sprites preserve the X-braced red crate, round cable reel, hollow pipe bundle, ribbed motor and lightning plate, grated steel catwalk, stopped conveyor and braced red service deck. Local vector pixel runs retain the isolated source artwork with an 80-color palette per object. The standalone game SVG embeds no bitmap images, external resources or scripts.
+## Ground obstacles
 
-The source alpha atlas is `assets/factory-v8-source.png`. Rebuild the compressed vector atlas with `python scripts/compile-factory-concept.py assets/factory-v8-source.png`. The PNG was isolated from the approved concept using image generation; the compiler preserves its detailed silhouettes rather than drawing low-detail substitutes.
+The reinforced cargo crate is the largest obstacle. Large reels, engines and pipe bundles are removed from the active factory set. The replacements use the same detailed pixel-art material style.
 
-## Game scale and physics
+| Visible sprite | Internal compatibility key | Fixed collision size |
+| --- | --- | --- |
+| Cargo crate | supply-crate | 40 × 34 |
+| Concrete rubble | stone-ruin | 32 × 20 |
+| Folding maintenance barrier | sandbags | 36 × 26 |
+| Compact toolbox | fallen-log | 26 × 18 |
 
-- Cargo crate: 64 × 54.
-- Cable reel: 76 × 53.
-- Pipe bundle: 80 × 43.
-- Electric motor: 76 × 53.
-- Platforms: randomized width 176–188; height follows the original sprite proportions. Top landing surface remains the collision reference.
-- Only the industrial biome receives these dimensions and adaptive jump arcs.
-- Right-edge crossings and occasional decorative hops now account for enlarged obstacles.
-- A layout still contains at most three distinct obstacles and two matching platforms.
+Each object has a fixed size. Random generation changes types and positions, never scales the objects independently. The SVG symbol preserves its native proportions with bottom alignment. The small transparent padding inside the collision box prevents stretching.
 
-Legacy engine keys remain collision-model adapters. Visible industrial artwork exclusively uses the new named sprites.
+The complete object sheet uses exactly 3× scale for all four obstacle previews on a common baseline. Labels state game dimensions. They are not enlarged individually to fill matching cards.
 
-## View
+## Platforms
 
-`factory-v8-random-live.svg` is the complete random-map animation with the real published calendar snapshot (366 dates, 620 contributions, last date 2026-11-23). Seed 914102602 remains fixed for reproducible comparison with the earlier implementation. New builds can choose a fresh random seed with `node scripts/preview-factory-live.mjs`.
+Steel catwalk, stopped conveyor and service deck retain the detailed V8.1 artwork. A map contains at most two platforms, with matching type and width. Adaptive jumps, safe ground landings and firing geometry remain in the engine.
 
-`factory-v8.svg`, `steel-catwalk.svg`, `stopped-conveyor.svg` and `service-deck.svg` are additional seeded real-calendar animations. Rebuild using `node scripts/preview-factory-v8.mjs --real`.
+## Review files
 
-`factory-v8-objects.svg` and `.png` show all seven sprites from the actual game renderer.
+- `factory-v8-random-live.svg`: fresh random-map animation with the verified published real calendar snapshot.
+- `factory-v8-random-live.json`: selected seed, real-data provenance, exact object dimensions and SHA256.
+- `factory-v8-objects.svg` / `.png`: complete kit with all four obstacles at one scale.
+- `steel-catwalk.svg`, `stopped-conveyor.svg`, `service-deck.svg`: additional real-calendar examples.
 
-## Validation
+The snapshot contains 366 dates and 620 contributions, through 2026-11-23. It is a snapshot, not a claim of a new API fetch.
 
-77 tests: calendar, shots, engine regressions, all seven detailed vector sprites, valid platform supports and collision clearance along the same twelve-keyframe jump curve used by the animation. Five prepared layouts are sampled at 121 points per movement segment. XML, IDs, local sprite references and standalone markup are checked independently.
+## Rebuild
+
+Detailed source for the three compact replacements: `assets/factory-v8-small-source.png`. Base crate and platforms: `assets/factory-v8-source.png`. Compile the base using `python scripts/compile-factory-concept.py assets/factory-v8-source.png`, then merge the compact set using `python scripts/compile-factory-concept.py assets/factory-v8-small-source.png --small`. The checked-in compressed vector atlas has all seven active sprites and no legacy motor/reel/pipe sprites.
+
+Run `node scripts/preview-factory-v8.mjs --real` for the full kit and seeded examples. Run `node scripts/preview-factory-live.mjs` for a fresh random, populated layout. Pass `--seed` to reproduce a recorded layout.
+
+## Checks
+
+78 tests cover the engine, calendar, all active sprites, fixed-size hierarchy over 1000 random seeds, aspect-ratio preservation and sampled jump clearance in the prepared layouts. Source sprite compilation is deterministic.

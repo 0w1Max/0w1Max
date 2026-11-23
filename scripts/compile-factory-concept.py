@@ -15,7 +15,17 @@ boxes = {
     'stopped-conveyor': (508, 620, 1012, 810),
     'service-deck': (1016, 620, 1530, 810),
 }
-atlas = {}
+small = '--small' in sys.argv
+if small:
+    existing = json.loads(gzip.decompress(base64.b64decode((root / 'assets/factory-v8-sprites.json.gz.b64').read_text())))
+    atlas = {name: existing[name] for name in ['cargo-crate', 'steel-catwalk', 'stopped-conveyor', 'service-deck']}
+    boxes = {
+        'concrete-rubble': (510, 0, 900, image.height),
+        'maintenance-barrier': (910, 0, 1360, image.height),
+        'toolbox': (1380, 0, 1730, image.height),
+    }
+else:
+    atlas = {}
 for name, box in boxes.items():
     tile = image.crop(box)
     # Background pixels from alpha isolation are effectively transparent;
