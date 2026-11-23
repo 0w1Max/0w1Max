@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "2.6.0",
+  "version": "2.7.0",
   "date": "2026-11-24",
   "location": "temple",
   "seed": 5,
@@ -9,5 +9,5 @@
   "fixture": false,
   "calendarDays": 367,
   "calendarLastDate": "2026-11-24",
-  "svgSha256": "27004120d0a8cca77eb8bdc8511137a90dd1fdbe9a56260ceca185d4c108a1ec"
+  "svgSha256": "5b0e71788fc5e3f75a4796860cb652ef7fc27d5049a0b88c9ccf307306a7f62a"
 }
