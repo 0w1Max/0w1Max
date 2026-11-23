@@ -36,7 +36,8 @@
 <p>
 <code>REST API</code>&nbsp;<img src="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/profile-icons/rest-api.svg" alt="REST API logo" width="20" height="20" /> &nbsp;
 <code>Telegram Bot API</code>&nbsp;<img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram Bot API logo" width="20" height="20" /> &nbsp;
-<code>Telegram WebApp SDK</code>&nbsp;<img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram WebApp SDK logo" width="20" height="20" />
+<code>Telegram WebApp SDK</code>&nbsp;<img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram WebApp SDK logo" width="20" height="20" /> &nbsp;
+<code>Cloudflare</code>&nbsp;<img src="https://cdn.simpleicons.org/cloudflare/F38020" alt="Cloudflare logo" width="20" height="20" />
 </p>
 
 ### Databases
@@ -45,6 +46,7 @@
 <code>SQL</code>&nbsp;<img src="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/profile-icons/sql.svg" alt="SQL logo" width="20" height="20" /> &nbsp;
 <code>SQLite</code>&nbsp;<img src="https://cdn.simpleicons.org/sqlite/4B8BBE" alt="SQLite logo" width="20" height="20" /> &nbsp;
 <code>PostgreSQL</code>&nbsp;<img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL logo" width="20" height="20" /> &nbsp;
+<code>Prisma ORM</code>&nbsp;<img src="https://cdn.simpleicons.org/prisma/5A67D8" alt="Prisma ORM logo" width="20" height="20" /> &nbsp;
 <code>Turso</code>&nbsp;<img src="https://cdn.simpleicons.org/turso/4FF8D2" alt="Turso logo" width="20" height="20" />
 </p>
 
@@ -54,6 +56,7 @@
 <code>Git</code>&nbsp;<img src="https://cdn.simpleicons.org/git/F05032" alt="Git logo" width="20" height="20" /> &nbsp;
 <code>GitHub</code>&nbsp;<img src="https://cdn.simpleicons.org/github/64748B" alt="GitHub logo" width="20" height="20" /> &nbsp;
 <code>Docker</code>&nbsp;<img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker logo" width="20" height="20" /> &nbsp;
+<code>Nginx</code>&nbsp;<img src="https://cdn.simpleicons.org/nginx/009639" alt="Nginx logo" width="20" height="20" /> &nbsp;
 <code>Vercel</code>&nbsp;<img src="https://cdn.simpleicons.org/vercel/64748B" alt="Vercel logo" width="20" height="20" /> &nbsp;
 <code>Playwright</code>&nbsp;<img src="https://cdn.simpleicons.org/playwright/2EAD33" alt="Playwright logo" width="20" height="20" />
 </p>
@@ -76,9 +79,9 @@
 
 ## Featured Projects
 
-**01 / [Therapist Website](https://olgakuzhbatherapy.ru/)**  
-A responsive commercial website for a clinical psychologist.  
-`TypeScript` · `Tailwind CSS` · `React` · `Next.js` · [Live website](https://olgakuzhbatherapy.ru/) · *Private source code*
+**01 / [Therapist Website — Full-Stack Web Application](https://olgakuzhbatherapy.ru/)**  
+A full-stack web application for a clinical psychologist, featuring a responsive website, blog, admin dashboard, consultation forms, PostgreSQL database, and Telegram integration.  
+`Next.js` · `React` · `TypeScript` · `Tailwind CSS` · `PostgreSQL` · `Prisma ORM` · `Docker` · [Live website](https://olgakuzhbatherapy.ru/) · [Project overview](projects/therapist-website.md) · *Private source code*
 
 **02 / [WordFlow](https://github.com/0w1Max/WordFlow)**  
 A vocabulary-learning web application with spaced repetition, authentication, server-side logic, and persistent storage.  
