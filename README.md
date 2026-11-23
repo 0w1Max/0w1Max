@@ -17,7 +17,8 @@
 <code>JavaScript</code>&nbsp;<img src="https://cdn.simpleicons.org/javascript/D9B000" alt="JavaScript logo" width="20" height="20" /> &nbsp;
 <code>TypeScript</code>&nbsp;<img src="https://cdn.simpleicons.org/typescript/3178C6" alt="TypeScript logo" width="20" height="20" /> &nbsp;
 <code>React</code>&nbsp;<img src="https://cdn.simpleicons.org/react/41A9C9" alt="React logo" width="20" height="20" /> &nbsp;
-<code>Next.js</code>&nbsp;<img src="https://cdn.simpleicons.org/nextdotjs/6B7280" alt="Next.js logo" width="20" height="20" />
+<code>Next.js</code>&nbsp;<img src="https://cdn.simpleicons.org/nextdotjs/6B7280" alt="Next.js logo" width="20" height="20" /> &nbsp;
+<code>Vite</code>&nbsp;<img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite logo" width="20" height="20" />
 </p>
 
 ### Backend
@@ -27,6 +28,7 @@
 <code>Next.js</code>&nbsp;<img src="https://cdn.simpleicons.org/nextdotjs/6B7280" alt="Next.js logo" width="20" height="20" /> &nbsp;
 <code>Express</code>&nbsp;<img src="https://cdn.simpleicons.org/express/64748B" alt="Express logo" width="20" height="20" /> &nbsp;
 <code>Python</code>&nbsp;<img src="https://cdn.simpleicons.org/python/3776AB" alt="Python logo" width="20" height="20" /> &nbsp;
+<code>FastAPI</code>&nbsp;<img src="https://cdn.simpleicons.org/fastapi/009688" alt="FastAPI logo" width="20" height="20" />
 </p>
 
 ### APIs
@@ -34,6 +36,7 @@
 <p>
 <code>REST API</code>&nbsp;<img src="https://raw.githubusercontent.com/0w1Max/0w1Max/main/assets/profile-icons/rest-api.svg" alt="REST API logo" width="20" height="20" /> &nbsp;
 <code>Telegram Bot API</code>&nbsp;<img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram Bot API logo" width="20" height="20" /> &nbsp;
+<code>Telegram WebApp SDK</code>&nbsp;<img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram WebApp SDK logo" width="20" height="20" />
 </p>
 
 ### Databases
@@ -51,7 +54,8 @@
 <code>Git</code>&nbsp;<img src="https://cdn.simpleicons.org/git/F05032" alt="Git logo" width="20" height="20" /> &nbsp;
 <code>GitHub</code>&nbsp;<img src="https://cdn.simpleicons.org/github/64748B" alt="GitHub logo" width="20" height="20" /> &nbsp;
 <code>Docker</code>&nbsp;<img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker logo" width="20" height="20" /> &nbsp;
-<code>Vercel</code>&nbsp;<img src="https://cdn.simpleicons.org/vercel/64748B" alt="Vercel logo" width="20" height="20" />
+<code>Vercel</code>&nbsp;<img src="https://cdn.simpleicons.org/vercel/64748B" alt="Vercel logo" width="20" height="20" /> &nbsp;
+<code>Playwright</code>&nbsp;<img src="https://cdn.simpleicons.org/playwright/2EAD33" alt="Playwright logo" width="20" height="20" />
 </p>
 
 ### CMS / Commerce
@@ -80,9 +84,9 @@ A responsive commercial website for a clinical psychologist.
 A vocabulary-learning web application with spaced repetition, authentication, server-side logic, and persistent storage.  
 `JavaScript` · `Node.js` · `Express` · `Turso / SQLite` · *In development* · [Live demo](https://word-flow-nine.vercel.app/) · [Source code](https://github.com/0w1Max/WordFlow)
 
-**03 / Voqelis**  
-An actively developed voice-processing and productivity platform featuring local speech recognition, Telegram integrations, notes, tasks, and a web interface.  
-`TypeScript` · `React` · `Python` · `FastAPI` · `SQLite` · `ASR` · *In development · Private source code*
+**03 / [Voqelis — AI Assistant & Telegram Mini App](projects/voqelis.md)**  
+A self-hosted productivity platform combining local Russian speech recognition, intelligent planning, and multi-provider LLM integration. Its React/TypeScript Telegram Mini App features customizable workflows, resumable drafts, and DOCX/PDF preview and export.  
+`React` · `TypeScript` · `Vite` · `Python` · `FastAPI` · `SQLite` · `GigaAM` · `Playwright` · [Project overview](projects/voqelis.md) · *In development · Private source code*
 
 ## Experience
 
