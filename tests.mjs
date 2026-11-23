@@ -607,7 +607,7 @@ test('Каньон: независимые слои и все тематичес
     if(level.location!=='desert')continue;
     assert.ok(validateLayout(level).valid);
     const art=levelMarkup(level);
-    const objects=[...art.matchAll(/data-sprite="([^"]+)"><use href="#desert-sprite-\1"/g)];
+    const objects=[...art.matchAll(/data-sprite="([^"]+)"><use href="#desert-kit-sprite-\1"/g)];
     assert.equal(objects.length,level.obstacles.length+level.platforms.length);
     assert.equal((art.match(/filter="url\(#canyon-platform-shade\)"/g)||[]).length,level.platforms.length);
     const shadowMarkup=art.match(/id="desert-object-shadows"[^>]*>(.*?)<\/g>/)?.[1];
@@ -615,8 +615,8 @@ test('Каньон: независимые слои и все тематичес
     assert.equal((shadowMarkup.match(/<path\b/g)||[]).length,objects.length);
     for(const [,name] of objects)seen.add(name);
   }
-  assert.deepEqual([...seen].sort(),['ashlar-stone-platform','broken-pillar','desert-sandbags','dusty-crate',
-    'eroded-stone-ledge','sandstone-boulder','sandstone-shelf']);
+  assert.deepEqual([...seen].sort(),['obstacle-0','obstacle-1','obstacle-2','obstacle-3',
+    'platform-0','platform-1','platform-2']);
 });
 
 test('Календарь V5: клетка 18px при шаге 20px и одинаковая физика попаданий',()=>{

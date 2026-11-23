@@ -5,6 +5,7 @@
 import {selectLocation} from './locations.mjs';
 import {biomeFor} from './biomes.mjs';
 import {factoryObstacleSizes} from './factory-sprites.mjs';
+import {LOCATION_KITS,hasLocationKit,usesTerrainClearance} from './location-kit-config.mjs';
 
 export const WORLD = Object.freeze({
   width: 1200, height: 430, groundY: 374, spriteSize: 78,
@@ -117,7 +118,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride, locationOverri
   const obstacleCount=randomCount(rand,3);
   // Одна общая модель и ширина для всех платформ этой карты.
   const platformKind=platformCount ? biome.platforms[Math.floor(rand()*biome.platforms.length)] : null;
-  const platformWidth=platformCount ? (location==='industrial'?150+Math.floor(rand()*11):116+Math.floor(rand()*34)) : null;
+  const platformWidth=platformCount ? (location==='industrial'?150+Math.floor(rand()*11):hasLocationKit(location)?138+Math.floor(rand()*13):116+Math.floor(rand()*34)) : null;
   const obstacleTypes=pickUnique(biome.obstacles,obstacleCount,rand);
   // Две непересекающиеся зоны, доступные для прыжка с земли.
   const zones=pickUnique([0,1],platformCount,rand).sort();
@@ -125,7 +126,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride, locationOverri
     kind:platformKind,
     x:Math.round((zone===0?255:735)+rand()*80),
     width:platformWidth,
-    y:location==='industrial'?300+Math.floor(rand()*7):317+Math.floor(rand()*16)
+    y:location==='industrial'?300+Math.floor(rand()*7):hasLocationKit(location)?310+Math.floor(rand()*6):317+Math.floor(rand()*16)
   }));
   const sizes={
     'jungle-rock':[34,27], 'fallen-log':[44,19], 'sandbags':[45,25],
@@ -133,7 +134,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride, locationOverri
   };
   const obstacles=[];
   for(const kind of obstacleTypes){
-    const [width,height]=(location==='industrial'?factoryObstacleSizes:sizes)[kind];
+    const [width,height]=(location==='industrial'?factoryObstacleSizes:hasLocationKit(location)?LOCATION_KITS[location].sizes:sizes)[kind];
     // Левый участок x < 290 оставлен свободным для заключительного патруля.
     // 50 воспроизводимых кандидатов: при нехватке места объект НЕ добавляем.
     for(let attempt=0;attempt<50;attempt++){
@@ -292,7 +293,7 @@ export function createMission(grid,level){
   }
   function leapTo(x,y,kind='jump'){
     const jump=segment(kind,Math.max(.46,Math.abs(x-player.x)/180),x,y,x>player.x?'right':'left');
-    if(level.location==='industrial'){
+    if(usesTerrainClearance(level.location)){
       let arc=57;
       for(let i=1;i<120;i++){
         const u=i/120,px=jump.x0+(jump.x1-jump.x0)*u,base=jump.y0+(jump.y1-jump.y0)*u;
@@ -339,8 +340,8 @@ export function createMission(grid,level){
     const dir=destX>player.x?1:-1;
     // Запретная зона включает и ширину бойца: прыжок должен начаться ДО столкновения.
     const crossed=level.obstacles.filter(o=>dir>0?
-      player.x<=o.x-70 && destX>=o.x+o.width-(level.location==='industrial'?24:8) :
-      player.x>=o.x+o.width-(level.location==='industrial'?24:8) && destX<=o.x-70)
+      player.x<=o.x-70 && destX>=o.x+o.width-(usesTerrainClearance(level.location)?24:8) :
+      player.x>=o.x+o.width-(usesTerrainClearance(level.location)?24:8) && destX<=o.x-70)
       .sort((a,b)=>dir*(a.x-b.x));
     let jumped=false;
     for(const o of crossed){
@@ -353,7 +354,7 @@ export function createMission(grid,level){
     if(!jumped && Math.abs(diff)>140 && (level.seed+shots.length)%3===0){
       const mid=player.x+diff*.46;
       const from=mid-25*dir,to=mid+36*dir;
-      const clear=level.location!=='industrial'||!level.obstacles.some(o=>Math.max(from,to)+70>o.x&&Math.min(from,to)+8<o.x+o.width);
+      const clear=!usesTerrainClearance(level.location)||!level.obstacles.some(o=>Math.max(from,to)+70>o.x&&Math.min(from,to)+8<o.x+o.width);
       if(clear){walkTo(from);leapTo(to,WORLD.groundY,'hop');}
     }
     walkTo(destX);

@@ -1,13 +1,12 @@
 /** Векторные 8-bit тайлы окружения; нет внешних PNG и файловой подгрузки. */
 import { WORLD } from './mission.mjs';
 import {factoryObstacles,factoryPlatforms,factorySpriteDefinitions,factorySprite,factoryPlatformHeight} from './factory-sprites.mjs';
+import {LOCATION_KITS,hasLocationKit} from './location-kit-config.mjs';
+import {locationKitTerrain,locationKitPlatformHeight} from './location-kit-sprites.mjs';
 import {biomeFor,tintTerrainArt,obstacleBiomeDetail,platformBiomeDetail} from './biomes.mjs';
 import {volcanoObstacleSprites, volcanoPlatformSprites, volcanoSprite, volcanoSpriteDefinitions} from './volcano-sprites.mjs';
 import {jungleObstacleSprites, junglePlatformSprites, jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
-import {desertObstacleSprites, desertPlatformSprites, desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
 import {snowObstacleSprites, snowPlatformSprites, snowSprite, snowSpriteDefinitions} from './snow-sprites.mjs';
-import {templeArt,templeObstacles,templePlatforms} from './temple-scene.mjs';
-import {coastArt,coastObstacles,coastPlatforms} from './coast-scene.mjs';
 const n = value => Number(value.toFixed(3));
 
 function obstacle(o, i) {
@@ -96,10 +95,8 @@ function platform(p,i) {
 
 const spriteTerrain = {
   industrial: [factoryObstacles,factoryPlatforms,factorySpriteDefinitions,factorySprite],
-  coast: [coastObstacles, coastPlatforms, coastArt.definitions, coastArt.sprite],
-  temple: [templeObstacles, templePlatforms, templeArt.definitions, templeArt.sprite],
+  ...Object.fromEntries(Object.keys(LOCATION_KITS).map(location=>[location,locationKitTerrain(location)])),
   volcano: [volcanoObstacleSprites, volcanoPlatformSprites, volcanoSpriteDefinitions, volcanoSprite],
-  desert: [desertObstacleSprites, desertPlatformSprites, desertSpriteDefinitions, desertSprite],
   jungle: [jungleObstacleSprites, junglePlatformSprites, jungleSpriteDefinitions, jungleSprite],
   snow: [snowObstacleSprites, snowPlatformSprites, snowSpriteDefinitions, snowSprite]
 };
@@ -135,7 +132,8 @@ function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, s
   return defineSprites([...obstacles, ...platforms]) +
     (shadePlatforms ? canyonPlatformShade : '') +
     (['desert','snow','temple','coast','jungle','industrial'].includes(level.location) ? terrainShadows(level) : '') +
-    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, level.location==='industrial'?factoryPlatformHeight(item.kind,item.width):platformHeight)).join('') +
+    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y,
+      level.location==='industrial'?factoryPlatformHeight(item.kind,item.width):hasLocationKit(level.location)?locationKitPlatformHeight(level.location,item.kind,item.width):platformHeight)).join('') +
     level.obstacles.map((item, index) =>
       terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');
 }
