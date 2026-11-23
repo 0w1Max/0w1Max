@@ -20,6 +20,7 @@ import {volcanoDimensions} from './volcano-scene.mjs';
 import { levelMarkup } from './level-art.mjs';
 import {soldierColor} from './biomes.mjs';
 import {HUD,monthLabels} from './profile-hud.mjs';
+import {hudText} from './hud-font.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
@@ -295,7 +296,6 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const coastScale=coast ? (grid.length>=55 ? 1.045 : grid.length===54 ? 1.06 : 1.075) : 1;
   const labelFill = jungle ? '#c2cead' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
   const titleFill = jungle ? '#dde0be' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
-  const subtitleFill = jungle ? '#b3c4af' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
   const pixelViewport = level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() :
@@ -318,7 +318,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
-  const monthText=monthLabels(grid).map(label=>`<text data-month="${label.month}" x="${fmt(label.x)}" y="${GRID_Y-(coast?10:12)}" fill="${labelFill}" font-family="monospace" font-size="${HUD.monthSize}" font-weight="bold">${label.text}</text>`).join('');
+  const monthText=monthLabels(grid).map(label=>hudText(label.text,{month:label.month,x:label.x,y:GRID_Y-(coast?10:14),fill:labelFill,size:HUD.monthSize})).join('');
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
@@ -340,7 +340,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       coast ? ' stroke="#264b58" stroke-opacity=".45"' :
       jungle ? ' stroke="#0b1720" stroke-opacity=".45"' : '',
   };
-  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="${GRID_Y-(coast?24:36)}" font-family="monospace" font-size="${HUD.titleSize}" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="bold" fill="${subtitleFill}"> /</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
+  const titleText=hudText(username+' /',{id:'hud-username',x:GRID_X,y:GRID_Y-(coast?25:40),fill:titleFill,size:HUD.titleSize});
+  const top=`<g id="contribution-overlay">${scrim}${titleText}${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));

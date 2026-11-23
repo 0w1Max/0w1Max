@@ -65,9 +65,13 @@ test('The latest partial NOV/DEC is labeled in 53/54/55-week calendars without o
 test('All four profile scenes keep readable HUD labels, 18px cells and clearance above the highest platform',()=>{
   for(const location of OFFICIAL_LOCATIONS){
     const svg=renderSvg({weeks,sprites,username:'0w1Max',locationOverride:location,seedOverride:settings.seeds[location]});
-    assert.match(svg,/>0w1Max<tspan font-weight="bold"[^>]*> \/<\/tspan>/);
-    assert.match(svg,/font-size="21" font-weight="bold"/);
-    assert.match(svg,/font-size="15" font-weight="bold"/);
+    assert.match(svg,/id="hud-username"[^>]*aria-label="0w1Max \/"/);
+    assert.match(svg,/font-size="22" font-weight="400"/);
+    assert.match(svg,/font-size="15" font-weight="400"/);
+    const labels=svg.split('<g id="contribution-overlay">')[1]?.split('<g id="contribution-grid">')[0];
+    assert.match(labels,/data-font="Oxanium Regular"/);
+    assert.match(labels,/<path transform="translate/);
+    assert.doesNotMatch(labels,/<text\b|font-weight="bold"|@font-face|https?:/);
     assert.doesNotMatch(svg,/[А-Яа-яЁё]/);
     const cells=[...svg.matchAll(/<rect x="([0-9.]+)" y="([0-9.]+)" width="18" height="18" rx="3"[^>]*><title>(\d{4}-\d{2}-\d{2}):/g)];
     assert.equal(cells.length,normalizeWeeks(weeks).flat().filter(Boolean).length);

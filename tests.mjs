@@ -556,7 +556,7 @@ test('Каньон: квадратное поле интегрировано в 
   assert.match(svg,/id="contribution-scrim"/);
   assert.doesNotMatch(svg,/id="contribution-shade"/);
   assert.match(svg,/id="contribution-grid"/);
-  assert.match(svg,/0w1Max<tspan/);
+  assert.match(svg,/id="hud-username"[^>]*aria-label="0w1Max \/"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
   assert.doesNotMatch(svg,/stroke="#294c45" stroke-width="2"/);
   assert.match(svg,/fill-opacity="0.08"/);
@@ -588,7 +588,7 @@ test('Пустые клетки видны на приглушённом дне�
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
   assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:704a38|9d5c3c|c77c49|e3ac68)/);
-  assert.match(svg,/<text x="72"[^>]*fill="#38291f">/);
+  assert.match(svg,/<g id="hud-username"[^>]*fill="#38291f"/);
   assert.doesNotMatch(svg,/<text[^>]*stroke=/);
   assert.match(svg,/<g id="fx-impact-break"[^>]*>\s*<rect[^>]*fill="#d69a65"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
@@ -626,8 +626,8 @@ test('Календарь V5: клетка 18px при шаге 20px и один�
   assert.equal(WORLD.gridX+52*WORLD.step+WORLD.cell,1130);
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
   assert.match(svg,/width="18" height="18"/);
-  assert.match(svg,/font-size="21" font-weight="bold"/);
-  assert.match(svg,/font-size="15" font-weight="bold">/);
+  assert.match(svg,/font-size="22" font-weight="400"/);
+  assert.match(svg,/font-size="15" font-weight="400"/);
 });
 
 
@@ -815,7 +815,7 @@ test('Завод: собственная палитра календаря, оп
   }
   assert.match(svg,/id="factory-ground"[^>]*data-ground-baseline="374"/);
   assert.match(svg,/id="industrial-object-shadows"/);
-  assert.match(svg,/<text x="72"[^>]+fill="#e2dfc7"/);
+  assert.match(svg,/<g id="hud-username"[^>]+fill="#e2dfc7"/);
   const cells=svg.split('<g id="contribution-grid">')[1].split('</g>')[0];
   for(const color of ['#695544','#9c7156','#bd8b62','#dab27b']){
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
