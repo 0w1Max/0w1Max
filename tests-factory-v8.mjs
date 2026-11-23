@@ -51,7 +51,7 @@ test('Factory enlarged obstacles are cleared along the actual twelve-keyframe ju
  }
 });
 test('Factory compact obstacles have fixed distinct sizes and crate is strictly largest',()=>{
- assert.deepEqual(factoryObstacleSizes,{'supply-crate':[40,34],'fallen-log':[29,20],sandbags:[38,28],'stone-ruin':[35,22]});
+ assert.deepEqual(factoryObstacleSizes,{'supply-crate':[45,38],'fallen-log':[33,23],sandbags:[43,31],'stone-ruin':[39,25]});
  const [crateW,crateH]=factoryObstacleSizes['supply-crate'];
  for(const [kind,[w,h]] of Object.entries(factoryObstacleSizes))if(kind!=='supply-crate'){
   assert.ok(w<crateW&&h<crateH,kind);

@@ -1,5 +1,5 @@
 {
-  "version": "8.4-draft",
+  "version": "8.5-draft",
   "fixture": false,
   "calendarSource": {
     "repository": "0w1Max/0w1Max",
@@ -19,20 +19,20 @@
       {
         "kind": "sandbags",
         "x": 514,
-        "width": 38,
-        "height": 28
+        "width": 43,
+        "height": 31
       },
       {
         "kind": "fallen-log",
         "x": 1018,
-        "width": 29,
-        "height": 20
+        "width": 33,
+        "height": 23
       },
       {
         "kind": "supply-crate",
         "x": 821,
-        "width": 40,
-        "height": 34
+        "width": 45,
+        "height": 38
       }
     ],
     "platforms": [
@@ -51,10 +51,10 @@
   ],
   "platformSprite": "service-deck",
   "mission": {
-    "duration": 108.4835,
+    "duration": 112.265,
     "targets": 102,
     "shots": 115,
-    "jumps": 35
+    "jumps": 34
   },
-  "svgSha256": "c4f6c624326d27424e53f82ad0d4b18bfd644ca0244b05b27296cea85cc4995f"
+  "svgSha256": "6ac971f124a76072b8fdf64d2c56e3b8b1bb747b1f34b31260463e2f3da5aad4"
 }

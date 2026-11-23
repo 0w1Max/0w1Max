@@ -24,13 +24,13 @@ for(let attempt=0;attempt<1000;attempt++){
 if(!level.platforms.length||!level.obstacles.length||!validateLayout(level).valid)throw Error('Could not build a populated valid layout');
 const mission=createMission(grid,level);
 let svg=renderSvg({weeks:calendar.weeks,sprites,username:'0w1Max',fixture:false,seedOverride:seed,locationOverride:'industrial'});
-svg=svg.replace('role="img"',`data-factory-art-version="8.4-draft" data-map-seed="${seed}" data-calendar-snapshot="${calendar.source.publishedDate}" role="img"`);
+svg=svg.replace('role="img"',`data-factory-art-version="8.5-draft" data-map-seed="${seed}" data-calendar-snapshot="${calendar.source.publishedDate}" role="img"`);
 if(svg.includes('DEMO / TEST DATA'))throw Error('Unexpected demo marker');
 for(const item of level.obstacles)if(!svg.includes(`data-sprite="${factoryObstacles[item.kind]}"`))throw Error('Old obstacle artwork');
 for(const item of level.platforms)if(!svg.includes(`data-sprite="${factoryPlatforms[item.kind]}"`))throw Error('Old platform artwork');
 const days=calendar.weeks.flatMap(w=>w.contributionDays);
 for(const day of days)if(!svg.includes(`${day.date}: ${day.contributionCount} contributions`))throw Error('Missing calendar date');
-const manifest={version:'8.4-draft',fixture:false,calendarSource:calendar.source,lastDate:days.at(-1).date,calendarDays:days.length,totalContributions:days.reduce((sum,day)=>sum+day.contributionCount,0),seed,level,obstacleSprites:level.obstacles.map(o=>factoryObstacles[o.kind]),platformSprite:factoryPlatforms[level.platforms[0].kind],mission:{duration:mission.duration,targets:mission.targets,shots:mission.shots.length,jumps:mission.jumps.length},svgSha256:createHash('sha256').update(svg).digest('hex')};
+const manifest={version:'8.5-draft',fixture:false,calendarSource:calendar.source,lastDate:days.at(-1).date,calendarDays:days.length,totalContributions:days.reduce((sum,day)=>sum+day.contributionCount,0),seed,level,obstacleSprites:level.obstacles.map(o=>factoryObstacles[o.kind]),platformSprite:factoryPlatforms[level.platforms[0].kind],mission:{duration:mission.duration,targets:mission.targets,shots:mission.shots.length,jumps:mission.jumps.length},svgSha256:createHash('sha256').update(svg).digest('hex')};
 writeFileSync(new URL('factory-v8-random-live.svg',folder),svg);
 writeFileSync(new URL('factory-v8-random-live.json',folder),JSON.stringify(manifest,null,2)+'\n');
 console.log(JSON.stringify(manifest,null,2));

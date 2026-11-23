@@ -90,7 +90,7 @@ export function validateLayout(level) {
   for(let i=0;i<level.obstacles.length;i++){
     const o=level.obstacles[i];
     if(!OBSTACLE_POOL.includes(o.kind)||o.x<290||o.x+o.width>1120||
-      o.width<20||o.width>(level.location==='industrial'?40:55)||o.height<15||o.height>(level.location==='industrial'?34:36))
+      o.width<20||o.width>(level.location==='industrial'?45:55)||o.height<15||o.height>(level.location==='industrial'?38:36))
       issues.push(`Препятствие ${i} вне допустимых размеров`);
     for(let j=i+1;j<level.obstacles.length;j++){
       const q=level.obstacles[j];
