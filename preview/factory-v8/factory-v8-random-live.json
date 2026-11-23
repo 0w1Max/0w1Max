@@ -1,5 +1,5 @@
 {
-  "version": "8.2-draft",
+  "version": "8.3-draft",
   "fixture": false,
   "calendarSource": {
     "repository": "0w1Max/0w1Max",
@@ -18,13 +18,13 @@
     "obstacles": [
       {
         "kind": "sandbags",
-        "x": 1018,
+        "x": 514,
         "width": 36,
         "height": 26
       },
       {
         "kind": "fallen-log",
-        "x": 633,
+        "x": 1018,
         "width": 26,
         "height": 18
       },
@@ -39,8 +39,8 @@
       {
         "kind": "wooden-bridge",
         "x": 309,
-        "width": 180,
-        "y": 313
+        "width": 154,
+        "y": 303
       }
     ]
   },
@@ -51,10 +51,10 @@
   ],
   "platformSprite": "service-deck",
   "mission": {
-    "duration": 107.7304,
+    "duration": 99.9024,
     "targets": 102,
     "shots": 115,
-    "jumps": 37
+    "jumps": 28
   },
-  "svgSha256": "db969a07e519abb56aa5fc8cb4f7f07398f73e06fda6bd187d5dda4c4a10d328"
+  "svgSha256": "676a4337e18eaa8315728cf9c7fd009854926410c18e0c818d81292a97a0f900"
 }

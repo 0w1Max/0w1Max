@@ -1,4 +1,4 @@
-# Abandoned Factory V8.2 — consistent obstacle scale
+# Abandoned Factory V8.3 — consistent obstacle scale
 
 Draft only. Production v2.6.0 and the other locations remain unchanged.
 
@@ -18,6 +18,8 @@ Each object has a fixed size. Random generation changes types and positions, nev
 The complete object sheet uses exactly 3× scale for all four obstacle previews on a common baseline. Labels state game dimensions. They are not enlarged individually to fill matching cards.
 
 ## Platforms
+
+V8.3 reduces the generated factory platform width from 176–188 to 150–160 px (about 15%). Height decreases proportionally, preserving each original sprite aspect ratio. Landing surfaces move up exactly 10 px, from y=310–316 to y=300–306. The supports now have a clearer gap above the floor. Obstacle dimensions and artwork are unchanged.
 
 Steel catwalk, stopped conveyor and service deck retain the detailed V8.1 artwork. A map contains at most two platforms, with matching type and width. Adaptive jumps, safe ground landings and firing geometry remain in the engine.
 

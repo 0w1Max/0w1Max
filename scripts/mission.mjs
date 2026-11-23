@@ -79,7 +79,7 @@ export function validateLayout(level) {
   for(let i=0;i<level.platforms.length;i++){
     const p=level.platforms[i];
     if(!PLATFORM_POOL.includes(p.kind)||p.x<190||p.x+p.width>1110||
-      p.width<110||p.width>(level.location==='industrial'?188:165)||p.y<310||p.y>340)
+      p.width<110||p.width>(level.location==='industrial'?160:165)||p.y<(level.location==='industrial'?300:310)||p.y>340)
       issues.push(`Платформа ${i} вне допустимых размеров`);
     for(let j=i+1;j<level.platforms.length;j++){
       const q=level.platforms[j];
@@ -117,7 +117,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride, locationOverri
   const obstacleCount=randomCount(rand,3);
   // Одна общая модель и ширина для всех платформ этой карты.
   const platformKind=platformCount ? biome.platforms[Math.floor(rand()*biome.platforms.length)] : null;
-  const platformWidth=platformCount ? (location==='industrial'?176+Math.floor(rand()*13):116+Math.floor(rand()*34)) : null;
+  const platformWidth=platformCount ? (location==='industrial'?150+Math.floor(rand()*11):116+Math.floor(rand()*34)) : null;
   const obstacleTypes=pickUnique(biome.obstacles,obstacleCount,rand);
   // Две непересекающиеся зоны, доступные для прыжка с земли.
   const zones=pickUnique([0,1],platformCount,rand).sort();
@@ -125,7 +125,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride, locationOverri
     kind:platformKind,
     x:Math.round((zone===0?255:735)+rand()*80),
     width:platformWidth,
-    y:location==='industrial'?310+Math.floor(rand()*7):317+Math.floor(rand()*16)
+    y:location==='industrial'?300+Math.floor(rand()*7):317+Math.floor(rand()*16)
   }));
   const sizes={
     'jungle-rock':[34,27], 'fallen-log':[44,19], 'sandbags':[45,25],

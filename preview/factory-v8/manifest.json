@@ -1,6 +1,6 @@
 {
   "status": "draft",
-  "locationVersion": "8.2",
+  "locationVersion": "8.3",
   "baseRelease": "2.6.0",
   "obstacles": {
     "sandbags": "maintenance-barrier",

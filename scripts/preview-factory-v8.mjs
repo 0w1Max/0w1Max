@@ -16,7 +16,7 @@ const dest=new URL('preview/factory-v8/',root);mkdirSync(dest,{recursive:true});
 const save=(name,s)=>writeFileSync(new URL(name,dest),s);
 for(const [name,seed] of [['factory-v8.svg',5],['steel-catwalk.svg',111],['stopped-conveyor.svg',116],['service-deck.svg',104]]){
  const svg=renderSvg({weeks,sprites,username:'0w1Max',fixture:!real,seedOverride:seed,locationOverride:'industrial'});
- save(name,svg.replace('role="img"','data-factory-art-version="8.2-draft" role="img"'));
+ save(name,svg.replace('role="img"','data-factory-art-version="8.3-draft" role="img"'));
 }
 const prefix=(s,p)=>s.replace(/id="([^"]+)"/g,(_,id)=>`id="${p}${id}"`).replace(/url\(#([^)]+)\)/g,(_,id)=>`url(#${p}${id})`).replace(/href="#([^"]+)"/g,(_,id)=>`href="#${p}${id}"`);
 const text=(x,y,t,size=20,color='#dde5dc')=>`<text x="${x}" y="${y}" fill="${color}" font-size="${size}" font-family="DejaVu Sans,sans-serif" font-weight="bold">${t}</text>`;
@@ -24,7 +24,7 @@ const sizes=factoryObstacleSizes;
 const obstacles=[['supply-crate','Грузовой ящик'],['stone-ruin','Обломок бетона'],['sandbags','Ремонтное ограждение'],['fallen-log','Ящик с инструментами']];
 const platforms=[['metal-catwalk','Стальной настил'],['camo-platform','Остановленный конвейер'],['wooden-bridge','Ремонтная площадка']];
 let sheet='<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1080" viewBox="0 0 1440 1080"><rect width="1440" height="1080" fill="#101820"/>';
-sheet+=text(32,44,'ЗАБРОШЕННЫЙ ЗАВОД · V8.2 · ПРЕВЬЮ',31)+text(32,77,'Новые игровые спрайты · 4 препятствия · 3 платформы',20,'#9eafa5');
+sheet+=text(32,44,'ЗАБРОШЕННЫЙ ЗАВОД · V8.3 · ПРЕВЬЮ',31)+text(32,77,'Новые игровые спрайты · 4 препятствия · 3 платформы',20,'#9eafa5');
 sheet+=`<svg x="24" y="96" width="1392" height="430" overflow="hidden" viewBox="0 0 1200 437"><defs><clipPath id="overview-clip"><rect width="1200" height="437"/></clipPath></defs><g clip-path="url(#overview-clip)">${prefix(factoryScene()+levelMarkup(buildLevel(Array.from({length:53},()=>Array(7).fill(null)),'0w1Max',5,'industrial')),'overview-')}</g></svg>`;
 sheet+=text(32,559,'ПРЕПЯТСТВИЯ · ЕДИНЫЙ МАСШТАБ ×3',23);
 obstacles.forEach(([kind,label],i)=>{
@@ -42,5 +42,5 @@ platforms.forEach(([kind,label],i)=>{
 });
 sheet+=text(32,1054,'Спрайты из рабочего SVG-рендерера. Релиз v2.6.0 не изменён.',18,'#9eafa5')+'</svg>';
 save('factory-v8-objects.svg',sheet);
-save('manifest.json',JSON.stringify({status:'draft',locationVersion:'8.2',baseRelease:'2.6.0',obstacles:factoryObstacles,platforms:factoryPlatforms,previews:{'factory-v8.svg':5,'steel-catwalk.svg':111,'stopped-conveyor.svg':116,'service-deck.svg':104},fixture:!real},null,2)+'\n');
+save('manifest.json',JSON.stringify({status:'draft',locationVersion:'8.3',baseRelease:'2.6.0',obstacles:factoryObstacles,platforms:factoryPlatforms,previews:{'factory-v8.svg':5,'steel-catwalk.svg':111,'stopped-conveyor.svg':116,'service-deck.svg':104},fixture:!real},null,2)+'\n');
 console.log('Factory V8: rebuilt 4 animated demos and the complete native sprite sheet.');
