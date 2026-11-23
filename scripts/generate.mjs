@@ -302,9 +302,10 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     factory ? factoryDimensions() : temple ? templeDimensions() : coast ? coastDimensions() : null;
   const scaleMode = pixelViewport && pixelViewport.displayHeight !== pixelViewport.viewHeight
     ? ' preserveAspectRatio="none"' : '';
+  const headerRoom=32;
   const viewport = pixelViewport
-    ? `width="${WORLD.width}" height="${pixelViewport.displayHeight}" viewBox="0 0 ${WORLD.width} ${pixelViewport.viewHeight}"${scaleMode}`
-    : `width="${WORLD.width}" height="${WORLD.height}" viewBox="0 0 ${WORLD.width} ${WORLD.height}"`;
+    ? `width="${WORLD.width}" height="${pixelViewport.displayHeight+headerRoom}" viewBox="0 ${-headerRoom} ${WORLD.width} ${pixelViewport.viewHeight+headerRoom}"${scaleMode}`
+    : `width="${WORLD.width}" height="${WORLD.height+headerRoom}" viewBox="0 ${-headerRoom} ${WORLD.width} ${WORLD.height+headerRoom}"`;
   const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" ${viewport} role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">An animated 8-bit soldier patrols the level, jumps over obstacles and shoots GitHub contribution cells. ${fixture?'Demo calendar data.':'GitHub calendar fetched from the GitHub API.'}</desc>`;
   const scene=renderLocation(level.location,level.seed);
   const defs=`<defs>
@@ -318,7 +319,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
-  const fontKey=hudFontOverride??'oxanium';
+  const fontKey=hudFontOverride??'profile';
   const monthText=monthLabels(grid,{fontKey}).map(label=>hudText(label.text,{month:label.month,x:label.x,y:GRID_Y-(coast?(hudFontOverride?6:10):14),fill:labelFill,size:HUD.monthSize,fontKey})).join('');
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
@@ -342,7 +343,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       jungle ? ' stroke="#0b1720" stroke-opacity=".45"' : '',
   };
   const titleTop=coast?(5-(pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale))/coastScale:5;
-  const titleY=hudFontOverride?hudBaselineForTop(username+' /',HUD.titleSize,titleTop,fontKey):GRID_Y-(coast?25:40);
+  const coastOffset=coast?pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale:0;
+  const titleY=hudFontOverride?hudBaselineForTop(username+' /',HUD.titleSize,titleTop,fontKey):(-8-coastOffset)/coastScale;
   const titleText=hudText(username+' /',{id:'hud-username',x:GRID_X,y:titleY,fill:titleFill,size:HUD.titleSize,fontKey});
   const top=`<g id="contribution-overlay">${scrim}${titleText}${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
@@ -360,7 +362,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const scaled=coast
     ? `<g id="storm-coast-profile-scale" data-scale="${fmt(coastScale)}" transform="translate(${fmt(WORLD.width*(1-coastScale)/2)} ${fmt(pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale)}) scale(${fmt(coastScale)})">${gameBody}</g>`
     : gameBody;
-  return `${header}${defs}${scaled}</svg>\n`;
+  const headerFill=({industrial:'#476b70',desert:'#6197ac',temple:'#609697',coast:'#527c89',jungle:'#0d2630',volcano:'#080507'})[level.location]??'#102b35';
+  return `${header}${defs}<rect id="hud-headroom" x="0" y="${-headerRoom}" width="${WORLD.width}" height="${headerRoom}" fill="${headerFill}"/>${scaled}</svg>\n`;
 }
 
 async function main() {

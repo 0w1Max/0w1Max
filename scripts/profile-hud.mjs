@@ -1,8 +1,8 @@
 /** Include even the final partial month; use the actual font advances for label spacing. */
 import {hudTextWidth} from './hud-font.mjs';
 const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-export const HUD=Object.freeze({titleSize:22,monthSize:15,cellSize:18,gap:2,radius:3});
-export function monthLabels(grid,{gridX=72,step=20,cell=18,fontKey='oxanium'}={}){
+export const HUD=Object.freeze({titleSize:21,monthSize:15,cellSize:18,gap:2,radius:3});
+export function monthLabels(grid,{gridX=72,step=20,cell=18,fontKey='profile'}={}){
   const groups=new Map();
   for(let col=0;col<grid.length;col++)for(const day of grid[col]){
     if(!day)continue;

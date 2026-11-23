@@ -9,13 +9,15 @@ const glyph=(font,char)=>{
   return font.glyphs[char];
 };
 
-export function hudTextWidth(text,size,spacing=.3,fontKey='oxanium'){
+export function hudTextWidth(text,size,spacing=.3,fontKey='profile'){
+  if(fontKey==='profile')return [...text].length*size*.6;
   const font=getFont(fontKey);
   return [...text].reduce((width,char)=>width+glyph(font,char).advance*size/font.unitsPerEm,0)+Math.max(0,[...text].length-1)*spacing;
 }
 
-/** Real regular-weight font outlines: no network font loading or device-specific fallback. */
-export function hudText(text,{x,y,size,fill,id,month,spacing=.3,fontKey='oxanium'}){
+/** Profile uses its published native monospace; archived auditions retain embedded outlines. */
+export function hudText(text,{x,y,size,fill,id,month,spacing=.3,fontKey='profile'}){
+  if(fontKey==='profile')return `<text${id?` id="${escape(id)}"`: ''}${month?` data-month="${escape(month)}"`: ''} x="${x}" y="${y}" font-family="monospace" font-size="${size}" font-weight="bold" fill="${fill}" aria-label="${escape(text)}">${escape(text)}</text>`;
   const font=getFont(fontKey);
   const scale=size/font.unitsPerEm;
   let cursor=x;

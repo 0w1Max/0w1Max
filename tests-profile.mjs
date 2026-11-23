@@ -66,12 +66,19 @@ test('All four profile scenes keep readable HUD labels, 18px cells and clearance
   for(const location of OFFICIAL_LOCATIONS){
     const svg=renderSvg({weeks,sprites,username:'0w1Max',locationOverride:location,seedOverride:settings.seeds[location]});
     assert.match(svg,/id="hud-username"[^>]*aria-label="0w1Max \/"/);
-    assert.match(svg,/font-size="22" font-weight="400"/);
-    assert.match(svg,/font-size="15" font-weight="400"/);
+    assert.match(svg,/font-size="21" font-weight="bold"/);
+    assert.match(svg,/font-size="15" font-weight="bold"/);
     const labels=svg.split('<g id="contribution-overlay">')[1]?.split('<g id="contribution-grid">')[0];
-    assert.match(labels,/data-font="Oxanium Regular"/);
-    assert.match(labels,/<path transform="translate/);
-    assert.doesNotMatch(labels,/<text\b|font-weight="bold"|@font-face|https?:/);
+    assert.match(labels,/font-family="monospace"/);
+    assert.doesNotMatch(labels,/data-font=|@font-face|https?:/);
+    const titleY=Number(labels.match(/id="hud-username"[^>]* y="([^"]+)/)[1]);
+    const monthY=Number(labels.match(/data-month="[^"]+"[^>]* y="([^"]+)/)[1]);
+    const coastTransform=svg.match(/id="storm-coast-profile-scale"[^>]*transform="translate\([^ ]+ ([^)]+)\) scale\(([^)]+)\)/);
+    const scale=coastTransform?Number(coastTransform[2]):1;
+    const offset=coastTransform?Number(coastTransform[1]):0;
+    assert.ok(Math.abs(titleY*scale+offset+8)<.01);
+    assert.ok((monthY-titleY)*scale>=43);
+    assert.match(svg,/viewBox="0 -32 1200/);
     assert.doesNotMatch(svg,/[А-Яа-яЁё]/);
     const cells=[...svg.matchAll(/<rect x="([0-9.]+)" y="([0-9.]+)" width="18" height="18" rx="3"[^>]*><title>(\d{4}-\d{2}-\d{2}):/g)];
     assert.equal(cells.length,normalizeWeeks(weeks).flat().filter(Boolean).length);
