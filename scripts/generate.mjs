@@ -124,8 +124,7 @@ function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacit
     }
     const fillOpacity = cell.level === 0 ? emptyOpacity : "1";
     const border=cell.level===0 ? emptyBorder : activeBorder;
-    // Coast-only: larger rounded cells with explicit visible gaps, without
-    // changing collision and bullet coordinates (the whole scene is scaled).
+    // Keep the visible cell geometry aligned with collision and bullet coordinates.
     const inset=cellGrow/2, visualSize=CELL+cellGrow;
     output+=`<rect x="${fmt(x-inset)}" y="${fmt(y-inset)}" width="${fmt(visualSize)}" height="${fmt(visualSize)}" rx="${radius}" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${border}><title>${escapeXml(title)}</title>${child}</rect>`;
   }
@@ -291,12 +290,11 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const factory = level.location === 'industrial';
   const temple = level.location === 'temple';
   const coast = level.location === 'coast';
-  // Profiles are rendered as a single <img>. Zoom all game geometry together
-  // so bullets remain aligned with their targets, including 54/55-week years.
-  const coastScale=coast ? (grid.length>=55 ? 1.045 : grid.length===54 ? 1.06 : 1.075) : 1;
   const labelFill = jungle ? '#c2cead' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
   const titleFill = jungle ? '#dde0be' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
-  const pixelViewport = level.location === 'desert' ? desertDimensions() :
+  // Every released location shares the factory viewport and unscaled world coordinates.
+  const official=['industrial','desert','temple','coast'].includes(level.location);
+  const pixelViewport = official ? factoryDimensions() : level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() :
     factory ? factoryDimensions() : temple ? templeDimensions() : coast ? coastDimensions() : null;
@@ -320,7 +318,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
   const fontKey=hudFontOverride??'profile';
-  const monthText=monthLabels(grid,{fontKey}).map(label=>hudText(label.text,{month:label.month,x:label.x,y:GRID_Y-(coast?(hudFontOverride?6:10):14),fill:labelFill,size:HUD.monthSize,fontKey})).join('');
+  const monthText=monthLabels(grid,{fontKey}).map(label=>hudText(label.text,{month:label.month,x:label.x,y:GRID_Y-14,fill:labelFill,size:HUD.monthSize,fontKey})).join('');
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
@@ -342,9 +340,7 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       coast ? ' stroke="#264b58" stroke-opacity=".45"' :
       jungle ? ' stroke="#0b1720" stroke-opacity=".45"' : '',
   };
-  const titleTop=coast?(5-(pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale))/coastScale:5;
-  const coastOffset=coast?pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale:0;
-  const titleY=hudFontOverride?hudBaselineForTop(username+' /',HUD.titleSize,titleTop,fontKey):(-8-coastOffset)/coastScale;
+  const titleY=hudFontOverride?hudBaselineForTop(username+' /',HUD.titleSize,5,fontKey):-8;
   const titleText=hudText(username+' /',{id:'hud-username',x:GRID_X,y:titleY,fill:titleFill,size:HUD.titleSize,fontKey});
   const top=`<g id="contribution-overlay">${scrim}${titleText}${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
@@ -359,11 +355,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const done=`<g id="mission-complete" opacity="0">${missionComplete}${victoryArt}</g>`;
   const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
   const gameBody=`${scene}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}`;
-  const scaled=coast
-    ? `<g id="storm-coast-profile-scale" data-scale="${fmt(coastScale)}" transform="translate(${fmt(WORLD.width*(1-coastScale)/2)} ${fmt(pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale)}) scale(${fmt(coastScale)})">${gameBody}</g>`
-    : gameBody;
   const headerFill=({industrial:'#476b70',desert:'#6197ac',temple:'#609697',coast:'#527c89',jungle:'#0d2630',volcano:'#080507'})[level.location]??'#102b35';
-  return `${header}${defs}<rect id="hud-headroom" x="0" y="${-headerRoom}" width="${WORLD.width}" height="${headerRoom}" fill="${headerFill}"/>${scaled}</svg>\n`;
+  return `${header}${defs}<rect id="hud-headroom" x="0" y="${-headerRoom}" width="${WORLD.width}" height="${headerRoom}" fill="${headerFill}"/>${gameBody}</svg>\n`;
 }
 
 async function main() {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 -32 1200 470" role="img" aria-labelledby="title desc"><title id="title">0w1Max — Commando Activity</title><desc id="desc">An animated 8-bit soldier patrols the level, jumps over obstacles and shoots GitHub contribution cells. GitHub calendar fetched from the GitHub API.</desc><defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="469" viewBox="0 -32 1200 469" role="img" aria-labelledby="title desc"><title id="title">0w1Max — Commando Activity</title><desc id="desc">An animated 8-bit soldier patrols the level, jumps over obstacles and shoots GitHub contribution cells. GitHub calendar fetched from the GitHub API.</desc><defs>
     <linearGradient id="contribution-scrim" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#05111e" stop-opacity=".93"/>
       <stop offset=".75" stop-color="#071927" stop-opacity=".82"/>

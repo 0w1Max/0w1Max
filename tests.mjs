@@ -567,7 +567,7 @@ test('Каньон: квадратное поле интегрировано в 
 
 test('Каньон: линия грунта, статичный кадр бойца и полный размер',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
-  assert.match(svg,/width="1200" height="502" viewBox="0 -32 1200 502"/);
+  assert.match(svg,/width="1200" height="469" viewBox="0 -32 1200 469"/);
   assert.doesNotMatch(svg.split('>',2)[1],/preserveAspectRatio="none"/);
   assert.match(svg,/data-ground-baseline="374"/);
   const floor=[...svg.matchAll(/href="#desert-sprite-ground-\d+" x="(\d+)" y="374" width="150" height="96"/g)];
@@ -830,7 +830,7 @@ test('Храм доступен явно и собирается из собст
   assert.ok(validateLayout(map).valid);
   assert.equal(buildLevel(grid,'0w1Max',seedOverride).location,'industrial');
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride,locationOverride:'temple'});
-  assert.match(svg,/viewBox="0 -32 1200 470"/);
+  assert.match(svg,/viewBox="0 -32 1200 469"/);
   for(let index=0;index<4;index++){
     assert.ok(svg.includes(`href="#temple-sprite-causeway-${index}" x="${index*300}" y="374" width="300" height="64"`));
   }
@@ -848,7 +848,7 @@ test('Побережье: отдельные спрайты, опорная ли
   const map=buildLevel(grid,'0w1Max',seedOverride,'coast');
   assert.ok(validateLayout(map).valid);
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride,locationOverride:'coast'});
-  assert.match(svg,/height="470" viewBox="0 -32 1200 470"/);
+  assert.match(svg,/height="469" viewBox="0 -32 1200 469"/);
   assert.match(svg,/id="coast-ground" data-ground-baseline="374"/);
   assert.match(svg,/href="#coast-sprite-lighthouse"/);
   assert.match(svg,/data-biome="coast"/);
@@ -857,13 +857,13 @@ test('Побережье: отдельные спрайты, опорная ли
 });
 
 
-test('Storm Coast V2: мобильное увеличение не смещает прицел и кадры',()=>{
+test('Побережье: единый масштаб завода сохраняет прицел и кадры',()=>{
   const seedOverride=5;
   const map=buildLevel(grid,'0w1Max',seedOverride,'coast');
   const plan=createMission(grid,map);
   const coastSvg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride,locationOverride:'coast'});
-  assert.match(coastSvg,/id="storm-coast-profile-scale" data-scale="1\.075" transform="translate\(-45 -17\.8\) scale\(1\.075\)"/);
-  assert.match(coastSvg,/height="470" viewBox="0 -32 1200 470"/);
+  assert.doesNotMatch(coastSvg,/id="storm-coast-profile-scale"/);
+  assert.match(coastSvg,/height="469" viewBox="0 -32 1200 469"/);
   assert.match(coastSvg,/id="contribution-grid"/);
   assert.match(coastSvg,/width="18" height="18" rx="3"/);
   assert.match(coastSvg,/id="blue-commando"/);
@@ -891,20 +891,20 @@ test('Storm Coast banner: морская палитра, пиксельная р
 
 
 test('Storm Coast V2: 54- и 55-недельные календари не теряют крайние дни',()=>{
-  for(const [weekCount,scale] of [[54,'1.06'],[55,'1.045']]){
+  for(const weekCount of [54,55]){
     const weeks=Array.from({length:weekCount},(_,i)=>({contributionDays:[{
       date:new Date(Date.UTC(2024,11,29+i*7)).toISOString().slice(0,10),
       contributionCount:i===0||i===weekCount-1?1:0,
       contributionLevel:i===0||i===weekCount-1?'FIRST_QUARTILE':'NONE'
     }]}));
     const svg=renderSvg({weeks,sprites,username:'0w1Max',seedOverride:5,locationOverride:'coast'});
-    assert.match(svg,new RegExp('id="storm-coast-profile-scale" data-scale="'+scale.replace('.','\\.')+'"'));
+    assert.doesNotMatch(svg,/id="storm-coast-profile-scale"/);
     assert.match(svg,/id="storm-coast-victory"/);
-    assert.match(svg,/height="470" viewBox="0 -32 1200 470"/);
+    assert.match(svg,/height="469" viewBox="0 -32 1200 469"/);
     assert.match(svg,/width="18" height="18" rx="3"/);
     for(const week of [weeks[0],weeks.at(-1)])
       assert.ok(svg.includes(week.contributionDays[0].date+': 1 contributions'));
-    const rightEdge=(72+(weekCount-1)*20-.2+18.4)*Number(scale)+(1200*(1-Number(scale)))/2;
+    const rightEdge=72+(weekCount-1)*20+18;
     assert.ok(rightEdge<=1200,'Последняя неделя обрезана: '+weekCount);
   }
 });

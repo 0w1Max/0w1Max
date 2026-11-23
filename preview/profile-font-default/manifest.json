@@ -21,19 +21,19 @@
       "location": "desert",
       "font": "monospace",
       "seed": 162,
-      "sha256": "d146c5983d11e70177e262446fe38f7425acc7167d46bed044d0fbc74939468b"
+      "sha256": "367308648f7d5e611a968268e7304861b5b17cbf88cc585cd177ab552cf85535"
     },
     {
       "location": "temple",
       "font": "monospace",
       "seed": 104,
-      "sha256": "351f563f2cbbce620d1c2d2178a9ac80fba7c84a34f0c0ea88008d42aaf6b30f"
+      "sha256": "c9a8d1c2382b41ddfaabc0fc551a44aff43a61c8c296949a628f8e5667871e9e"
     },
     {
       "location": "coast",
       "font": "monospace",
       "seed": 111,
-      "sha256": "e8407d08f8916e716d82f543767fee7efc547ea97e6d7b8b69efdee3f6f451da"
+      "sha256": "4b183362f80ad1111830373f9cc68ac7cd51b6f72c3e42f3a01b0c8a1fd977ea"
     }
   ]
 }
