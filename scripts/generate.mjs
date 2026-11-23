@@ -20,7 +20,7 @@ import {volcanoDimensions} from './volcano-scene.mjs';
 import { levelMarkup } from './level-art.mjs';
 import {soldierColor} from './biomes.mjs';
 import {HUD,monthLabels} from './profile-hud.mjs';
-import {hudText} from './hud-font.mjs';
+import {hudText,hudBaselineForTop} from './hud-font.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
@@ -281,7 +281,7 @@ function playerMarkup(mission) {
   return `<g id="blue-commando" transform="translate(${startPoint})" aria-label="Blue-bandana soldier">${motion}${output}</g>`;
 }
 
-export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,locationOverride}) {
+export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,locationOverride,hudFontOverride}) {
   const grid=normalizeWeeks(weeks);
   const level=buildLevel(grid,username,seedOverride,locationOverride);
   const mission=createMission(grid,level);
@@ -318,7 +318,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
-  const monthText=monthLabels(grid).map(label=>hudText(label.text,{month:label.month,x:label.x,y:GRID_Y-(coast?10:14),fill:labelFill,size:HUD.monthSize})).join('');
+  const fontKey=hudFontOverride??'oxanium';
+  const monthText=monthLabels(grid,{fontKey}).map(label=>hudText(label.text,{month:label.month,x:label.x,y:GRID_Y-(coast?(hudFontOverride?6:10):14),fill:labelFill,size:HUD.monthSize,fontKey})).join('');
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
@@ -340,7 +341,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       coast ? ' stroke="#264b58" stroke-opacity=".45"' :
       jungle ? ' stroke="#0b1720" stroke-opacity=".45"' : '',
   };
-  const titleText=hudText(username+' /',{id:'hud-username',x:GRID_X,y:GRID_Y-(coast?25:40),fill:titleFill,size:HUD.titleSize});
+  const titleTop=coast?(5-(pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale))/coastScale:5;
+  const titleY=hudFontOverride?hudBaselineForTop(username+' /',HUD.titleSize,titleTop,fontKey):GRID_Y-(coast?25:40);
+  const titleText=hudText(username+' /',{id:'hud-username',x:GRID_X,y:titleY,fill:titleFill,size:HUD.titleSize,fontKey});
   const top=`<g id="contribution-overlay">${scrim}${titleText}${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
