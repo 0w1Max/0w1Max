@@ -17,12 +17,20 @@ SOURCES = {
 
 def compile_atlas(location, source, obstacle_edges, platform_edges):
     image = Image.open(source).convert('RGBA')
+    revision = Image.open(ROOT / 'assets/location-kit-revision-2-source.png').convert('RGBA')
+    revision_edges = [0, 550, 1090, 1650, 2172]
+    replacements = {'obstacle-2': {'desert': 0, 'temple': 1, 'coast': 2}[location]}
+    if location == 'coast':
+        replacements['obstacle-0'] = 3
     split = round(image.height * .59)
     atlas = {}
     for row, edges in enumerate([obstacle_edges, platform_edges]):
         for index, (left, right) in enumerate(zip(edges, edges[1:])):
             name = f'{"obstacle" if row == 0 else "platform"}-{index}'
             tile = image.crop((left, 0 if row == 0 else split, right, split if row == 0 else image.height))
+            if name in replacements:
+                column = replacements[name]
+                tile = revision.crop((revision_edges[column], 0, revision_edges[column + 1], revision.height))
             mask = tile.getchannel('A').point(lambda a: 255 if a >= 160 else 0)
             bounds = mask.getbbox()
             if bounds is None:

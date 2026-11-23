@@ -80,7 +80,7 @@ export function validateLayout(level) {
   for(let i=0;i<level.platforms.length;i++){
     const p=level.platforms[i];
     if(!PLATFORM_POOL.includes(p.kind)||p.x<190||p.x+p.width>1110||
-      p.width<110||p.width>(level.location==='industrial'?160:165)||p.y<(level.location==='industrial'?300:310)||p.y>340)
+      p.width<110||p.width>(usesTerrainClearance(level.location)?160:165)||p.y<(usesTerrainClearance(level.location)?300:310)||p.y>340)
       issues.push(`Платформа ${i} вне допустимых размеров`);
     for(let j=i+1;j<level.platforms.length;j++){
       const q=level.platforms[j];
@@ -91,7 +91,7 @@ export function validateLayout(level) {
   for(let i=0;i<level.obstacles.length;i++){
     const o=level.obstacles[i];
     if(!OBSTACLE_POOL.includes(o.kind)||o.x<290||o.x+o.width>1120||
-      o.width<20||o.width>(level.location==='industrial'?45:55)||o.height<15||o.height>(level.location==='industrial'?38:36))
+      o.width<20||o.width>(level.location==='industrial'?45:55)||o.height<15||o.height>(usesTerrainClearance(level.location)?38:36))
       issues.push(`Препятствие ${i} вне допустимых размеров`);
     for(let j=i+1;j<level.obstacles.length;j++){
       const q=level.obstacles[j];
@@ -118,7 +118,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride, locationOverri
   const obstacleCount=randomCount(rand,3);
   // Одна общая модель и ширина для всех платформ этой карты.
   const platformKind=platformCount ? biome.platforms[Math.floor(rand()*biome.platforms.length)] : null;
-  const platformWidth=platformCount ? (location==='industrial'?150+Math.floor(rand()*11):hasLocationKit(location)?138+Math.floor(rand()*13):116+Math.floor(rand()*34)) : null;
+  const platformWidth=platformCount ? (usesTerrainClearance(location)?150+Math.floor(rand()*11):116+Math.floor(rand()*34)) : null;
   const obstacleTypes=pickUnique(biome.obstacles,obstacleCount,rand);
   // Две непересекающиеся зоны, доступные для прыжка с земли.
   const zones=pickUnique([0,1],platformCount,rand).sort();
@@ -126,7 +126,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride, locationOverri
     kind:platformKind,
     x:Math.round((zone===0?255:735)+rand()*80),
     width:platformWidth,
-    y:location==='industrial'?300+Math.floor(rand()*7):hasLocationKit(location)?310+Math.floor(rand()*6):317+Math.floor(rand()*16)
+    y:usesTerrainClearance(location)?300+Math.floor(rand()*7):317+Math.floor(rand()*16)
   }));
   const sizes={
     'jungle-rock':[34,27], 'fallen-log':[44,19], 'sandbags':[45,25],
@@ -138,7 +138,7 @@ export function buildLevel(grid, username='0w1Max', seedOverride, locationOverri
     // Левый участок x < 290 оставлен свободным для заключительного патруля.
     // 50 воспроизводимых кандидатов: при нехватке места объект НЕ добавляем.
     for(let attempt=0;attempt<50;attempt++){
-      const x=290+Math.floor(rand()*(location==='industrial'?Math.min(780,1120-width-290+1):780));
+      const x=290+Math.floor(rand()*(usesTerrainClearance(location)?Math.min(780,1120-width-290+1):780));
       const o={kind,x,width,height};
       if(obstacles.some(prev=>Math.abs(prev.x-x)<180))continue;
       if(platforms.some(p=>!(x+width<p.x-45||x>p.x+p.width+45)))continue;

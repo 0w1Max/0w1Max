@@ -11,10 +11,53 @@
   "locations": {
     "desert": {
       "title": "Пустынный каньон",
-      "version": "7-draft",
+      "version": "7.1-draft",
       "maps": [
         {
           "filename": "desert-1.svg",
+          "seed": 162,
+          "level": {
+            "seed": 162,
+            "location": "desert",
+            "obstacles": [
+              {
+                "kind": "stone-ruin",
+                "x": 1024,
+                "width": 44,
+                "height": 25
+              },
+              {
+                "kind": "sandbags",
+                "x": 484,
+                "width": 50,
+                "height": 26
+              },
+              {
+                "kind": "supply-crate",
+                "x": 675,
+                "width": 45,
+                "height": 38
+              }
+            ],
+            "platforms": [
+              {
+                "kind": "wooden-bridge",
+                "x": 260,
+                "width": 155,
+                "y": 301
+              },
+              {
+                "kind": "wooden-bridge",
+                "x": 771,
+                "width": 155,
+                "y": 301
+              }
+            ]
+          },
+          "sha256": "39cc5680282ad8836b0771757624dc919b8529fdcc81f002aa566aeada15b37a"
+        },
+        {
+          "filename": "desert-2.svg",
           "seed": 104,
           "level": {
             "seed": 104,
@@ -28,13 +71,13 @@
               },
               {
                 "kind": "supply-crate",
-                "x": 1009,
-                "width": 43,
-                "height": 31
+                "x": 1026,
+                "width": 45,
+                "height": 38
               },
               {
                 "kind": "jungle-rock",
-                "x": 466,
+                "x": 473,
                 "width": 45,
                 "height": 32
               }
@@ -43,104 +86,67 @@
               {
                 "kind": "camo-platform",
                 "x": 270,
-                "width": 140,
-                "y": 310
+                "width": 152,
+                "y": 300
               },
               {
                 "kind": "camo-platform",
                 "x": 812,
-                "width": 140,
-                "y": 313
+                "width": 152,
+                "y": 304
               }
             ]
           },
-          "sha256": "59a3c3848fcebfb8c5f82dc045ddd6129aa12f49f25eada1c7b42a50e788a9d5"
+          "sha256": "3016933e91202723d2902688701c86bce110ae902e1568f2d6c3ffd98fd81663"
         },
         {
-          "filename": "desert-2.svg",
-          "seed": 111,
+          "filename": "desert-3.svg",
+          "seed": 303,
           "level": {
-            "seed": 111,
+            "seed": 303,
             "location": "desert",
             "obstacles": [
               {
-                "kind": "sandbags",
-                "x": 687,
+                "kind": "stone-ruin",
+                "x": 675,
                 "width": 44,
-                "height": 22
+                "height": 25
               },
               {
                 "kind": "jungle-rock",
-                "x": 988,
+                "x": 1017,
                 "width": 45,
                 "height": 32
               },
               {
-                "kind": "stone-ruin",
-                "x": 477,
-                "width": 44,
-                "height": 25
-              }
-            ],
-            "platforms": [
-              {
-                "kind": "wooden-bridge",
-                "x": 269,
-                "width": 144,
-                "y": 313
-              },
-              {
-                "kind": "wooden-bridge",
-                "x": 792,
-                "width": 144,
-                "y": 311
-              }
-            ]
-          },
-          "sha256": "522b7776fff2eb3be4345bc4d18f83cb7fd034a68900d78786958154dc2bec9c"
-        },
-        {
-          "filename": "desert-3.svg",
-          "seed": 30,
-          "level": {
-            "seed": 30,
-            "location": "desert",
-            "obstacles": [
-              {
                 "kind": "supply-crate",
-                "x": 669,
-                "width": 43,
-                "height": 31
-              },
-              {
-                "kind": "stone-ruin",
-                "x": 1019,
-                "width": 44,
-                "height": 25
+                "x": 480,
+                "width": 45,
+                "height": 38
               }
             ],
             "platforms": [
               {
                 "kind": "mossy-stone",
-                "x": 329,
-                "width": 140,
-                "y": 312
+                "x": 269,
+                "width": 155,
+                "y": 303
               },
               {
                 "kind": "mossy-stone",
-                "x": 801,
-                "width": 140,
-                "y": 312
+                "x": 782,
+                "width": 155,
+                "y": 303
               }
             ]
           },
-          "sha256": "0c4c05530973fb0ff67b363372dc4949338d776b1679358a2b93b2ade06c1ea1"
+          "sha256": "7584b6c96cc38859c3cd75ff97c915b507427a89432d61174221da6de4c8c4ef"
         }
       ]
     },
     "temple": {
       "title": "Затопленный храм",
-      "version": "3-draft",
+      "version": "3.1-draft",
       "maps": [
         {
           "filename": "temple-1.svg",
@@ -152,18 +158,18 @@
               {
                 "kind": "supply-crate",
                 "x": 696,
-                "width": 39,
-                "height": 29
+                "width": 45,
+                "height": 38
               },
               {
                 "kind": "tree-stump",
-                "x": 1009,
+                "x": 1026,
                 "width": 34,
                 "height": 29
               },
               {
                 "kind": "stone-ruin",
-                "x": 466,
+                "x": 473,
                 "width": 36,
                 "height": 34
               }
@@ -172,18 +178,18 @@
               {
                 "kind": "wooden-bridge",
                 "x": 270,
-                "width": 140,
-                "y": 310
+                "width": 152,
+                "y": 300
               },
               {
                 "kind": "wooden-bridge",
                 "x": 812,
-                "width": 140,
-                "y": 313
+                "width": 152,
+                "y": 304
               }
             ]
           },
-          "sha256": "68eca42216cfaa272d22b0e5571b4836c55a83fe98ca99e7a1df617d18348a42"
+          "sha256": "ec0d6c85498b0b524c723412d205285ce85d3c7f4bb4f205ea89dfcafdf2aaab"
         },
         {
           "filename": "temple-2.svg",
@@ -200,85 +206,128 @@
               },
               {
                 "kind": "stone-ruin",
-                "x": 988,
+                "x": 477,
                 "width": 36,
                 "height": 34
               },
               {
                 "kind": "supply-crate",
-                "x": 477,
-                "width": 39,
-                "height": 29
+                "x": 1051,
+                "width": 45,
+                "height": 38
               }
             ],
             "platforms": [
               {
                 "kind": "mossy-stone",
                 "x": 269,
-                "width": 144,
-                "y": 313
+                "width": 155,
+                "y": 303
               },
               {
                 "kind": "mossy-stone",
                 "x": 792,
-                "width": 144,
-                "y": 311
+                "width": 155,
+                "y": 301
               }
             ]
           },
-          "sha256": "4cbb24e467f27370425f07e4e5e150524553f458abec1642149ef2e9d7424810"
+          "sha256": "af161cb6b4210bc1e2680bd27829dfa6f54cc39042ec6bf22c77c8f4e3b74fb0"
         },
         {
           "filename": "temple-3.svg",
-          "seed": 116,
+          "seed": 303,
           "level": {
-            "seed": 116,
+            "seed": 303,
             "location": "temple",
             "obstacles": [
               {
                 "kind": "supply-crate",
-                "x": 715,
-                "width": 39,
-                "height": 29
-              },
-              {
-                "kind": "jungle-rock",
-                "x": 531,
-                "width": 44,
-                "height": 27
+                "x": 675,
+                "width": 45,
+                "height": 38
               },
               {
                 "kind": "stone-ruin",
-                "x": 1032,
+                "x": 1017,
                 "width": 36,
                 "height": 34
+              },
+              {
+                "kind": "tree-stump",
+                "x": 480,
+                "width": 34,
+                "height": 29
               }
             ],
             "platforms": [
               {
                 "kind": "vine-ledge",
-                "x": 293,
-                "width": 147,
-                "y": 313
+                "x": 269,
+                "width": 155,
+                "y": 303
               },
               {
                 "kind": "vine-ledge",
-                "x": 803,
-                "width": 147,
-                "y": 312
+                "x": 782,
+                "width": 155,
+                "y": 303
               }
             ]
           },
-          "sha256": "f264b84f9a5b15e58955a386e354a39b54a645bbc0ca2589c8b122aa44497569"
+          "sha256": "7c6a1b1e76c16b84bb15bf877444f97cc477c959dfc6579373022c52251b0b41"
         }
       ]
     },
     "coast": {
       "title": "Штормовое побережье",
-      "version": "3-draft",
+      "version": "3.1-draft",
       "maps": [
         {
           "filename": "coast-1.svg",
+          "seed": 111,
+          "level": {
+            "seed": 111,
+            "location": "coast",
+            "obstacles": [
+              {
+                "kind": "fallen-log",
+                "x": 685,
+                "width": 55,
+                "height": 26
+              },
+              {
+                "kind": "sandbags",
+                "x": 477,
+                "width": 39,
+                "height": 30
+              },
+              {
+                "kind": "supply-crate",
+                "x": 1051,
+                "width": 45,
+                "height": 38
+              }
+            ],
+            "platforms": [
+              {
+                "kind": "wooden-bridge",
+                "x": 269,
+                "width": 155,
+                "y": 303
+              },
+              {
+                "kind": "wooden-bridge",
+                "x": 792,
+                "width": 155,
+                "y": 301
+              }
+            ]
+          },
+          "sha256": "2ac28959bc4d9e067b55335a6af61ff73c203af0c42f461f6a55208afda0a653"
+        },
+        {
+          "filename": "coast-2.svg",
           "seed": 104,
           "level": {
             "seed": 104,
@@ -287,118 +336,81 @@
               {
                 "kind": "supply-crate",
                 "x": 696,
-                "width": 43,
-                "height": 31
+                "width": 45,
+                "height": 38
               },
               {
                 "kind": "jungle-rock",
-                "x": 1009,
+                "x": 1026,
                 "width": 43,
                 "height": 27
               },
               {
                 "kind": "sandbags",
-                "x": 466,
-                "width": 48,
-                "height": 27
+                "x": 473,
+                "width": 39,
+                "height": 30
               }
             ],
             "platforms": [
               {
                 "kind": "metal-catwalk",
                 "x": 270,
-                "width": 140,
-                "y": 310
+                "width": 152,
+                "y": 300
               },
               {
                 "kind": "metal-catwalk",
                 "x": 812,
-                "width": 140,
-                "y": 313
+                "width": 152,
+                "y": 304
               }
             ]
           },
-          "sha256": "a6a59ec29dba4980cabe921b4e7545fd85c18e8a4515c4bdca7d78326dd120cd"
-        },
-        {
-          "filename": "coast-2.svg",
-          "seed": 111,
-          "level": {
-            "seed": 111,
-            "location": "coast",
-            "obstacles": [
-              {
-                "kind": "fallen-log",
-                "x": 687,
-                "width": 45,
-                "height": 24
-              },
-              {
-                "kind": "sandbags",
-                "x": 988,
-                "width": 48,
-                "height": 27
-              },
-              {
-                "kind": "supply-crate",
-                "x": 477,
-                "width": 43,
-                "height": 31
-              }
-            ],
-            "platforms": [
-              {
-                "kind": "wooden-bridge",
-                "x": 269,
-                "width": 144,
-                "y": 313
-              },
-              {
-                "kind": "wooden-bridge",
-                "x": 792,
-                "width": 144,
-                "y": 311
-              }
-            ]
-          },
-          "sha256": "340e854f5a5137e956b1a9e156ab6c7df4d0bbf8f2b452f0dfb5d154bab32b95"
+          "sha256": "751184f90a19744edea5ee5cc1fa6fbcfadfdaafc43a6c2f19c6407c9b65033a"
         },
         {
           "filename": "coast-3.svg",
-          "seed": 30,
+          "seed": 303,
           "level": {
-            "seed": 30,
+            "seed": 303,
             "location": "coast",
             "obstacles": [
               {
-                "kind": "jungle-rock",
-                "x": 669,
-                "width": 43,
-                "height": 27
+                "kind": "supply-crate",
+                "x": 675,
+                "width": 45,
+                "height": 38
               },
               {
-                "kind": "supply-crate",
-                "x": 1019,
+                "kind": "sandbags",
+                "x": 1017,
+                "width": 39,
+                "height": 30
+              },
+              {
+                "kind": "jungle-rock",
+                "x": 480,
                 "width": 43,
-                "height": 31
+                "height": 27
               }
             ],
             "platforms": [
               {
                 "kind": "mossy-stone",
-                "x": 329,
-                "width": 140,
-                "y": 312
+                "x": 269,
+                "width": 155,
+                "y": 303
               },
               {
                 "kind": "mossy-stone",
-                "x": 801,
-                "width": 140,
-                "y": 312
+                "x": 782,
+                "width": 155,
+                "y": 303
               }
             ]
           },
-          "sha256": "9fc7291522d067477835044aaaf5cf42c2aa9117abdbf86a5207c1cc4f0dfc66"
+          "sha256": "947790167730fdda23341c8bf39a41538fbab85d0f5a543c83cfd4a187631cb6"
         }
       ]
     }

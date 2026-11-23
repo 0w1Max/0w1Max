@@ -6,9 +6,24 @@ import {buildLevel,createMission,validateLayout,WORLD} from './scripts/mission.m
 import {LOCATION_KITS} from './scripts/location-kit-config.mjs';
 import {locationKitPlatformHeight,locationKitTerrain} from './scripts/location-kit-sprites.mjs';
 import {levelMarkup} from './scripts/level-art.mjs';
+import {factoryObstacleSizes} from './scripts/factory-sprites.mjs';
 
 const calendar=JSON.parse(readFileSync('preview/factory-v8/live-calendar.json','utf8'));
 const grid=normalizeWeeks(calendar.weeks);
+test('All four approved location kits share the factory cargo scale and platform dimensions',()=>{
+  for(const [location,kit] of Object.entries(LOCATION_KITS)){
+    assert.deepEqual(kit.sizes['supply-crate'],factoryObstacleSizes['supply-crate']);
+    for(const seed of [5,30,104,111,116]){
+      const reference=buildLevel(grid,'0w1Max',seed,'industrial');
+      const actual=buildLevel(grid,'0w1Max',seed,location);
+      assert.deepEqual(actual.platforms.map(p=>[p.width,p.y]),reference.platforms.map(p=>[p.width,p.y]));
+    }
+  }
+  assert.ok(LOCATION_KITS.desert.sizes.sandbags[0]>44);
+  assert.ok(LOCATION_KITS.desert.sizes.sandbags[1]>22);
+  assert.ok(LOCATION_KITS.coast.sizes['fallen-log'][0]>45);
+  assert.doesNotMatch(LOCATION_KITS.coast.obstacleLabels.join(' '),/якор/i);
+});
 for(const [location,kit] of Object.entries(LOCATION_KITS)){
   test(`${location}: every new object is reachable through the generator and platforms fit above ground`,()=>{
     const obstacles=new Set(),platforms=new Set();
@@ -33,7 +48,9 @@ for(const [location,kit] of Object.entries(LOCATION_KITS)){
     assert.match(levelMarkup(sample),new RegExp(`${location}-kit-sprite-`));
   });
   test(`${location}: soldier clears the enlarged silhouettes throughout actual SVG jump keyframes`,()=>{
-    for(let seed=0;seed<40;seed++){
+    const preview=JSON.parse(readFileSync('preview/location-kit-refresh/manifest.json','utf8'));
+    const seeds=new Set([...Array.from({length:40},(_,i)=>i),...preview.locations[location].maps.map(m=>m.seed)]);
+    for(const seed of seeds){
       const level=buildLevel(grid,'0w1Max',seed,location),mission=createMission(grid,level);
       for(const s of mission.segments)for(let i=0;i<=120;i++){
         const u=i/120,x=s.x0+(s.x1-s.x0)*u;
