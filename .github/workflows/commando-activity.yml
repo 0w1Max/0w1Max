@@ -76,3 +76,26 @@ jobs:
             const result=await publishOutput({github,owner,repo,snapshot,sourceSha:context.sha,
               svg:fs.readFileSync('generated/commando-activity.svg','utf8'),state});
             core.info(`Published v${state.version}: ${state.date} ${state.location}; ${result.sha}`);
+
+      - name: Закрепить версию тегом и GitHub Release
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const fs=require('fs');
+            const {owner,repo}=context.repo;
+            const version=JSON.parse(fs.readFileSync('commando-settings.json','utf8')).version;
+            if(!/^\d+\.\d+\.\d+$/.test(version))throw Error('Invalid release version');
+            const tag=`v${version}`;
+            try {await github.rest.git.getRef({owner,repo,ref:`tags/${tag}`});}
+            catch(error){
+              if(error.status!==404)throw error;
+              await github.rest.git.createRef({owner,repo,ref:`refs/tags/${tag}`,sha:context.sha});
+            }
+            try {await github.rest.repos.getReleaseByTag({owner,repo,tag});}
+            catch(error){
+              if(error.status!==404)throw error;
+              await github.rest.repos.createRelease({owner,repo,tag_name:tag,name:`Commando Activity ${tag}`,
+                draft:false,prerelease:false,
+                body:'Stable profile animation. See CURRENT_VERSION.md and CHANGELOG.md for this version; docs/INSTALL.md for setup. Code and artwork have separate rights: ASSET_RIGHTS.md.'});
+            }
+            core.info(`Release ${tag} is recorded; existing tags are never moved`);
