@@ -52,3 +52,7 @@
 Прямые анимации: `desert-1.svg`, `temple-1.svg`, `coast-1.svg`; завод — `../factory-v8/factory-v8-random-live.svg`. Первые карты специально включают изменённые предметы. Для просмотра этих SVG страница-переключатель не нужна.
 
 Revision prompt: four isolated pixel-art props on transparent background, one horizontal row; equally tall near-square desert field crate, temple stone-and-bronze crate and maritime teal cargo crate matching approved factory crate scale; compact low T-shaped iron mooring bollard with coiled rope; preserve the materials and palette of each approved kit, hard pixel edges, no text, scenery or detached shadows.
+
+## Календарь выше игрового пространства
+
+Поле поднято на 16 px: начало сетки y=60 вместо y=76. Размер клеток 18 × 18 px и шаг 20 px сохранены. Подписи месяцев находятся над полем; ник получил отдельный верхний отступ, с учётом масштабирования побережья. Координаты попаданий используют тот же WORLD.gridY, что отрисовка. В верхней позиции платформы зазор между полем и верхом полного спрайта бойца — не менее 24 px.

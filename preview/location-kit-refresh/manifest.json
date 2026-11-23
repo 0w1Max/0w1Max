@@ -54,7 +54,7 @@
               }
             ]
           },
-          "sha256": "39cc5680282ad8836b0771757624dc919b8529fdcc81f002aa566aeada15b37a"
+          "sha256": "99e57086b8f5fd0b9d96c50ffd6385088f8d79b4acace74d9a54fb58b9221b44"
         },
         {
           "filename": "desert-2.svg",
@@ -97,7 +97,7 @@
               }
             ]
           },
-          "sha256": "3016933e91202723d2902688701c86bce110ae902e1568f2d6c3ffd98fd81663"
+          "sha256": "18fcb6c055a11c12ac736359d2417ade64508001f163becc9d5d64b3e8ae9de3"
         },
         {
           "filename": "desert-3.svg",
@@ -140,7 +140,7 @@
               }
             ]
           },
-          "sha256": "7584b6c96cc38859c3cd75ff97c915b507427a89432d61174221da6de4c8c4ef"
+          "sha256": "29a381537af2f0a918785bd301b8a8111b4a49a97cadc29f87c83de12faf494a"
         }
       ]
     },
@@ -189,7 +189,7 @@
               }
             ]
           },
-          "sha256": "ec0d6c85498b0b524c723412d205285ce85d3c7f4bb4f205ea89dfcafdf2aaab"
+          "sha256": "38c49389ce0bb8493edf82500c2ac6da73613d08b7acc5c4225ee325e898bd84"
         },
         {
           "filename": "temple-2.svg",
@@ -232,7 +232,7 @@
               }
             ]
           },
-          "sha256": "af161cb6b4210bc1e2680bd27829dfa6f54cc39042ec6bf22c77c8f4e3b74fb0"
+          "sha256": "bca829d63e257db2c8c1742e3bbd5bf8df42b4f688b6b95b047d6e464b781f3d"
         },
         {
           "filename": "temple-3.svg",
@@ -275,7 +275,7 @@
               }
             ]
           },
-          "sha256": "7c6a1b1e76c16b84bb15bf877444f97cc477c959dfc6579373022c52251b0b41"
+          "sha256": "47b7529eb291808a66705d1faa1f7f232e580e90491c482d0385882e5788f194"
         }
       ]
     },
@@ -324,7 +324,7 @@
               }
             ]
           },
-          "sha256": "2ac28959bc4d9e067b55335a6af61ff73c203af0c42f461f6a55208afda0a653"
+          "sha256": "e14dc33a48945775a39c21938bc62f37575d4e187edcdfa643fac51ef5f64cfa"
         },
         {
           "filename": "coast-2.svg",
@@ -367,7 +367,7 @@
               }
             ]
           },
-          "sha256": "751184f90a19744edea5ee5cc1fa6fbcfadfdaafc43a6c2f19c6407c9b65033a"
+          "sha256": "2567b74849a71b0d01f315151993666892389218134c8e61976760fd284efa21"
         },
         {
           "filename": "coast-3.svg",
@@ -410,7 +410,7 @@
               }
             ]
           },
-          "sha256": "947790167730fdda23341c8bf39a41538fbab85d0f5a543c83cfd4a187631cb6"
+          "sha256": "1a3be7e2e01fa11a8539fb496699dfb08c38db1133e0fe54bb2b83b6cffbefab"
         }
       ]
     }
