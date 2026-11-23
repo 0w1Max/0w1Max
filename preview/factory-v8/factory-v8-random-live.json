@@ -1,0 +1,60 @@
+{
+  "version": "8.5-draft",
+  "fixture": false,
+  "calendarSource": {
+    "repository": "0w1Max/0w1Max",
+    "svgBlob": "127d6f3f92eea99af3c9dc91c81fc5e10fca1e0d",
+    "stateBlob": "c83630fed62a92e5650dd33afb5d95af4979481d",
+    "publishedDate": "2026-11-23",
+    "fixture": false
+  },
+  "lastDate": "2026-11-23",
+  "calendarDays": 366,
+  "totalContributions": 620,
+  "seed": 1165146435,
+  "level": {
+    "seed": 1165146435,
+    "location": "industrial",
+    "obstacles": [
+      {
+        "kind": "sandbags",
+        "x": 514,
+        "width": 43,
+        "height": 31
+      },
+      {
+        "kind": "fallen-log",
+        "x": 1018,
+        "width": 33,
+        "height": 23
+      },
+      {
+        "kind": "supply-crate",
+        "x": 821,
+        "width": 45,
+        "height": 38
+      }
+    ],
+    "platforms": [
+      {
+        "kind": "wooden-bridge",
+        "x": 309,
+        "width": 154,
+        "y": 303
+      }
+    ]
+  },
+  "obstacleSprites": [
+    "maintenance-barrier",
+    "toolbox",
+    "cargo-crate"
+  ],
+  "platformSprite": "service-deck",
+  "mission": {
+    "duration": 108.2399,
+    "targets": 102,
+    "shots": 115,
+    "jumps": 32
+  },
+  "svgSha256": "8f307f926e2dd96f9671fdf1b43316ca2763ec011b3134751f8fe04353d8634c"
+}

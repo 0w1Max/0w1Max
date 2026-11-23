@@ -11,6 +11,10 @@ export function loadPixelSprites(biome) {
   ]));
 
   return {
+    dimensions(name) {
+      if (!Object.hasOwn(atlas,name)) throw new Error(`Неизвестный спрайт ${biome}: ${name}`);
+      return atlas[name].slice(0,2);
+    },
     definitions(names) {
       return '<defs>' + [...new Set(names)].map(name => {
         if (!Object.hasOwn(symbols, name)) throw new Error(`Неизвестный спрайт ${biome}: ${name}`);

@@ -1,60 +1,61 @@
 {
   "project": "Commando Activity",
-  "version": "2.6.0",
-  "approved_on": "2026-11-22",
-  "status": "official-catalog-approved",
+  "version": "2.7.0",
+  "previous_version": "2.6.0",
+  "approved_on": "2026-11-24",
+  "status": "stable",
   "publication": "daily-rotation",
+  "settings": "commando-settings.json",
+  "visual_baseline_commit": "bf8f10350b0c82fa2e651b318b8b83298d821a36",
+  "viewport": {
+    "width": 1200,
+    "height": 469,
+    "viewBox": "0 -32 1200 469"
+  },
+  "hud": {
+    "font": "monospace",
+    "weight": "bold",
+    "titleSize": 21,
+    "monthSize": 15,
+    "titleBaseline": -8,
+    "monthBaseline": 46,
+    "gridX": 72,
+    "gridY": 60,
+    "cell": 18,
+    "step": 20,
+    "radius": 3
+  },
   "locations": [
     {
       "id": "desert",
       "name": "Пустынный каньон",
-      "version": "6.1",
-      "path": "preview/official-v2.5.0/desert.svg",
-      "source_commit": "c83b3f0fbaf31495b6aaf07367aa6877e666608b",
-      "git_blob_sha": "78dfe53a6f50837fbe3a0b263e678750b9d2e81d",
-      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/desert.svg",
-      "scene_source_path": "preview/desert-canyon-v6-49.svg",
-      "scene_source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
-      "scene_source_git_blob_sha": "47e2fd7d748ef8a91d590729c37b647258b0a08e",
+      "path": "preview/profile-font-default/desert.svg",
+      "source_commit": "bf8f10350b0c82fa2e651b318b8b83298d821a36",
+      "terrain_kit": "desert-kit-r2",
       "end_screen": "themed-game-over-v1"
     },
     {
       "id": "industrial",
       "name": "Заброшенный завод",
-      "version": "7.4",
-      "path": "preview/official-v2.5.0/industrial.svg",
-      "source_commit": "c83b3f0fbaf31495b6aaf07367aa6877e666608b",
-      "git_blob_sha": "2f02876a74bfced4a78db1ad7a4bf62c2e5c1b3d",
-      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/industrial.svg",
-      "scene_source_path": "preview/factory-v7-4.svg",
-      "scene_source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
-      "scene_source_git_blob_sha": "3bd58c8943ded52ab944dfa642a8375770323c87",
+      "path": "preview/profile-font-default/industrial.svg",
+      "source_commit": "bf8f10350b0c82fa2e651b318b8b83298d821a36",
+      "terrain_kit": "factory-v8.5",
       "end_screen": "themed-game-over-v1"
     },
     {
       "id": "temple",
       "name": "Затопленный храм",
-      "version": "2",
-      "path": "preview/official-v2.5.0/temple.svg",
-      "source_commit": "c83b3f0fbaf31495b6aaf07367aa6877e666608b",
-      "git_blob_sha": "7227f12eb3ecdee0149847f3f941a45b587225b9",
-      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/temple.svg",
-      "scene_source_path": "preview/temple-v2.svg",
-      "scene_source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
-      "scene_source_git_blob_sha": "ce69cd1a86b2746c889c156698cb4a83818e4070",
+      "path": "preview/profile-font-default/temple.svg",
+      "source_commit": "bf8f10350b0c82fa2e651b318b8b83298d821a36",
+      "terrain_kit": "temple-kit-r2",
       "end_screen": "themed-game-over-v1"
     },
     {
       "id": "coast",
       "name": "Штормовое побережье",
-      "version": "2",
-      "path": "preview/official-v2.5.0/coast.svg",
-      "source_commit": "c83b3f0fbaf31495b6aaf07367aa6877e666608b",
-      "git_blob_sha": "96d580674bb2b8e18f55c793f5974a27f97d4b72",
-      "preview_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/coast.svg",
-      "scene_source_path": "preview/storm-coast-v2.svg",
-      "scene_source_commit": "344d026ed7a20401cb97f78f8827c9eed3df04ef",
-      "scene_source_git_blob_sha": "b37efaefc214a193afd4d93e0bdaa0f31d1c2e92",
+      "path": "preview/profile-font-default/coast.svg",
+      "source_commit": "bf8f10350b0c82fa2e651b318b8b83298d821a36",
+      "terrain_kit": "coast-kit-r2",
       "end_screen": "themed-game-over-v1"
     }
   ],
@@ -65,15 +66,10 @@
     "jungle-relay"
   ],
   "notes": [
-    "Official daily publication is restricted to desert, industrial, temple and coast.",
-    "Dates use Europe/Moscow. A four-day cycle and persisted output state prevent consecutive repeats. Same-day refreshes retain the location.",
-    "Base location artwork and GAME OVER panels retain their approved versions. Profile HUD uses 21px bold title, 15px bold English month labels and 18px cells with 2px gaps.",
-    "Preview URLs below are immutable approved design references, not the current live calendar. The live SVG is output/commando-activity.svg."
-  ],
-  "previous_version": "2.5.0",
-  "end_screen_version": "1.0",
-  "end_screen_text": "GAME OVER",
-  "end_screen_review": "preview",
-  "gallery_url": "https://raw.githubusercontent.com/0w1Max/0w1Max/c83b3f0fbaf31495b6aaf07367aa6877e666608b/preview/official-v2.5.0/game-over-panels.svg",
-  "settings": "commando-settings.json"
+    "All four released scenes share the exact factory viewport and HUD geometry; location palettes remain distinct.",
+    "Terrain kits and collision clearances match the approved working branch.",
+    "Daily rotation keeps the existing approved seeds and Europe/Moscow schedule.",
+    "Output SVG/state are published atomically. New forks can initialize output automatically.",
+    "Code reuse and artwork rights have separate scopes; see LICENSE-CODE and ASSET_RIGHTS.md."
+  ]
 }

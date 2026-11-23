@@ -21,6 +21,6 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - run: node --test tests.mjs tests-game-over.mjs tests-profile.mjs
+      - run: node --test tests*.mjs
       - run: node scripts/publish-daily.mjs --demo
       - run: python3 -c "import xml.etree.ElementTree as ET; ET.parse('generated/commando-activity.svg')"

@@ -20,6 +20,7 @@ import {volcanoDimensions} from './volcano-scene.mjs';
 import { levelMarkup } from './level-art.mjs';
 import {soldierColor} from './biomes.mjs';
 import {HUD,monthLabels} from './profile-hud.mjs';
+import {hudText,hudBaselineForTop} from './hud-font.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const USERNAME = process.env.GITHUB_USER || '0w1Max';
@@ -123,8 +124,7 @@ function gridMarkup(grid,mission,{colors, emptyBorder, activeBorder, emptyOpacit
     }
     const fillOpacity = cell.level === 0 ? emptyOpacity : "1";
     const border=cell.level===0 ? emptyBorder : activeBorder;
-    // Coast-only: larger rounded cells with explicit visible gaps, without
-    // changing collision and bullet coordinates (the whole scene is scaled).
+    // Keep the visible cell geometry aligned with collision and bullet coordinates.
     const inset=cellGrow/2, visualSize=CELL+cellGrow;
     output+=`<rect x="${fmt(x-inset)}" y="${fmt(y-inset)}" width="${fmt(visualSize)}" height="${fmt(visualSize)}" rx="${radius}" fill="${colors[cell.level]}" fill-opacity="${fillOpacity}"${border}><title>${escapeXml(title)}</title>${child}</rect>`;
   }
@@ -221,7 +221,7 @@ function playerMarkup(mission) {
       for(let i=1;i<=12;i++) {
         const u=i/12;
         const x=s.x0+(s.x1-s.x0)*u;
-        const y=s.y0+(s.y1-s.y0)*u-Math.sin(u*Math.PI)*57;
+        const y=s.y0+(s.y1-s.y0)*u-Math.sin(u*Math.PI)*(s.arc??57);
         add(s.start+(s.end-s.start)*u,x,y);
       }
     } else add(s.end,s.x1,s.y1);
@@ -280,7 +280,7 @@ function playerMarkup(mission) {
   return `<g id="blue-commando" transform="translate(${startPoint})" aria-label="Blue-bandana soldier">${motion}${output}</g>`;
 }
 
-export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,locationOverride}) {
+export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,locationOverride,hudFontOverride}) {
   const grid=normalizeWeeks(weeks);
   const level=buildLevel(grid,username,seedOverride,locationOverride);
   const mission=createMission(grid,level);
@@ -290,21 +290,20 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const factory = level.location === 'industrial';
   const temple = level.location === 'temple';
   const coast = level.location === 'coast';
-  // Profiles are rendered as a single <img>. Zoom all game geometry together
-  // so bullets remain aligned with their targets, including 54/55-week years.
-  const coastScale=coast ? (grid.length>=55 ? 1.045 : grid.length===54 ? 1.06 : 1.075) : 1;
   const labelFill = jungle ? '#c2cead' : coast ? '#e1dfce' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#bdd5df' : factory ? '#d5d6bf' : '#d0e4e8';
   const titleFill = jungle ? '#dde0be' : coast ? '#f1e7c7' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#e0e9e9' : factory ? '#e2dfc7' : '#f2f7fa';
-  const subtitleFill = jungle ? '#b3c4af' : coast ? '#dce0d3' : canyon ? '#38291f' : temple ? '#203d3c' : snow ? '#a9c6d6' : factory ? '#c8cbb9' : '#d5e8e9';
-  const pixelViewport = level.location === 'desert' ? desertDimensions() :
+  // Every released location shares the factory viewport and unscaled world coordinates.
+  const official=['industrial','desert','temple','coast'].includes(level.location);
+  const pixelViewport = official ? factoryDimensions() : level.location === 'desert' ? desertDimensions() :
     level.location === 'volcano' ? volcanoDimensions() :
     level.location === 'jungle' ? jungleDimensions() :
     factory ? factoryDimensions() : temple ? templeDimensions() : coast ? coastDimensions() : null;
   const scaleMode = pixelViewport && pixelViewport.displayHeight !== pixelViewport.viewHeight
     ? ' preserveAspectRatio="none"' : '';
+  const headerRoom=32;
   const viewport = pixelViewport
-    ? `width="${WORLD.width}" height="${pixelViewport.displayHeight}" viewBox="0 0 ${WORLD.width} ${pixelViewport.viewHeight}"${scaleMode}`
-    : `width="${WORLD.width}" height="${WORLD.height}" viewBox="0 0 ${WORLD.width} ${WORLD.height}"`;
+    ? `width="${WORLD.width}" height="${pixelViewport.displayHeight+headerRoom}" viewBox="0 ${-headerRoom} ${WORLD.width} ${pixelViewport.viewHeight+headerRoom}"${scaleMode}`
+    : `width="${WORLD.width}" height="${WORLD.height+headerRoom}" viewBox="0 ${-headerRoom} ${WORLD.width} ${WORLD.height+headerRoom}"`;
   const header=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" ${viewport} role="img" aria-labelledby="title desc"><title id="title">${escapeXml(username)} — Commando Activity</title><desc id="desc">An animated 8-bit soldier patrols the level, jumps over obstacles and shoots GitHub contribution cells. ${fixture?'Demo calendar data.':'GitHub calendar fetched from the GitHub API.'}</desc>`;
   const scene=renderLocation(level.location,level.seed);
   const defs=`<defs>
@@ -318,7 +317,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
     <clipPath id="aim-upper"><rect x="-50" y="-50" width="180" height="93"/></clipPath>
     <clipPath id="aim-legs"><rect x="-50" y="43" width="180" height="100"/></clipPath>
   </defs>`;
-  const monthText=monthLabels(grid).map(label=>`<text data-month="${label.month}" x="${fmt(label.x)}" y="64" fill="${labelFill}" font-family="monospace" font-size="${HUD.monthSize}" font-weight="bold">${label.text}</text>`).join('');
+  const fontKey=hudFontOverride??'profile';
+  const monthText=monthLabels(grid,{fontKey}).map(label=>hudText(label.text,{month:label.month,x:label.x,y:GRID_Y-14,fill:labelFill,size:HUD.monthSize,fontKey})).join('');
   // Затемнение с мягкой границей вместо толстой HUD-рамки: поле — часть игрового мира.
   const scrim = pixelViewport || snow || factory ? '' : '<rect id="contribution-shade" x="0" y="0" width="1200" height="241" fill="url(#contribution-scrim)"/>';
   const gridStyle = {
@@ -340,7 +340,9 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
       coast ? ' stroke="#264b58" stroke-opacity=".45"' :
       jungle ? ' stroke="#0b1720" stroke-opacity=".45"' : '',
   };
-  const top=`<g id="contribution-overlay">${scrim}<text x="72" y="${coast?42:32}" font-family="monospace" font-size="${HUD.titleSize}" font-weight="bold" fill="${titleFill}">${escapeXml(username)}<tspan font-weight="bold" fill="${subtitleFill}"> /</tspan></text>${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
+  const titleY=hudFontOverride?hudBaselineForTop(username+' /',HUD.titleSize,5,fontKey):-8;
+  const titleText=hudText(username+' /',{id:'hud-username',x:GRID_X,y:titleY,fill:titleFill,size:HUD.titleSize,fontKey});
+  const top=`<g id="contribution-overlay">${scrim}${titleText}${monthText}<g id="contribution-grid">${gridMarkup(grid,mission,gridStyle)}</g></g>`;
   const missionEnd=mission.duration;
   const finishedAt=round(Math.min(missionEnd-.5,mission.finishAt+.06));
   const fadeBegin=round(Math.min(mission.restoreStart+.28,missionEnd-.38));
@@ -353,10 +355,8 @@ export function renderSvg({weeks,sprites,username,fixture=false,seedOverride,loc
   const done=`<g id="mission-complete" opacity="0">${missionComplete}${victoryArt}</g>`;
   const indicator=fixture?`<text x="1118" y="20" text-anchor="end" font-family="monospace" font-size="13" fill="#fcd34d">DEMO / TEST DATA</text>`:'';
   const gameBody=`${scene}${top}${indicator}${levelMarkup(level)}${playerMarkup(mission)}${bulletMarkup(mission)}${done}`;
-  const scaled=coast
-    ? `<g id="storm-coast-profile-scale" data-scale="${fmt(coastScale)}" transform="translate(${fmt(WORLD.width*(1-coastScale)/2)} ${fmt(pixelViewport.viewHeight-pixelViewport.originalHeight*coastScale)}) scale(${fmt(coastScale)})">${gameBody}</g>`
-    : gameBody;
-  return `${header}${defs}${scaled}</svg>\n`;
+  const headerFill=({industrial:'#476b70',desert:'#6197ac',temple:'#609697',coast:'#527c89',jungle:'#0d2630',volcano:'#080507'})[level.location]??'#102b35';
+  return `${header}${defs}<rect id="hud-headroom" x="0" y="${-headerRoom}" width="${WORLD.width}" height="${headerRoom}" fill="${headerFill}"/>${gameBody}</svg>\n`;
 }
 
 async function main() {

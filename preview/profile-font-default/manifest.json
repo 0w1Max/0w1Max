@@ -1,0 +1,39 @@
+{
+  "status": "profile typography default",
+  "weight": "bold",
+  "titleSize": 21,
+  "monthSize": 15,
+  "calendar": {
+    "repository": "0w1Max/0w1Max",
+    "svgBlob": "127d6f3f92eea99af3c9dc91c81fc5e10fca1e0d",
+    "stateBlob": "c83630fed62a92e5650dd33afb5d95af4979481d",
+    "publishedDate": "2026-11-23",
+    "fixture": false
+  },
+  "variants": [
+    {
+      "location": "industrial",
+      "font": "monospace",
+      "seed": 1165146435,
+      "sha256": "8aa375768e718262b88c588433af6f224ec15300b6182c3cfb94a284c13e0357"
+    },
+    {
+      "location": "desert",
+      "font": "monospace",
+      "seed": 162,
+      "sha256": "367308648f7d5e611a968268e7304861b5b17cbf88cc585cd177ab552cf85535"
+    },
+    {
+      "location": "temple",
+      "font": "monospace",
+      "seed": 104,
+      "sha256": "c9a8d1c2382b41ddfaabc0fc551a44aff43a61c8c296949a628f8e5667871e9e"
+    },
+    {
+      "location": "coast",
+      "font": "monospace",
+      "seed": 111,
+      "sha256": "4b183362f80ad1111830373f9cc68ac7cd51b6f72c3e42f3a01b0c8a1fd977ea"
+    }
+  ]
+}

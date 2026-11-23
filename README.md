@@ -7,6 +7,8 @@
   </a>
 </p>
 
+[Install this animation in your profile](docs/INSTALL.md) · [Documentation](docs/README.md) · [v2.7.0](CURRENT_VERSION.md)
+
 ## Tech Stack
 
 ### Frontend

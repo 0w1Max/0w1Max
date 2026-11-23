@@ -1,12 +1,12 @@
 /** Векторные 8-bit тайлы окружения; нет внешних PNG и файловой подгрузки. */
 import { WORLD } from './mission.mjs';
+import {factoryObstacles,factoryPlatforms,factorySpriteDefinitions,factorySprite,factoryPlatformHeight} from './factory-sprites.mjs';
+import {LOCATION_KITS,hasLocationKit} from './location-kit-config.mjs';
+import {locationKitTerrain,locationKitPlatformHeight} from './location-kit-sprites.mjs';
 import {biomeFor,tintTerrainArt,obstacleBiomeDetail,platformBiomeDetail} from './biomes.mjs';
 import {volcanoObstacleSprites, volcanoPlatformSprites, volcanoSprite, volcanoSpriteDefinitions} from './volcano-sprites.mjs';
 import {jungleObstacleSprites, junglePlatformSprites, jungleSprite, jungleSpriteDefinitions} from './jungle-sprites.mjs';
-import {desertObstacleSprites, desertPlatformSprites, desertSprite, desertSpriteDefinitions} from './desert-sprites.mjs';
 import {snowObstacleSprites, snowPlatformSprites, snowSprite, snowSpriteDefinitions} from './snow-sprites.mjs';
-import {templeArt,templeObstacles,templePlatforms} from './temple-scene.mjs';
-import {coastArt,coastObstacles,coastPlatforms} from './coast-scene.mjs';
 const n = value => Number(value.toFixed(3));
 
 function obstacle(o, i) {
@@ -94,10 +94,9 @@ function platform(p,i) {
 
 
 const spriteTerrain = {
-  coast: [coastObstacles, coastPlatforms, coastArt.definitions, coastArt.sprite],
-  temple: [templeObstacles, templePlatforms, templeArt.definitions, templeArt.sprite],
+  industrial: [factoryObstacles,factoryPlatforms,factorySpriteDefinitions,factorySprite],
+  ...Object.fromEntries(Object.keys(LOCATION_KITS).map(location=>[location,locationKitTerrain(location)])),
   volcano: [volcanoObstacleSprites, volcanoPlatformSprites, volcanoSpriteDefinitions, volcanoSprite],
-  desert: [desertObstacleSprites, desertPlatformSprites, desertSpriteDefinitions, desertSprite],
   jungle: [jungleObstacleSprites, junglePlatformSprites, jungleSpriteDefinitions, jungleSprite],
   snow: [snowObstacleSprites, snowPlatformSprites, snowSpriteDefinitions, snowSprite]
 };
@@ -124,7 +123,7 @@ const canyonPlatformShade = '<defs><filter id="canyon-platform-shade" x="-10%" y
 function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, sprite]) {
   const obstacles = level.obstacles.map(item => obstacleSprites[item.kind]);
   const platforms = level.platforms.map(item => platformSprites[item.kind]);
-  const platformHeight = level.location === 'jungle' ? 32 : 18;
+  const platformHeight = ['jungle','industrial'].includes(level.location) ? 32 : 18;
   const shadePlatforms = level.location === 'desert' && platforms.length > 0;
   const terrain = (item, index, type, name, y, height) =>
     `<g id="${type}-${index}" data-kind="${item.kind}" data-theme-detail="${level.location}"${shadePlatforms && type === 'platform' ? ' filter="url(#canyon-platform-shade)"' : ''} data-sprite="${name}">` +
@@ -132,36 +131,18 @@ function pixelTerrain(level, [obstacleSprites, platformSprites, defineSprites, s
 
   return defineSprites([...obstacles, ...platforms]) +
     (shadePlatforms ? canyonPlatformShade : '') +
-    (['desert','snow','temple','coast','jungle'].includes(level.location) ? terrainShadows(level) : '') +
-    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y, platformHeight)).join('') +
+    (['desert','snow','temple','coast','jungle','industrial'].includes(level.location) ? terrainShadows(level) : '') +
+    level.platforms.map((item, index) => terrain(item, index, 'platform', platforms[index], item.y,
+      level.location==='industrial'?factoryPlatformHeight(item.kind,item.width):hasLocationKit(level.location)?locationKitPlatformHeight(level.location,item.kind,item.width):platformHeight)).join('') +
     level.obstacles.map((item, index) =>
       terrain(item, index, 'obstacle', obstacles[index], WORLD.groundY - item.height, item.height)).join('');
 }
 
-const factoryObstacleShade = '<defs><filter id="factory-obstacle-outline" x="-15%" y="-15%" width="130%" height="130%">' +
-  '<feMorphology in="SourceAlpha" operator="dilate" radius="1"/>' +
-  '<feComposite in2="SourceAlpha" operator="out" result="outline"/>' +
-  '<feFlood flood-color="#28323b"/><feComposite in2="outline" operator="in" result="edge"/>' +
-  '<feMerge><feMergeNode in="edge"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-
-function factoryCrate(item,index) {
-  return `<g id="obstacle-${index}" data-kind="supply-crate" data-theme-detail="industrial" transform="translate(${n(item.x)} ${WORLD.groundY})" shape-rendering="crispEdges">
-    <path d="M1 -23h3v-3h26v3h3V0H1z" fill="#28323b"/>
-    <path d="M4 -23h26v20H4z" fill="#637b82"/>
-    <path d="M4 -23h26v4H4zM4 -19h3v14H4z" fill="#c1c8ba"/>
-    <path d="M7 -17h20v10H7z" fill="#465e68"/>
-    <path d="M10 -15h14v3H10z" fill="#c3be9d"/>
-    <path d="M14 -23h6v6h-6z" fill="#b6a27a"/>
-    <path d="M5 -6h4v3H5zM25 -6h4v3h-4z" fill="#9baaa5"/>
-  </g>`;
-}
-
 function biomeObstacle(item,index,location) {
   if(!location)return obstacle(item,index);
-  if(location==='industrial' && item.kind==='supply-crate')return factoryCrate(item,index);
   const base=tintTerrainArt(obstacle(item,index),location);
   const art=base.replace(/<\/g>$/,obstacleBiomeDetail(item,location)+'</g>');
-  return location==='industrial' ? art.replace(' shape-rendering=', ' filter="url(#factory-obstacle-outline)" shape-rendering=') : art;
+  return art;
 }
 function biomePlatform(item,index,location) {
   if(!location)return platform(item,index);
@@ -172,7 +153,6 @@ export function levelMarkup(level) {
   const location=level.location;
   if(location)biomeFor(location);
   const terrain = Object.hasOwn(spriteTerrain,location) ? pixelTerrain(level,spriteTerrain[location]) :
-    (location === 'industrial' ? factoryObstacleShade + terrainShadows(level) : '') +
     level.platforms.map((item,i)=>biomePlatform(item,i,location)).join('') +
     level.obstacles.map((item,i)=>biomeObstacle(item,i,location)).join('');
   return `<g id="procedural-level" data-biome="${location??'unstyled'}" aria-label="Obstacles and platforms">${terrain}</g>`;

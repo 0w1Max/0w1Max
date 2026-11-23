@@ -556,7 +556,7 @@ test('Каньон: квадратное поле интегрировано в 
   assert.match(svg,/id="contribution-scrim"/);
   assert.doesNotMatch(svg,/id="contribution-shade"/);
   assert.match(svg,/id="contribution-grid"/);
-  assert.match(svg,/0w1Max<tspan/);
+  assert.match(svg,/id="hud-username"[^>]*aria-label="0w1Max \/"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
   assert.doesNotMatch(svg,/stroke="#294c45" stroke-width="2"/);
   assert.match(svg,/fill-opacity="0.08"/);
@@ -567,7 +567,7 @@ test('Каньон: квадратное поле интегрировано в 
 
 test('Каньон: линия грунта, статичный кадр бойца и полный размер',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:3});
-  assert.match(svg,/width="1200" height="470" viewBox="0 0 1200 470"/);
+  assert.match(svg,/width="1200" height="469" viewBox="0 -32 1200 469"/);
   assert.doesNotMatch(svg.split('>',2)[1],/preserveAspectRatio="none"/);
   assert.match(svg,/data-ground-baseline="374"/);
   const floor=[...svg.matchAll(/href="#desert-sprite-ground-\d+" x="(\d+)" y="374" width="150" height="96"/g)];
@@ -588,7 +588,7 @@ test('Пустые клетки видны на приглушённом дне�
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
   }
   assert.match(cells,/<animate attributeName="fill"[^>]*values="#(?:704a38|9d5c3c|c77c49|e3ac68)/);
-  assert.match(svg,/<text x="72"[^>]*fill="#38291f">/);
+  assert.match(svg,/<text id="hud-username"[^>]*fill="#38291f"/);
   assert.doesNotMatch(svg,/<text[^>]*stroke=/);
   assert.match(svg,/<g id="fx-impact-break"[^>]*>\s*<rect[^>]*fill="#d69a65"/);
   assert.doesNotMatch(svg,/<rect x="65" y="27" width="1070" height="190"/);
@@ -607,7 +607,7 @@ test('Каньон: независимые слои и все тематичес
     if(level.location!=='desert')continue;
     assert.ok(validateLayout(level).valid);
     const art=levelMarkup(level);
-    const objects=[...art.matchAll(/data-sprite="([^"]+)"><use href="#desert-sprite-\1"/g)];
+    const objects=[...art.matchAll(/data-sprite="([^"]+)"><use href="#desert-kit-sprite-\1"/g)];
     assert.equal(objects.length,level.obstacles.length+level.platforms.length);
     assert.equal((art.match(/filter="url\(#canyon-platform-shade\)"/g)||[]).length,level.platforms.length);
     const shadowMarkup=art.match(/id="desert-object-shadows"[^>]*>(.*?)<\/g>/)?.[1];
@@ -615,8 +615,8 @@ test('Каньон: независимые слои и все тематичес
     assert.equal((shadowMarkup.match(/<path\b/g)||[]).length,objects.length);
     for(const [,name] of objects)seen.add(name);
   }
-  assert.deepEqual([...seen].sort(),['ashlar-stone-platform','broken-pillar','desert-sandbags','dusty-crate',
-    'eroded-stone-ledge','sandstone-boulder','sandstone-shelf']);
+  assert.deepEqual([...seen].sort(),['obstacle-0','obstacle-1','obstacle-2','obstacle-3',
+    'platform-0','platform-1','platform-2']);
 });
 
 test('Календарь V5: клетка 18px при шаге 20px и одинаковая физика попаданий',()=>{
@@ -627,7 +627,7 @@ test('Календарь V5: клетка 18px при шаге 20px и один�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true});
   assert.match(svg,/width="18" height="18"/);
   assert.match(svg,/font-size="21" font-weight="bold"/);
-  assert.match(svg,/font-size="15" font-weight="bold">/);
+  assert.match(svg,/font-size="15" font-weight="bold"/);
 });
 
 
@@ -717,7 +717,7 @@ test('Вулкан: автономный SVG сохраняет цикл бой�
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:seed});
   assert.match(svg,/id="volcano-stage-v4"/);
   assert.match(svg,/id="volcano-bridge-and-lava"/);
-  assert.match(svg,/width="1200" height="400" viewBox="0 0 1200 485" preserveAspectRatio="none"/);
+  assert.match(svg,/width="1200" height="432" viewBox="0 -32 1200 517" preserveAspectRatio="none"/);
   assert.doesNotMatch(svg,/id="contribution-shade"/);
   const player=svg.match(/id="blue-commando" transform="translate\(([^)]+)\)"[^>]*><animateTransform[^>]* values="([^;]+);/);
   assert.ok(player);
@@ -756,7 +756,7 @@ test('Джунгли: полная сцена, стык грунта и все �
   assert.deepEqual([...obstacles].sort(),expectedObstacles);
   assert.deepEqual([...platforms].sort(),expectedPlatforms);
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride:34});
-  assert.match(svg,/width="1200" height="420" viewBox="0 0 1200 420"/);
+  assert.match(svg,/width="1200" height="452" viewBox="0 -32 1200 452"/);
   assert.match(svg,/id="jungle-stage"[^>]*data-ground-baseline="374"/);
   assert.match(svg,/data-art-direction="wild-gorge"/);
   assert.doesNotMatch(svg,/jungle-sprite-(?:palm-bank|root-escarpment|moss-ledge|rope-bridge)\b/);
@@ -784,7 +784,7 @@ test('Снежная база: три платформы, четыре прег�
     assert.equal(map.location,'snow');
     assert.ok(validateLayout(map).valid);
     const scene=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride});
-    assert.match(scene,/width="1200" height="430" viewBox="0 0 1200 430"/);
+    assert.match(scene,/width="1200" height="462" viewBox="0 -32 1200 462"/);
     assert.match(scene,/id="snow-ground" data-ground-baseline="374"/);
     assert.match(scene,/id="snow-watchtower"/);
     assert.match(scene,/id="snow-bunker"/);
@@ -807,7 +807,7 @@ test('Снежная база: три платформы, четыре прег�
 
 test('Завод: собственная палитра календаря, опорная линия и тени объектов',()=>{
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride:0});
-  assert.match(svg,/width="1200" height="437" viewBox="0 0 1200 437"/);
+  assert.match(svg,/width="1200" height="469" viewBox="0 -32 1200 469"/);
   assert.equal((svg.match(/href="#factory-sprite-foundation-/g)||[]).length,4);
   assert.match(svg,/id="factory-skyline"/);
   for(const layer of ["process-yard","foundry","loading-bay"]){
@@ -815,7 +815,7 @@ test('Завод: собственная палитра календаря, оп
   }
   assert.match(svg,/id="factory-ground"[^>]*data-ground-baseline="374"/);
   assert.match(svg,/id="industrial-object-shadows"/);
-  assert.match(svg,/<text x="72"[^>]+fill="#e2dfc7"/);
+  assert.match(svg,/<text id="hud-username"[^>]+fill="#e2dfc7"/);
   const cells=svg.split('<g id="contribution-grid">')[1].split('</g>')[0];
   for(const color of ['#695544','#9c7156','#bd8b62','#dab27b']){
     assert.ok(cells.includes('fill="'+color+'" fill-opacity="1"'));
@@ -830,7 +830,7 @@ test('Храм доступен явно и собирается из собст
   assert.ok(validateLayout(map).valid);
   assert.equal(buildLevel(grid,'0w1Max',seedOverride).location,'industrial');
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride,locationOverride:'temple'});
-  assert.match(svg,/viewBox="0 0 1200 438"/);
+  assert.match(svg,/viewBox="0 -32 1200 469"/);
   for(let index=0;index<4;index++){
     assert.ok(svg.includes(`href="#temple-sprite-causeway-${index}" x="${index*300}" y="374" width="300" height="64"`));
   }
@@ -848,7 +848,7 @@ test('Побережье: отдельные спрайты, опорная ли
   const map=buildLevel(grid,'0w1Max',seedOverride,'coast');
   assert.ok(validateLayout(map).valid);
   const svg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',seedOverride,locationOverride:'coast'});
-  assert.match(svg,/height="438" viewBox="0 0 1200 438"/);
+  assert.match(svg,/height="469" viewBox="0 -32 1200 469"/);
   assert.match(svg,/id="coast-ground" data-ground-baseline="374"/);
   assert.match(svg,/href="#coast-sprite-lighthouse"/);
   assert.match(svg,/data-biome="coast"/);
@@ -857,13 +857,13 @@ test('Побережье: отдельные спрайты, опорная ли
 });
 
 
-test('Storm Coast V2: мобильное увеличение не смещает прицел и кадры',()=>{
+test('Побережье: единый масштаб завода сохраняет прицел и кадры',()=>{
   const seedOverride=5;
   const map=buildLevel(grid,'0w1Max',seedOverride,'coast');
   const plan=createMission(grid,map);
   const coastSvg=renderSvg({weeks:fixture.weeks,sprites,username:'0w1Max',fixture:true,seedOverride,locationOverride:'coast'});
-  assert.match(coastSvg,/id="storm-coast-profile-scale" data-scale="1\.075" transform="translate\(-45 -17\.8\) scale\(1\.075\)"/);
-  assert.match(coastSvg,/height="438" viewBox="0 0 1200 438"/);
+  assert.doesNotMatch(coastSvg,/id="storm-coast-profile-scale"/);
+  assert.match(coastSvg,/height="469" viewBox="0 -32 1200 469"/);
   assert.match(coastSvg,/id="contribution-grid"/);
   assert.match(coastSvg,/width="18" height="18" rx="3"/);
   assert.match(coastSvg,/id="blue-commando"/);
@@ -891,20 +891,20 @@ test('Storm Coast banner: морская палитра, пиксельная р
 
 
 test('Storm Coast V2: 54- и 55-недельные календари не теряют крайние дни',()=>{
-  for(const [weekCount,scale] of [[54,'1.06'],[55,'1.045']]){
+  for(const weekCount of [54,55]){
     const weeks=Array.from({length:weekCount},(_,i)=>({contributionDays:[{
       date:new Date(Date.UTC(2024,11,29+i*7)).toISOString().slice(0,10),
       contributionCount:i===0||i===weekCount-1?1:0,
       contributionLevel:i===0||i===weekCount-1?'FIRST_QUARTILE':'NONE'
     }]}));
     const svg=renderSvg({weeks,sprites,username:'0w1Max',seedOverride:5,locationOverride:'coast'});
-    assert.match(svg,new RegExp('id="storm-coast-profile-scale" data-scale="'+scale.replace('.','\\.')+'"'));
+    assert.doesNotMatch(svg,/id="storm-coast-profile-scale"/);
     assert.match(svg,/id="storm-coast-victory"/);
-    assert.match(svg,/height="438" viewBox="0 0 1200 438"/);
+    assert.match(svg,/height="469" viewBox="0 -32 1200 469"/);
     assert.match(svg,/width="18" height="18" rx="3"/);
     for(const week of [weeks[0],weeks.at(-1)])
       assert.ok(svg.includes(week.contributionDays[0].date+': 1 contributions'));
-    const rightEdge=(72+(weekCount-1)*20-.2+18.4)*Number(scale)+(1200*(1-Number(scale)))/2;
+    const rightEdge=72+(weekCount-1)*20+18;
     assert.ok(rightEdge<=1200,'Последняя неделя обрезана: '+weekCount);
   }
 });

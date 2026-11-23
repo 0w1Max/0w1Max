@@ -1,0 +1,45 @@
+# Abandoned Factory V8.4 — consistent obstacle scale
+
+Draft only. Production v2.6.0 and the other locations remain unchanged.
+
+## Ground obstacles
+
+V8.4 slightly enlarges the three smaller obstacles while keeping the cargo crate 40 × 34. V8.3 platform dimensions and elevation are retained.
+
+The reinforced cargo crate is the largest obstacle. Large reels, engines and pipe bundles are removed from the active factory set. The replacements use the same detailed pixel-art material style.
+
+| Visible sprite | Internal compatibility key | Fixed collision size |
+| --- | --- | --- |
+| Cargo crate | supply-crate | 40 × 34 |
+| Concrete rubble | stone-ruin | 35 × 22 |
+| Folding maintenance barrier | sandbags | 38 × 28 |
+| Compact toolbox | fallen-log | 29 × 20 |
+
+Each object has a fixed size. Random generation changes types and positions, never scales the objects independently. The SVG symbol preserves its native proportions with bottom alignment. The small transparent padding inside the collision box prevents stretching.
+
+The complete object sheet uses exactly 3× scale for all four obstacle previews on a common baseline. Labels state game dimensions. They are not enlarged individually to fill matching cards.
+
+## Platforms
+
+V8.3 reduces the generated factory platform width from 176–188 to 150–160 px (about 15%). Height decreases proportionally, preserving each original sprite aspect ratio. Landing surfaces move up exactly 10 px, from y=310–316 to y=300–306. The supports now have a clearer gap above the floor. Obstacle dimensions and artwork are unchanged.
+
+Steel catwalk, stopped conveyor and service deck retain the detailed V8.1 artwork. A map contains at most two platforms, with matching type and width. Adaptive jumps, safe ground landings and firing geometry remain in the engine.
+
+## Review files
+
+- `factory-v8-random-live.svg`: fresh random-map animation with the verified published real calendar snapshot.
+- `factory-v8-random-live.json`: selected seed, real-data provenance, exact object dimensions and SHA256.
+- `factory-v8-objects.svg` / `.png`: complete kit with all four obstacles at one scale.
+- `steel-catwalk.svg`, `stopped-conveyor.svg`, `service-deck.svg`: additional real-calendar examples.
+
+The snapshot contains 366 dates and 620 contributions, through 2026-11-23. It is a snapshot, not a claim of a new API fetch.
+
+## Rebuild
+
+Detailed source for the three compact replacements: `assets/factory-v8-small-source.png`. Base crate and platforms: `assets/factory-v8-source.png`. Compile the base using `python scripts/compile-factory-concept.py assets/factory-v8-source.png`, then merge the compact set using `python scripts/compile-factory-concept.py assets/factory-v8-small-source.png --small`. The checked-in compressed vector atlas has all seven active sprites and no legacy motor/reel/pipe sprites.
+
+Run `node scripts/preview-factory-v8.mjs --real` for the full kit and seeded examples. Run `node scripts/preview-factory-live.mjs` for a fresh random, populated layout. Pass `--seed` to reproduce a recorded layout.
+
+## Checks
+
+78 tests cover the engine, calendar, all active sprites, fixed-size hierarchy over 1000 random seeds, aspect-ratio preservation and sampled jump clearance in the prepared layouts. Source sprite compilation is deterministic.

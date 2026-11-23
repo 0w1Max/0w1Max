@@ -1,0 +1,23 @@
+{
+  "status": "draft",
+  "locationVersion": "8.5",
+  "baseRelease": "2.6.0",
+  "obstacles": {
+    "sandbags": "maintenance-barrier",
+    "stone-ruin": "concrete-rubble",
+    "supply-crate": "cargo-crate",
+    "fallen-log": "toolbox"
+  },
+  "platforms": {
+    "metal-catwalk": "steel-catwalk",
+    "camo-platform": "stopped-conveyor",
+    "wooden-bridge": "service-deck"
+  },
+  "previews": {
+    "factory-v8.svg": 5,
+    "steel-catwalk.svg": 111,
+    "stopped-conveyor.svg": 116,
+    "service-deck.svg": 104
+  },
+  "fixture": false
+}

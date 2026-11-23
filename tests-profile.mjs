@@ -7,6 +7,7 @@ import {monthLabels,HUD} from './scripts/profile-hud.mjs';
 import {buildDailyPublication} from './scripts/publish-daily.mjs';
 import {validatePublication} from './scripts/validate-daily.mjs';
 import {renderSvg,normalizeWeeks,fetchCalendar} from './scripts/generate.mjs';
+import {WORLD,buildLevel} from './scripts/mission.mjs';
 
 const settings=JSON.parse(await readFile('commando-settings.json','utf8'));
 const unpack=async path=>JSON.parse(gunzipSync(Buffer.from((await readFile(path,'utf8')).trim(),'base64')));
@@ -61,17 +62,56 @@ test('The latest partial NOV/DEC is labeled in 53/54/55-week calendars without o
   }
 });
 
-test('All four profile scenes have a larger bold English HUD, 18px cells, 2px gaps and unchanged aim centers',()=>{
+test('All four profile scenes keep readable HUD labels, 18px cells and clearance above the highest platform',()=>{
   for(const location of OFFICIAL_LOCATIONS){
     const svg=renderSvg({weeks,sprites,username:'0w1Max',locationOverride:location,seedOverride:settings.seeds[location]});
-    assert.match(svg,/>0w1Max<tspan font-weight="bold"[^>]*> \/<\/tspan>/);
+    assert.match(svg,/id="hud-username"[^>]*aria-label="0w1Max \/"/);
     assert.match(svg,/font-size="21" font-weight="bold"/);
     assert.match(svg,/font-size="15" font-weight="bold"/);
+    const labels=svg.split('<g id="contribution-overlay">')[1]?.split('<g id="contribution-grid">')[0];
+    assert.match(labels,/font-family="monospace"/);
+    assert.doesNotMatch(labels,/data-font=|@font-face|https?:/);
+    const titleY=Number(labels.match(/id="hud-username"[^>]* y="([^"]+)/)[1]);
+    const monthY=Number(labels.match(/data-month="[^"]+"[^>]* y="([^"]+)/)[1]);
+    assert.equal(titleY,-8);
+    assert.equal(monthY,46);
+    assert.doesNotMatch(svg,/id="storm-coast-profile-scale"/);
+    assert.match(svg,/viewBox="0 -32 1200/);
     assert.doesNotMatch(svg,/[А-Яа-яЁё]/);
     const cells=[...svg.matchAll(/<rect x="([0-9.]+)" y="([0-9.]+)" width="18" height="18" rx="3"[^>]*><title>(\d{4}-\d{2}-\d{2}):/g)];
     assert.equal(cells.length,normalizeWeeks(weeks).flat().filter(Boolean).length);
-    for(const m of cells){assert.equal((Number(m[1])-72)%20,0);assert.equal((Number(m[2])-76)%20,0);}
+    for(const m of cells){assert.equal((Number(m[1])-WORLD.gridX)%WORLD.step,0);assert.equal((Number(m[2])-WORLD.gridY)%WORLD.step,0);}
     assert.equal(Number(cells[1][2])-Number(cells[0][2])-HUD.cellSize,HUD.gap);
+    const level=buildLevel(normalizeWeeks(weeks),'0w1Max',settings.seeds[location],location);
+    const highestFoot=Math.min(WORLD.groundY,...level.platforms.map(p=>p.y));
+    const gridBottom=Math.max(...cells.map(m=>Number(m[2])+HUD.cellSize));
+    assert.ok(highestFoot-WORLD.spriteSize-gridBottom>=24,'Calendar crowds the soldier on a platform');
+  }
+});
+
+test('All released locations exactly match factory HUD geometry for 53, 54 and 55 weeks',()=>{
+  const geometry=svg=>({
+    viewport:svg.match(/<svg[^>]+>/)[0].replace(/aria-[^=]+="[^"]*"/g,''),
+    labels:[...svg.matchAll(/<text[^>]*(?:id="hud-username"|data-month=)[^>]*>[^<]*<\/text>/g)]
+      .map(m=>m[0].replace(/fill="[^"]+"/g,'')),
+    cells:[...svg.matchAll(/<rect x="([0-9.]+)" y="([0-9.]+)" width="18" height="18" rx="3"[^>]*><title>(\d{4}-\d{2}-\d{2}):/g)]
+      .map(m=>m.slice(1)),
+  });
+  for(const weekCount of [53,54,55]){
+    const calendar=Array.from({length:weekCount},(_,col)=>({contributionDays:Array.from({length:7},(_,row)=>({
+      date:new Date(Date.UTC(2025,10,23+col*7+row)).toISOString().slice(0,10),
+      contributionCount:0,contributionLevel:'NONE',
+    }))}));
+    const render=location=>renderSvg({weeks:calendar,sprites,username:'0w1Max',locationOverride:location,seedOverride:settings.seeds[location]});
+    const reference=geometry(render('industrial'));
+    assert.match(reference.viewport,/width="1200" height="469" viewBox="0 -32 1200 469"/);
+    assert.equal(reference.cells.length,weekCount*7);
+    for(const location of ['desert','temple','coast']){
+      const svg=render(location);
+      assert.deepEqual(geometry(svg),reference,`${location}, ${weekCount} weeks`);
+      assert.doesNotMatch(svg,/id="storm-coast-profile-scale"/);
+      assert.doesNotMatch(geometry(svg).viewport,/preserveAspectRatio="none"/);
+    }
   }
 });
 
