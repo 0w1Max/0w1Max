@@ -1,5 +1,5 @@
 {
-  "version": "8.3-draft",
+  "version": "8.4-draft",
   "fixture": false,
   "calendarSource": {
     "repository": "0w1Max/0w1Max",
@@ -19,14 +19,14 @@
       {
         "kind": "sandbags",
         "x": 514,
-        "width": 36,
-        "height": 26
+        "width": 38,
+        "height": 28
       },
       {
         "kind": "fallen-log",
         "x": 1018,
-        "width": 26,
-        "height": 18
+        "width": 29,
+        "height": 20
       },
       {
         "kind": "supply-crate",
@@ -51,10 +51,10 @@
   ],
   "platformSprite": "service-deck",
   "mission": {
-    "duration": 99.9024,
+    "duration": 108.4835,
     "targets": 102,
     "shots": 115,
-    "jumps": 28
+    "jumps": 35
   },
-  "svgSha256": "676a4337e18eaa8315728cf9c7fd009854926410c18e0c818d81292a97a0f900"
+  "svgSha256": "c4f6c624326d27424e53f82ad0d4b18bfd644ca0244b05b27296cea85cc4995f"
 }

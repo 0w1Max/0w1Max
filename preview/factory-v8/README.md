@@ -1,17 +1,19 @@
-# Abandoned Factory V8.3 — consistent obstacle scale
+# Abandoned Factory V8.4 — consistent obstacle scale
 
 Draft only. Production v2.6.0 and the other locations remain unchanged.
 
 ## Ground obstacles
+
+V8.4 slightly enlarges the three smaller obstacles while keeping the cargo crate 40 × 34. V8.3 platform dimensions and elevation are retained.
 
 The reinforced cargo crate is the largest obstacle. Large reels, engines and pipe bundles are removed from the active factory set. The replacements use the same detailed pixel-art material style.
 
 | Visible sprite | Internal compatibility key | Fixed collision size |
 | --- | --- | --- |
 | Cargo crate | supply-crate | 40 × 34 |
-| Concrete rubble | stone-ruin | 32 × 20 |
-| Folding maintenance barrier | sandbags | 36 × 26 |
-| Compact toolbox | fallen-log | 26 × 18 |
+| Concrete rubble | stone-ruin | 35 × 22 |
+| Folding maintenance barrier | sandbags | 38 × 28 |
+| Compact toolbox | fallen-log | 29 × 20 |
 
 Each object has a fixed size. Random generation changes types and positions, never scales the objects independently. The SVG symbol preserves its native proportions with bottom alignment. The small transparent padding inside the collision box prevents stretching.
 
