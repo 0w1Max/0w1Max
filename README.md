@@ -9,8 +9,6 @@
   </a>
 </p>
 
-[Commando Activity](https://github.com/0w1Max/commando-activity) · [Install · EN](https://github.com/0w1Max/commando-activity/blob/main/docs/en/INSTALL.md) · [Установка · RU](https://github.com/0w1Max/commando-activity/blob/main/docs/ru/INSTALL.md)
-
 ## Tech Stack
 
 ### Frontend
