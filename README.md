@@ -1,3 +1,5 @@
+[English](README.md) · [Русский](README.ru.md)
+
 <h1 align="center">Krupetskov Maksim</h1>
 <p align="center"><strong>Web Developer · Frontend Developer</strong></p>
 
@@ -7,7 +9,7 @@
   </a>
 </p>
 
-[Install this animation in your profile](docs/INSTALL.md) · [Documentation](docs/README.md) · [v2.7.0](CURRENT_VERSION.md)
+[Commando Activity](https://github.com/0w1Max/commando-activity) · [Install · EN](https://github.com/0w1Max/commando-activity/blob/main/docs/en/INSTALL.md) · [Установка · RU](https://github.com/0w1Max/commando-activity/blob/main/docs/ru/INSTALL.md)
 
 ## Tech Stack
 

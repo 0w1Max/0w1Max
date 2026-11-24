@@ -1,0 +1,41 @@
+name: Commando Activity
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/commando.yml']
+  schedule:
+    - cron: '17 21,9 * * *'
+permissions:
+  contents: write
+jobs:
+  game:
+    uses: 0w1Max/commando-activity/.github/workflows/generate.yml@v2.8.0
+    secrets:
+      read_user_token: ${{ secrets.COMMANDO_READ_USER_TOKEN }}
+
+  archive-completed-branches:
+    needs: game
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            const {owner,repo}=context.repo;
+            const source=[{"name":"feature/commando-activity-svg-v1","sha":"98557ae3c73eeddc7fb3f8678f9b2f901e6c386d"},{"name":"feature/factory-v8-assets","sha":"dc6b6c65e5cfee6913a57e351357bde313dc656e"},{"name":"feature/location-kits-v1","sha":"4a49b871fb219a46397a8ba671a2497338553b39"},{"name":"feature/profile-english-game-hud","sha":"193008a57dbcbe26a6f607dbfe641558a5795251"},{"name":"feature/profile-rotation-v2-6-0","sha":"e235535aca0afc41bef5a597db9def1c4e2de37d"},{"name":"feature/storm-coast-profile-release","sha":"14d7078b3d66f8b819b27f2f62a8d78cd3207e48"}];
+            const stateResponse=await github.rest.repos.getContent({owner,repo,path:'commando-state.json',ref:'output'});
+            const state=JSON.parse(Buffer.from(stateResponse.data.content,'base64').toString('utf8'));
+            if(state.version!=='2.8.0'||state.fixture)throw Error('Verified new publisher required before cleanup');
+            for(const item of source){
+             const archive='archive/2026-11-24/'+item.name.replaceAll('/','-');
+             let head=null;
+             try{head=(await github.rest.git.getRef({owner,repo,ref:'heads/'+item.name})).data.object.sha;}
+             catch(e){if(e.status!==404)throw e;}
+             if(head&&head!==item.sha)throw Error('Branch changed: '+item.name);
+             try{const tag=await github.rest.git.getRef({owner,repo,ref:'tags/'+archive});if(tag.data.object.sha!==item.sha)throw Error('Archive tag mismatch');}
+             catch(e){if(e.status!==404)throw e;await github.rest.git.createRef({owner,repo,ref:'refs/tags/'+archive,sha:item.sha});}
+             if(head){const live=await github.rest.git.getRef({owner,repo,ref:'heads/'+item.name});if(live.data.object.sha!==item.sha)throw Error('Branch changed before deletion');await github.rest.git.deleteRef({owner,repo,ref:'heads/'+item.name});}
+             core.info('Archived and retired '+item.name+' at '+item.sha);
+            }
