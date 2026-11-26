@@ -1,13 +1,13 @@
 {
   "schema": 1,
   "version": "2.8.0",
-  "date": "2026-11-25",
-  "location": "coast",
-  "seed": 5,
-  "previousDate": "2026-11-24",
-  "previousLocation": "temple",
+  "date": "2026-11-26",
+  "location": "desert",
+  "seed": 49,
+  "previousDate": "2026-11-25",
+  "previousLocation": "coast",
   "fixture": false,
-  "calendarDays": 368,
-  "calendarLastDate": "2026-11-25",
-  "svgSha256": "020dd5d87fde16122ca51347823469a713c652f1773503857fd17cfd9d223501"
+  "calendarDays": 369,
+  "calendarLastDate": "2026-11-26",
+  "svgSha256": "a781483b0aba85c4a887657114a638c9a23e28908d89fcb02ed2117014e6d43c"
 }
