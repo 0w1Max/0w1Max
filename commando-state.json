@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "2.8.0",
+  "version": "2.8.1",
   "date": "2026-11-26",
   "location": "desert",
   "seed": 49,
@@ -9,5 +9,5 @@
   "fixture": false,
   "calendarDays": 369,
   "calendarLastDate": "2026-11-26",
-  "svgSha256": "a781483b0aba85c4a887657114a638c9a23e28908d89fcb02ed2117014e6d43c"
+  "svgSha256": "296829513d9c3f051d2542ae3b71e08ed1c64e1031633c184ab7166396bd2340"
 }
