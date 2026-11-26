@@ -4,8 +4,8 @@
 <p align="center"><strong>Web Developer · Frontend Developer</strong></p>
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg">
-    <img src="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg" alt="Commando Activity — four rotating 8-bit locations powered by real GitHub activity" width="100%">
+  <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg?v=2.8.1">
+    <img src="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg?v=2.8.1" alt="Commando Activity — four rotating 8-bit locations powered by real GitHub activity" width="100%">
   </a>
 </p>
 
