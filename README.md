@@ -1,18 +1,11 @@
 <h1 align="center">Krupetskov Maksim</h1>
-<p align="center"><strong>Web Developer · Frontend Developer</strong></p>
+<p align="center"><strong>Web Developer · Frontend &amp; Full-Stack</strong></p>
 <p align="center"><em>A developer with a vibe, not a vibe coder.</em></p>
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg?v=2.8.4">
     <img src="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg?v=2.8.4" alt="Commando Activity — four rotating 8-bit locations powered by real GitHub activity" width="100%">
   </a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/0w1Max/commando-activity"><strong>Commando Activity</strong></a> ·
-  <a href="https://0w1max.github.io/commando-activity/?lang=en">Setup assistant</a>
-  <br>
-  <sub>Open-source SVG animation powered by real GitHub contribution data.</sub>
 </p>
 
 ## What I Build
@@ -50,6 +43,16 @@ A vocabulary-learning web application with spaced repetition, authentication, se
 `JavaScript` · `Node.js` · `Express` · `Turso / SQLite`
 
 [Live demo](https://word-flow-nine.vercel.app/) · [Source code](https://github.com/0w1Max/WordFlow)
+
+### 04 / [Commando Activity](https://github.com/0w1Max/commando-activity)
+
+*Open-source project · Released*
+
+An automated SVG animation generator that turns real GitHub contribution data into rotating pixel-art scenes. Features deterministic scene generation, modular rendering, regression tests, and version-pinned GitHub Actions workflows.
+
+`JavaScript` · `SVG` · `GitHub API` · `GitHub Actions`
+
+[Source code](https://github.com/0w1Max/commando-activity) · [Setup assistant](https://0w1max.github.io/commando-activity/?lang=en)
 
 ## Core Stack
 
