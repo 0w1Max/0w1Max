@@ -3,8 +3,8 @@
 <p align="center"><em>A developer with a vibe, not a vibe coder.</em></p>
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg?v=2.8.4">
-    <img src="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg?v=2.8.4" alt="Commando Activity — four rotating 8-bit locations powered by real GitHub activity" width="100%">
+  <a href="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg?v=2.8.5">
+    <img src="https://raw.githubusercontent.com/0w1Max/0w1Max/output/commando-activity.svg?v=2.8.5" alt="Commando Activity — four rotating 8-bit locations powered by real GitHub activity" width="100%">
   </a>
 </p>
 
