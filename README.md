@@ -90,7 +90,8 @@ An automated SVG animation generator that turns real GitHub contribution data in
 <summary><strong>More technologies &amp; development tools</strong></summary>
 
 **Frontend & tooling:**  
-<code>Vite</code>&nbsp;<img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite logo" width="20" height="20" />
+<code>Vite</code>&nbsp;<img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite logo" width="20" height="20" /> &nbsp; 
+<code>webpack</code>&nbsp;<img src="https://cdn.simpleicons.org/webpack/8DD6F9" alt="webpack logo" width="20" height="20" />
 
 **Backend & APIs:**  
 <code>Express</code>&nbsp;<img src="https://cdn.simpleicons.org/express/64748B" alt="Express logo" width="20" height="20" /> &nbsp; 
@@ -113,7 +114,8 @@ An automated SVG animation generator that turns real GitHub contribution data in
 
 **CMS & e-commerce:**  
 <code>Joomla</code>&nbsp;<img src="https://cdn.simpleicons.org/joomla/5091CD" alt="Joomla logo" width="20" height="20" /> &nbsp; 
-<code>OpenCart</code>&nbsp;<img src="https://github.com/opencart.png?size=40" alt="OpenCart logo" width="20" height="20" />
+<code>OpenCart</code>&nbsp;<img src="https://github.com/opencart.png?size=40" alt="OpenCart logo" width="20" height="20" /> &nbsp; 
+<code>WordPress</code>&nbsp;<img src="https://cdn.simpleicons.org/wordpress/21759B" alt="WordPress logo" width="20" height="20" />
 
 **AI tools:**  
 <code>ChatGPT</code>&nbsp;<img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons@main/svg/chatgpt.svg" alt="ChatGPT logo" width="20" height="20" /> &nbsp; 
