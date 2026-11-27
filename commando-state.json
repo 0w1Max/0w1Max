@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "2.8.4",
+  "version": "2.8.5",
   "date": "2026-11-27",
   "location": "industrial",
   "seed": 5,
@@ -9,5 +9,5 @@
   "fixture": false,
   "calendarDays": 370,
   "calendarLastDate": "2026-11-27",
-  "svgSha256": "3bfbb8e7fa2875e23d9f080cb200fa472cfc5b44d99430997709d58745ab43a5"
+  "svgSha256": "16c656c284670f8f2cd10ab39646a5980c400d33aa45bec376cbe7bd37cce6a8"
 }
