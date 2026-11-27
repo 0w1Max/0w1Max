@@ -82,8 +82,7 @@ An automated SVG animation generator that turns real GitHub contribution data in
 
 <p>
 <code>Git</code>&nbsp;<img src="https://cdn.simpleicons.org/git/F05032" alt="Git logo" width="20" height="20" /> &nbsp; 
-<code>Docker</code>&nbsp;<img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker logo" width="20" height="20" /> &nbsp; 
-<code>Playwright</code>&nbsp;<img src="https://cdn.simpleicons.org/playwright/2EAD33" alt="Playwright logo" width="20" height="20" />
+<code>Docker</code>&nbsp;<img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker logo" width="20" height="20" />
 </p>
 
 <details>
