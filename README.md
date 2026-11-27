@@ -1,5 +1,5 @@
 <h1 align="center">Krupetskov Maksim</h1>
-<p align="center"><strong>Web Developer · Frontend &amp; Full-Stack</strong></p>
+<p align="center"><strong>Frontend Developer · Web Developer</strong></p>
 <p align="center"><em>A developer with a vibe, not a vibe coder.</em></p>
 
 <p align="center">
