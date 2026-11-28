@@ -1,13 +1,13 @@
 {
   "schema": 1,
   "version": "2.8.5",
-  "date": "2026-11-27",
-  "location": "industrial",
+  "date": "2026-11-28",
+  "location": "temple",
   "seed": 5,
-  "previousDate": "2026-11-26",
-  "previousLocation": "desert",
+  "previousDate": "2026-11-27",
+  "previousLocation": "industrial",
   "fixture": false,
-  "calendarDays": 370,
-  "calendarLastDate": "2026-11-27",
-  "svgSha256": "66ffc0d3b0102fd41f10b1d904fc98d3585556d6b4c2f4de1911273924fd208d"
+  "calendarDays": 371,
+  "calendarLastDate": "2026-11-28",
+  "svgSha256": "783838c206dfe8584419e463aaa4aedd49669fd54b3c59f070589b446ab2ec0e"
 }
